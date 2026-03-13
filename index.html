@@ -1,0 +1,3681 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyFlow — Smart Study Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&family=Lexend:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+      /* ===================== DESIGN TOKENS ===================== */
+      :root {
+        --primary: #4f8ef7;
+        --primary-glow: rgba(79, 142, 247, 0.3);
+        --accent: #7c5efc;
+        --accent2: #00d4aa;
+        --danger: #ff5f7e;
+        --warning: #ffb830;
+        --success: #00d4aa;
+        --bg: #080c18;
+        --bg2: #0d1426;
+        --bg3: #111827;
+        --surface: rgba(255, 255, 255, 0.04);
+        --surface-hover: rgba(255, 255, 255, 0.07);
+        --border: rgba(255, 255, 255, 0.08);
+        --border-bright: rgba(255, 255, 255, 0.15);
+        --text: #e8edf8;
+        --text-muted: rgba(232, 237, 248, 0.5);
+        --text-faint: rgba(232, 237, 248, 0.25);
+        --glass-blur: blur(24px) saturate(180%);
+        --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.4);
+        --shadow-glow: 0 0 30px var(--primary-glow);
+        --radius: 20px;
+        --radius-sm: 12px;
+        --font-head: "Raleway", sans-serif;
+        --font-body: "Lexend", sans-serif;
+        --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        --sidebar-w: 240px;
+      }
+
+      [data-theme="light"] {
+        --bg: #eef2ff;
+        --bg2: #e4e9fb;
+        --bg3: #dde4f8;
+        --surface: rgba(255, 255, 255, 0.7);
+        --surface-hover: rgba(255, 255, 255, 0.85);
+        --border: rgba(79, 142, 247, 0.12);
+        --border-bright: rgba(79, 142, 247, 0.25);
+        --text: #0f172a;
+        --text-muted: rgba(15, 23, 42, 0.55);
+        --text-faint: rgba(15, 23, 42, 0.3);
+        --shadow-card: 0 8px 40px rgba(79, 142, 247, 0.12);
+      }
+
+      /* ===================== RESET & BASE ===================== */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        font-size: 15px;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+        transition:
+          background var(--transition),
+          color var(--transition);
+      }
+
+      /* ===================== BG AURORA ===================== */
+      .aurora {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .aurora::before {
+        content: "";
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(
+          circle,
+          rgba(79, 142, 247, 0.12) 0%,
+          transparent 70%
+        );
+        top: -200px;
+        left: -200px;
+        animation: float1 18s ease-in-out infinite;
+      }
+      .aurora::after {
+        content: "";
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(
+          circle,
+          rgba(124, 94, 252, 0.1) 0%,
+          transparent 70%
+        );
+        bottom: -100px;
+        right: 0;
+        animation: float2 22s ease-in-out infinite;
+      }
+      .aurora-mid {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(
+          circle,
+          rgba(0, 212, 170, 0.07) 0%,
+          transparent 70%
+        );
+        top: 40%;
+        left: 40%;
+        animation: float3 15s ease-in-out infinite;
+      }
+      @keyframes float1 {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(80px, 60px);
+        }
+      }
+      @keyframes float2 {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(-60px, -80px);
+        }
+      }
+      @keyframes float3 {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(-40px, 50px);
+        }
+      }
+      [data-theme="light"] .aurora::before {
+        background: radial-gradient(
+          circle,
+          rgba(79, 142, 247, 0.15) 0%,
+          transparent 70%
+        );
+      }
+      [data-theme="light"] .aurora::after {
+        background: radial-gradient(
+          circle,
+          rgba(124, 94, 252, 0.12) 0%,
+          transparent 70%
+        );
+      }
+
+      /* ===================== LAYOUT ===================== */
+      #app {
+        display: flex;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ===================== SIDEBAR ===================== */
+      .sidebar {
+        width: var(--sidebar-w);
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background: var(--surface);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 24px 16px;
+        z-index: 100;
+        transition: transform var(--transition);
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 8px 24px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 20px;
+      }
+      .logo-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: var(--shadow-glow);
+        flex-shrink: 0;
+      }
+      .logo-text {
+        font-family: var(--font-head);
+        font-weight: 800;
+        font-size: 18px;
+        letter-spacing: -0.5px;
+      }
+      .logo-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 300;
+      }
+
+      .nav-section {
+        margin-bottom: 8px;
+      }
+      .nav-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        padding: 0 12px;
+        margin-bottom: 6px;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all var(--transition);
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 500;
+        border: 1px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
+      .nav-item:hover {
+        background: var(--surface-hover);
+        color: var(--text);
+      }
+      .nav-item.active {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 142, 247, 0.2),
+          rgba(124, 94, 252, 0.15)
+        );
+        border-color: var(--border-bright);
+        color: var(--primary);
+        box-shadow: 0 4px 20px rgba(79, 142, 247, 0.15);
+      }
+      .nav-item .nav-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+        width: 22px;
+        text-align: center;
+      }
+      .nav-badge {
+        margin-left: auto;
+        font-size: 11px;
+        font-weight: 700;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 20px;
+        padding: 2px 7px;
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .sidebar-footer {
+        margin-top: auto;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+      }
+      .streak-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(
+          135deg,
+          rgba(255, 184, 48, 0.15),
+          rgba(255, 95, 126, 0.1)
+        );
+        border: 1px solid rgba(255, 184, 48, 0.2);
+        font-size: 13px;
+      }
+      .streak-flame {
+        font-size: 20px;
+        animation: flicker 1.5s ease-in-out infinite;
+      }
+      @keyframes flicker {
+        0%,
+        100% {
+          transform: scale(1) rotate(-2deg);
+        }
+        50% {
+          transform: scale(1.1) rotate(2deg);
+        }
+      }
+
+      .theme-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: all var(--transition);
+        color: var(--text-muted);
+        font-size: 13px;
+        margin-top: 8px;
+        border: 1px solid var(--border);
+      }
+      .theme-toggle:hover {
+        background: var(--surface-hover);
+        color: var(--text);
+      }
+
+      /* ===================== MAIN ===================== */
+      .main {
+        margin-left: var(--sidebar-w);
+        flex: 1;
+        min-height: 100vh;
+        padding: 32px;
+      }
+
+      .page {
+        display: none;
+        animation: pageIn 0.4s ease;
+      }
+      .page.active {
+        display: block;
+      }
+      @keyframes pageIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .page-header {
+        margin-bottom: 28px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+      .page-title {
+        font-family: var(--font-head);
+        font-weight: 800;
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+        letter-spacing: -1px;
+      }
+      .page-sub {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin-top: 4px;
+      }
+      .page-actions {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      /* ===================== GLASS CARD ===================== */
+      .card {
+        background: var(--surface);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow-card);
+        transition: all var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+      .card:hover {
+        border-color: var(--border-bright);
+        box-shadow:
+          var(--shadow-card),
+          0 0 0 1px var(--border-bright);
+        transform: translateY(-2px);
+      }
+      .card-sm {
+        padding: 16px;
+        border-radius: var(--radius-sm);
+      }
+
+      /* ===================== BUTTONS ===================== */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 40px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all var(--transition);
+        letter-spacing: 0.2px;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: #fff;
+        box-shadow: 0 4px 20px var(--primary-glow);
+      }
+      .btn-primary:hover {
+        transform: scale(1.04);
+        box-shadow: 0 6px 28px var(--primary-glow);
+      }
+      .btn-ghost {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-ghost:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-bright);
+      }
+      .btn-danger {
+        background: rgba(255, 95, 126, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(255, 95, 126, 0.25);
+      }
+      .btn-danger:hover {
+        background: rgba(255, 95, 126, 0.25);
+      }
+      .btn-icon {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* ===================== INPUTS ===================== */
+      .input {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 14px;
+        padding: 10px 14px;
+        width: 100%;
+        outline: none;
+        transition: all var(--transition);
+      }
+      .input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+      }
+      .input::placeholder {
+        color: var(--text-faint);
+      }
+
+      select.input {
+        cursor: pointer;
+      }
+      option {
+        background: var(--bg2);
+      }
+
+      /* ===================== GRID UTILS ===================== */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+      .grid-auto {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+      }
+
+      /* ===================== STAT CARDS ===================== */
+      .stat-card {
+        background: var(--surface);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 20px;
+        transition: all var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+      .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--border-bright);
+      }
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--c1), var(--c2));
+      }
+      .stat-icon {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+      .stat-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+      }
+      .stat-value {
+        font-family: var(--font-head);
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -1px;
+      }
+      .stat-change {
+        font-size: 12px;
+        color: var(--success);
+        margin-top: 4px;
+      }
+      .stat-change.neg {
+        color: var(--danger);
+      }
+
+      /* ===================== DASHBOARD PAGE ===================== */
+      .welcome-banner {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 142, 247, 0.15),
+          rgba(124, 94, 252, 0.12)
+        );
+        border: 1px solid rgba(79, 142, 247, 0.2);
+        border-radius: var(--radius);
+        padding: 28px 32px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+      }
+      .welcome-banner::before {
+        content: "";
+        position: absolute;
+        right: -40px;
+        top: -40px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(79, 142, 247, 0.15) 0%,
+          transparent 70%
+        );
+      }
+      .welcome-title {
+        font-family: var(--font-head);
+        font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+        font-weight: 800;
+      }
+      .welcome-sub {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin-top: 6px;
+      }
+      .welcome-quote {
+        font-style: italic;
+        font-size: 13px;
+        color: var(--text-muted);
+        max-width: 400px;
+        border-left: 3px solid var(--primary);
+        padding-left: 14px;
+      }
+
+      /* ===================== TODO LIST ===================== */
+      .todo-input-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .todo-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .todo-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        transition: all var(--transition);
+        cursor: grab;
+        position: relative;
+      }
+      .todo-item:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-bright);
+      }
+      .todo-item.dragging {
+        opacity: 0.5;
+        cursor: grabbing;
+      }
+      .todo-item.drag-over {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-glow);
+      }
+      .todo-item.completed {
+        opacity: 0.5;
+      }
+      .todo-item.completed .todo-text {
+        text-decoration: line-through;
+        color: var(--text-muted);
+      }
+
+      .check-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid var(--border-bright);
+        cursor: pointer;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition);
+        margin-top: 1px;
+      }
+      .check-box:hover {
+        border-color: var(--primary);
+      }
+      .check-box.checked {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-color: transparent;
+      }
+      .check-box.checked::after {
+        content: "✓";
+        font-size: 11px;
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .todo-text {
+        flex: 1;
+        font-size: 14px;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+      .todo-category {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-faint);
+        margin-top: 2px;
+      }
+      .todo-actions {
+        display: flex;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity var(--transition);
+      }
+      .todo-item:hover .todo-actions {
+        opacity: 1;
+      }
+
+      .cat-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+      }
+      .cat-math {
+        background: rgba(79, 142, 247, 0.2);
+        color: var(--primary);
+      }
+      .cat-science {
+        background: rgba(0, 212, 170, 0.2);
+        color: var(--accent2);
+      }
+      .cat-english {
+        background: rgba(255, 184, 48, 0.2);
+        color: var(--warning);
+      }
+      .cat-other {
+        background: rgba(124, 94, 252, 0.2);
+        color: var(--accent);
+      }
+
+      .progress-bar-wrap {
+        height: 6px;
+        background: var(--surface);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 16px;
+      }
+      .progress-bar {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        transition: width 0.5s ease;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-faint);
+      }
+      .empty-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+      }
+      .empty-text {
+        font-size: 14px;
+      }
+
+      /* ===================== EXAM COUNTDOWN ===================== */
+      .exam-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+      }
+      .exam-card {
+        border-radius: var(--radius);
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all var(--transition);
+        border: 1px solid var(--border);
+      }
+      .exam-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 50px rgba(0, 0, 0, 0.3);
+      }
+      .exam-bg-1 {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 142, 247, 0.2),
+          rgba(124, 94, 252, 0.15)
+        );
+      }
+      .exam-bg-2 {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 212, 170, 0.2),
+          rgba(79, 142, 247, 0.15)
+        );
+      }
+      .exam-bg-3 {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 95, 126, 0.2),
+          rgba(255, 184, 48, 0.15)
+        );
+      }
+      .exam-bg-4 {
+        background: linear-gradient(
+          135deg,
+          rgba(124, 94, 252, 0.2),
+          rgba(0, 212, 170, 0.1)
+        );
+      }
+      .exam-bg-5 {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 184, 48, 0.2),
+          rgba(124, 94, 252, 0.1)
+        );
+      }
+
+      .exam-subject {
+        font-family: var(--font-head);
+        font-size: 1.2rem;
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+      .exam-date-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+      }
+      .countdown-display {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .countdown-unit {
+        text-align: center;
+      }
+      .countdown-num {
+        font-family: var(--font-head);
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -2px;
+        display: block;
+        line-height: 1;
+      }
+      .countdown-lbl {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+      }
+      .countdown-sep {
+        font-size: 1.5rem;
+        font-weight: 900;
+        align-self: center;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+      .urgency-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+      }
+      .urgency-critical {
+        background: rgba(255, 95, 126, 0.2);
+        color: var(--danger);
+      }
+      .urgency-soon {
+        background: rgba(255, 184, 48, 0.2);
+        color: var(--warning);
+      }
+      .urgency-ok {
+        background: rgba(0, 212, 170, 0.2);
+        color: var(--success);
+      }
+      .urgency-done {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-faint);
+      }
+
+      .exam-add-card {
+        border: 2px dashed var(--border);
+        border-radius: var(--radius);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 180px;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all var(--transition);
+        font-size: 14px;
+      }
+      .exam-add-card:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: rgba(79, 142, 247, 0.05);
+      }
+
+      /* ===================== POMODORO TIMER ===================== */
+      .timer-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+      }
+      .timer-ring-wrap {
+        position: relative;
+      }
+      .timer-ring-wrap svg {
+        transform: rotate(-90deg);
+      }
+      .timer-track {
+        fill: none;
+        stroke: var(--surface-hover);
+        stroke-width: 8;
+      }
+      .timer-progress {
+        fill: none;
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.5s linear;
+      }
+      .timer-display {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .timer-time {
+        font-family: var(--font-head);
+        font-size: 3.5rem;
+        font-weight: 900;
+        letter-spacing: -3px;
+      }
+      .timer-mode-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+      .timer-controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .session-dots {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .session-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--surface-hover);
+        border: 2px solid var(--border);
+        transition: all var(--transition);
+      }
+      .session-dot.done {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+      .session-dot.active {
+        background: var(--accent2);
+        border-color: var(--accent2);
+        box-shadow: 0 0 8px var(--accent2);
+        animation: pulse 1s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+      }
+
+      .mode-tabs {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 40px;
+        width: fit-content;
+        margin: 0 auto 24px;
+      }
+      .mode-tab {
+        padding: 8px 20px;
+        border-radius: 40px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition);
+        color: var(--text-muted);
+      }
+      .mode-tab.active {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: #fff;
+      }
+
+      /* ===================== PROFILE PAGE ===================== */
+      .profile-header {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 142, 247, 0.15),
+          rgba(124, 94, 252, 0.1)
+        );
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 32px;
+        margin-bottom: 24px;
+        display: flex;
+        gap: 24px;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .avatar-ring {
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        padding: 3px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+      }
+      .avatar-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: var(--bg2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+      }
+      .profile-info {
+        flex: 1;
+      }
+      .profile-name {
+        font-family: var(--font-head);
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      .profile-detail {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin-top: 4px;
+      }
+      .xp-bar-section {
+        margin-top: 12px;
+      }
+      .xp-bar-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .xp-bar-track {
+        height: 8px;
+        background: var(--surface);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .xp-bar-fill {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .level-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: #fff;
+        padding: 8px 18px;
+        border-radius: 40px;
+        font-family: var(--font-head);
+        font-weight: 800;
+        font-size: 14px;
+        box-shadow: 0 4px 20px var(--primary-glow);
+      }
+
+      .badges-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .badge-item {
+        width: 70px;
+        text-align: center;
+        cursor: pointer;
+        transition: all var(--transition);
+      }
+      .badge-item:hover {
+        transform: translateY(-4px) scale(1.05);
+      }
+      .badge-icon {
+        font-size: 36px;
+        display: block;
+        margin-bottom: 4px;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      }
+      .badge-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+      .badge-item.locked {
+        opacity: 0.3;
+        filter: grayscale(1);
+      }
+
+      .pet-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 24px;
+      }
+      .pet-display {
+        font-size: 80px;
+        animation: pet-idle 2s ease-in-out infinite;
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+      .pet-display:active {
+        transform: scale(0.85);
+      }
+      @keyframes pet-idle {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      .pet-name {
+        font-family: var(--font-head);
+        font-weight: 800;
+        font-size: 1.1rem;
+      }
+      .pet-mood {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      /* ===================== ANALYTICS ===================== */
+      .chart-card {
+        padding: 24px;
+      }
+      .chart-title {
+        font-family: var(--font-head);
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      canvas {
+        max-width: 100%;
+      }
+
+      /* ===================== MODAL ===================== */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .modal-overlay.open {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .modal {
+        background: var(--bg2);
+        border: 1px solid var(--border-bright);
+        border-radius: var(--radius);
+        padding: 32px;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+        animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .modal-title {
+        font-family: var(--font-head);
+        font-weight: 800;
+        font-size: 1.4rem;
+        margin-bottom: 24px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        display: block;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 24px;
+      }
+
+      /* ===================== TOAST ===================== */
+      .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .toast {
+        background: var(--bg2);
+        border: 1px solid var(--border-bright);
+        border-radius: var(--radius-sm);
+        padding: 14px 18px;
+        box-shadow: var(--shadow-card);
+        min-width: 260px;
+        max-width: 360px;
+        animation: toastIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+      }
+      @keyframes toastIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .toast.removing {
+        animation: toastOut 0.3s ease forwards;
+      }
+      @keyframes toastOut {
+        to {
+          transform: translateX(110%);
+          opacity: 0;
+        }
+      }
+      .toast-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      .toast-body {
+        flex: 1;
+      }
+      .toast-title {
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+      .toast-sub {
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+      .toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        background: var(--primary);
+        border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+        animation: progressBar 3s linear forwards;
+      }
+      @keyframes progressBar {
+        from {
+          width: 100%;
+        }
+        to {
+          width: 0%;
+        }
+      }
+
+      /* ===================== CONFETTI ===================== */
+      .confetti-piece {
+        position: fixed;
+        z-index: 9999;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        pointer-events: none;
+        animation: confettiFall 1.5s ease-in forwards;
+      }
+      @keyframes confettiFall {
+        0% {
+          transform: translateY(-50px) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+
+      /* ===================== CHARTS PAGE ===================== */
+      .chart-container {
+        position: relative;
+        height: 200px;
+      }
+
+      /* ===================== SETTINGS ===================== */
+      .settings-section {
+        margin-bottom: 32px;
+      }
+      .settings-title {
+        font-family: var(--font-head);
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+      }
+      .settings-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .settings-info {
+        font-size: 14px;
+      }
+      .settings-info-sub {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+      .toggle-switch {
+        width: 44px;
+        height: 24px;
+        border-radius: 12px;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        cursor: pointer;
+        position: relative;
+        transition: all var(--transition);
+        flex-shrink: 0;
+      }
+      .toggle-switch.on {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        left: 2px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #fff;
+        transition: all var(--transition);
+      }
+      .toggle-switch.on::after {
+        left: calc(100% - 18px);
+      }
+
+      /* ===================== MOBILE HAMBURGER ===================== */
+      .hamburger {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 200;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        backdrop-filter: var(--glass-blur);
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+
+      /* ===================== RESPONSIVE ===================== */
+      @media (max-width: 1023px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+        .main {
+          margin-left: 0;
+          padding: 20px 16px;
+        }
+        .hamburger {
+          display: flex;
+        }
+        .grid-4 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .grid-3 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 640px) {
+        .grid-2,
+        .grid-3,
+        .grid-4 {
+          grid-template-columns: 1fr;
+        }
+        .welcome-banner {
+          flex-direction: column;
+          gap: 16px;
+        }
+        .profile-header {
+          flex-direction: column;
+          text-align: center;
+        }
+        .timer-time {
+          font-size: 2.5rem;
+        }
+      }
+
+      /* ===================== SCROLLBAR ===================== */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-bright);
+        border-radius: 10px;
+      }
+
+      /* ===================== XP FLOAT ANIMATION ===================== */
+      .xp-float {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        font-family: var(--font-head);
+        font-weight: 900;
+        font-size: 18px;
+        color: var(--primary);
+        text-shadow: 0 0 20px var(--primary-glow);
+        animation: xpFloat 1.2s ease forwards;
+      }
+      @keyframes xpFloat {
+        0% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-80px);
+          opacity: 0;
+        }
+      }
+
+      /* ===================== STUDY LOG ===================== */
+      .log-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+      .log-item:last-child {
+        border-bottom: none;
+      }
+      .log-date {
+        color: var(--text-muted);
+        font-size: 11px;
+      }
+
+      /* ===================== QUOTE SECTION ===================== */
+      .quote-card {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 142, 247, 0.1),
+          rgba(124, 94, 252, 0.08)
+        );
+        border: 1px solid rgba(79, 142, 247, 0.15);
+        border-radius: var(--radius-sm);
+        padding: 20px;
+        font-style: italic;
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.8;
+        position: relative;
+      }
+      .quote-card::before {
+        content: '"';
+        font-size: 4rem;
+        font-family: serif;
+        color: var(--primary);
+        opacity: 0.3;
+        position: absolute;
+        top: -10px;
+        left: 12px;
+        line-height: 1;
+      }
+      .quote-author {
+        font-style: normal;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 8px;
+        color: var(--text-faint);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Aurora BG -->
+    <div class="aurora"><div class="aurora-mid"></div></div>
+
+    <!-- Mobile hamburger -->
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+      ☰
+    </button>
+
+    <div id="app">
+      <!-- ===== SIDEBAR ===== -->
+      <nav class="sidebar" id="sidebar">
+        <div class="logo">
+          <div class="logo-icon">📚</div>
+          <div>
+            <div class="logo-text">StudyFlow</div>
+            <div class="logo-sub">Your Academic OS</div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-label">Main</div>
+          <div class="nav-item active" onclick="navigate('dashboard')">
+            <span class="nav-icon">🏠</span> Dashboard
+          </div>
+          <div class="nav-item" onclick="navigate('tasks')">
+            <span class="nav-icon">✅</span> Tasks
+            <span class="nav-badge" id="task-badge">0</span>
+          </div>
+          <div class="nav-item" onclick="navigate('exams')">
+            <span class="nav-icon">📅</span> Exams
+          </div>
+          <div class="nav-item" onclick="navigate('timer')">
+            <span class="nav-icon">⏱️</span> Study Timer
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-label">Insights</div>
+          <div class="nav-item" onclick="navigate('analytics')">
+            <span class="nav-icon">📊</span> Analytics
+          </div>
+          <div class="nav-item" onclick="navigate('profile')">
+            <span class="nav-icon">🎮</span> Profile & XP
+          </div>
+          <div class="nav-item" onclick="navigate('settings')">
+            <span class="nav-icon">⚙️</span> Settings
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="streak-pill">
+            <span class="streak-flame">🔥</span>
+            <span><strong id="streak-count">0</strong> day streak</span>
+          </div>
+          <div class="theme-toggle" onclick="toggleTheme()">
+            <span id="theme-icon">🌙</span>
+            <span id="theme-label">Dark Mode</span>
+          </div>
+        </div>
+      </nav>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <main class="main">
+        <!-- ===== DASHBOARD PAGE ===== -->
+        <section class="page active" id="page-dashboard">
+          <div class="page-header">
+            <div>
+              <div class="page-title">
+                Good <span id="timeOfDay">morning</span>,
+                <span id="userName">Scholar</span> 👋
+              </div>
+              <div class="page-sub" id="today-date"></div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="openAddTask()">
+                + Add Task
+              </button>
+            </div>
+          </div>
+
+          <!-- Welcome banner -->
+          <div class="welcome-banner">
+            <div>
+              <div class="welcome-title">Ready to conquer today?</div>
+              <div class="welcome-sub" id="daily-overview">
+                Loading your overview...
+              </div>
+            </div>
+            <div class="welcome-quote" id="quote-mini">Loading quote...</div>
+          </div>
+
+          <!-- Stats row -->
+          <div class="grid-4" style="margin-bottom: 20px">
+            <div
+              class="stat-card"
+              style="--c1: var(--primary); --c2: var(--accent)"
+            >
+              <div class="stat-icon">✅</div>
+              <div class="stat-label">Tasks Today</div>
+              <div class="stat-value" id="stat-tasks">0</div>
+              <div class="stat-change" id="stat-tasks-ch"></div>
+            </div>
+            <div
+              class="stat-card"
+              style="--c1: var(--accent2); --c2: var(--primary)"
+            >
+              <div class="stat-icon">⏱️</div>
+              <div class="stat-label">Study Hours</div>
+              <div class="stat-value" id="stat-hours">0h</div>
+              <div class="stat-change">this week</div>
+            </div>
+            <div
+              class="stat-card"
+              style="--c1: var(--warning); --c2: var(--danger)"
+            >
+              <div class="stat-icon">📅</div>
+              <div class="stat-label">Upcoming Exams</div>
+              <div class="stat-value" id="stat-exams">0</div>
+              <div class="stat-change" id="stat-next-exam"></div>
+            </div>
+            <div
+              class="stat-card"
+              style="--c1: var(--accent); --c2: var(--accent2)"
+            >
+              <div class="stat-icon">⚡</div>
+              <div class="stat-label">XP Points</div>
+              <div class="stat-value" id="stat-xp">0</div>
+              <div class="stat-change">
+                Level <span id="stat-level">1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick tasks + upcoming exams -->
+          <div class="grid-2">
+            <div class="card">
+              <div class="chart-title">
+                📝 Today's Tasks
+                <span
+                  ><a
+                    href="#"
+                    onclick="
+                      navigate('tasks');
+                      return false;
+                    "
+                    style="
+                      font-size: 12px;
+                      color: var(--primary);
+                      text-decoration: none;
+                    "
+                    >View all →</a
+                  ></span
+                >
+              </div>
+              <div id="dashboard-tasks-list">
+                <div class="empty-state">
+                  <div class="empty-icon">📋</div>
+                  <div class="empty-text">No tasks yet. Add one!</div>
+                </div>
+              </div>
+              <div class="progress-bar-wrap" style="margin-top: 12px">
+                <div
+                  class="progress-bar"
+                  id="dash-task-progress"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="chart-title">
+                📅 Next Exams
+                <span
+                  ><a
+                    href="#"
+                    onclick="
+                      navigate('exams');
+                      return false;
+                    "
+                    style="
+                      font-size: 12px;
+                      color: var(--primary);
+                      text-decoration: none;
+                    "
+                    >View all →</a
+                  ></span
+                >
+              </div>
+              <div id="dashboard-exams-list">
+                <div class="empty-state">
+                  <div class="empty-icon">📚</div>
+                  <div class="empty-text">No exams scheduled</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini study log -->
+          <div class="card" style="margin-top: 20px">
+            <div class="chart-title">📖 Recent Study Sessions</div>
+            <div id="dashboard-sessions">
+              <div class="empty-state">
+                <div class="empty-icon">⏰</div>
+                <div class="empty-text">No sessions yet. Start the timer!</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== TASKS PAGE ===== -->
+        <section class="page" id="page-tasks">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Task Board ✅</div>
+              <div class="page-sub">Stay on top of your academic workload</div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost" onclick="clearCompleted()">
+                Clear Done
+              </button>
+              <button class="btn btn-primary" onclick="openAddTask()">
+                + Add Task
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter tabs -->
+          <div class="mode-tabs" style="margin: 0 0 20px">
+            <div class="mode-tab active" onclick="filterTasks('all', this)">
+              All
+            </div>
+            <div class="mode-tab" onclick="filterTasks('active', this)">
+              Active
+            </div>
+            <div class="mode-tab" onclick="filterTasks('completed', this)">
+              Done
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="todo-input-row">
+              <input
+                type="text"
+                class="input"
+                id="task-input"
+                placeholder="Add a new task... (press Enter)"
+                onkeydown="if (event.key === 'Enter') addTask();"
+              />
+              <select
+                class="input"
+                id="task-cat"
+                style="width: 140px; flex-shrink: 0"
+              >
+                <option value="other">Category</option>
+                <option value="math">Math</option>
+                <option value="science">Science</option>
+                <option value="english">English</option>
+                <option value="other">Other</option>
+              </select>
+              <button class="btn btn-primary" onclick="addTask()">Add</button>
+            </div>
+
+            <div class="progress-bar-wrap" style="margin-bottom: 16px">
+              <div
+                class="progress-bar"
+                id="task-progress-bar"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div
+              style="
+                font-size: 12px;
+                color: var(--text-muted);
+                text-align: right;
+                margin-top: -10px;
+                margin-bottom: 12px;
+              "
+              id="task-progress-text"
+            >
+              0 / 0 tasks completed
+            </div>
+
+            <div class="todo-list" id="task-list"></div>
+          </div>
+        </section>
+
+        <!-- ===== EXAMS PAGE ===== -->
+        <section class="page" id="page-exams">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Exam Countdown 📅</div>
+              <div class="page-sub">Track your upcoming assessments</div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="openAddExam()">
+                + Add Exam
+              </button>
+            </div>
+          </div>
+          <div class="exam-grid" id="exam-grid">
+            <div class="exam-add-card card-sm" onclick="openAddExam()">
+              <span style="font-size: 40px">➕</span>
+              <span>Add New Exam</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== TIMER PAGE ===== -->
+        <section class="page" id="page-timer">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Study Timer ⏱️</div>
+              <div class="page-sub">Pomodoro technique for deep focus</div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="align-items: start">
+            <div class="card">
+              <div class="mode-tabs">
+                <div
+                  class="mode-tab active"
+                  onclick="setTimerMode('study', this)"
+                >
+                  Focus
+                </div>
+                <div class="mode-tab" onclick="setTimerMode('short', this)">
+                  Short Break
+                </div>
+                <div class="mode-tab" onclick="setTimerMode('long', this)">
+                  Long Break
+                </div>
+              </div>
+
+              <div class="timer-wrapper">
+                <div class="timer-ring-wrap">
+                  <svg width="220" height="220" viewBox="0 0 220 220">
+                    <circle class="timer-track" cx="110" cy="110" r="100" />
+                    <circle
+                      class="timer-progress"
+                      id="timer-ring"
+                      cx="110"
+                      cy="110"
+                      r="100"
+                      stroke="url(#timerGrad)"
+                      stroke-dasharray="628.3"
+                      stroke-dashoffset="0"
+                    />
+                    <defs>
+                      <linearGradient
+                        id="timerGrad"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%"
+                      >
+                        <stop offset="0%" stop-color="var(--primary)" />
+                        <stop offset="100%" stop-color="var(--accent)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div class="timer-display">
+                    <div class="timer-time" id="timer-display">25:00</div>
+                    <div class="timer-mode-label" id="timer-mode-text">
+                      Focus Time
+                    </div>
+                    <div class="session-dots" id="session-dots"></div>
+                  </div>
+                </div>
+
+                <div class="timer-controls">
+                  <button
+                    class="btn btn-ghost btn-icon"
+                    onclick="resetTimer()"
+                    title="Reset"
+                  >
+                    ↩️
+                  </button>
+                  <button
+                    class="btn btn-primary"
+                    id="timer-btn"
+                    onclick="toggleTimer()"
+                    style="padding: 14px 36px; font-size: 15px"
+                  >
+                    ▶ Start
+                  </button>
+                  <button
+                    class="btn btn-ghost btn-icon"
+                    onclick="skipSession()"
+                    title="Skip"
+                  >
+                    ⏭
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 16px">
+              <div class="card">
+                <div class="chart-title">⚙️ Timer Settings</div>
+                <div class="form-group">
+                  <label class="form-label">Focus Duration (min)</label>
+                  <input
+                    type="number"
+                    class="input"
+                    id="set-focus"
+                    value="25"
+                    min="1"
+                    max="90"
+                    onchange="updateTimerSettings()"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Short Break (min)</label>
+                  <input
+                    type="number"
+                    class="input"
+                    id="set-short"
+                    value="5"
+                    min="1"
+                    max="30"
+                    onchange="updateTimerSettings()"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Long Break (min)</label>
+                  <input
+                    type="number"
+                    class="input"
+                    id="set-long"
+                    value="15"
+                    min="5"
+                    max="60"
+                    onchange="updateTimerSettings()"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Sessions before long break</label>
+                  <input
+                    type="number"
+                    class="input"
+                    id="set-sessions"
+                    value="4"
+                    min="2"
+                    max="8"
+                    onchange="updateTimerSettings()"
+                  />
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="chart-title">📈 Today's Sessions</div>
+                <div id="today-sessions">
+                  <div class="empty-state" style="padding: 20px">
+                    <div class="empty-text">No sessions yet today</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== ANALYTICS PAGE ===== -->
+        <section class="page" id="page-analytics">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Analytics 📊</div>
+              <div class="page-sub">Track your study patterns and progress</div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 20px">
+            <div class="card chart-card">
+              <div class="chart-title">📅 Weekly Study Hours</div>
+              <div class="chart-container">
+                <canvas id="weeklyChart"></canvas>
+              </div>
+            </div>
+            <div class="card chart-card">
+              <div class="chart-title">📚 Task Categories</div>
+              <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div
+              class="stat-card"
+              style="--c1: var(--primary); --c2: var(--accent)"
+            >
+              <div class="stat-icon">🎯</div>
+              <div class="stat-label">Total Sessions</div>
+              <div class="stat-value" id="total-sessions">0</div>
+            </div>
+            <div
+              class="stat-card"
+              style="--c1: var(--accent2); --c2: var(--primary)"
+            >
+              <div class="stat-icon">⏱️</div>
+              <div class="stat-label">Total Study Time</div>
+              <div class="stat-value" id="total-time">0h</div>
+            </div>
+            <div
+              class="stat-card"
+              style="--c1: var(--warning); --c2: var(--accent)"
+            >
+              <div class="stat-icon">🔥</div>
+              <div class="stat-label">Best Streak</div>
+              <div class="stat-value" id="best-streak">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== PROFILE PAGE ===== -->
+        <section class="page" id="page-profile">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Profile & XP 🎮</div>
+              <div class="page-sub">Your academic journey</div>
+            </div>
+            <button class="btn btn-ghost" onclick="openEditProfile()">
+              Edit Profile
+            </button>
+          </div>
+
+          <div class="profile-header">
+            <div class="avatar-ring">
+              <div class="avatar-inner" id="profile-avatar">🎓</div>
+            </div>
+            <div class="profile-info">
+              <div class="profile-name" id="profile-name-disp">Scholar</div>
+              <div class="profile-detail" id="profile-detail-disp">Student</div>
+              <div class="xp-bar-section">
+                <div class="xp-bar-label">
+                  <span
+                    >Level <span id="profile-level">1</span> —
+                    <span id="profile-xp-label">0 XP</span></span
+                  >
+                  <span id="profile-xp-to-next">100 XP to next level</span>
+                </div>
+                <div class="xp-bar-track">
+                  <div
+                    class="xp-bar-fill"
+                    id="xp-bar-fill"
+                    style="width: 0%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div class="level-badge">
+              ⚡ LVL <span id="level-badge-num">1</span>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="chart-title">🏅 Achievements</div>
+              <div class="badges-grid" id="badges-grid"></div>
+            </div>
+            <div class="card">
+              <div class="chart-title">🐾 Virtual Pet</div>
+              <div class="pet-section">
+                <div class="pet-display" id="pet-emoji" onclick="petInteract()">
+                  🦉
+                </div>
+                <div class="pet-name" id="pet-name">Owly</div>
+                <div class="pet-mood" id="pet-mood">Mood: Happy 😊</div>
+                <button class="btn btn-ghost" onclick="openPetSelect()">
+                  Change Pet
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 16px">
+            <div class="chart-title">💬 Daily Inspiration</div>
+            <div class="quote-card">
+              <div id="quote-text">
+                The secret of getting ahead is getting started.
+              </div>
+              <div class="quote-author">
+                — <span id="quote-author">Mark Twain</span>
+              </div>
+            </div>
+            <button
+              class="btn btn-ghost"
+              style="margin-top: 12px; font-size: 12px"
+              onclick="nextQuote()"
+            >
+              New Quote
+            </button>
+          </div>
+        </section>
+
+        <!-- ===== SETTINGS PAGE ===== -->
+        <section class="page" id="page-settings">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Settings ⚙️</div>
+              <div class="page-sub">Customize your experience</div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="align-items: start">
+            <div class="card">
+              <div class="settings-section">
+                <div class="settings-title">👤 Profile</div>
+                <div class="form-group">
+                  <label class="form-label">Name</label>
+                  <input
+                    type="text"
+                    class="input"
+                    id="s-name"
+                    placeholder="Your name"
+                    oninput="saveProfileFromSettings()"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Degree / Major</label>
+                  <input
+                    type="text"
+                    class="input"
+                    id="s-degree"
+                    placeholder="Computer Science"
+                    oninput="saveProfileFromSettings()"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">University</label>
+                  <input
+                    type="text"
+                    class="input"
+                    id="s-university"
+                    placeholder="MIT"
+                    oninput="saveProfileFromSettings()"
+                  />
+                </div>
+              </div>
+              <div class="settings-section">
+                <div class="settings-title">🔔 Notifications</div>
+                <div class="settings-row">
+                  <div class="settings-info">
+                    <div>Daily digest</div>
+                    <div class="settings-info-sub">
+                      Show overview on app open
+                    </div>
+                  </div>
+                  <div
+                    class="toggle-switch on"
+                    id="toggle-digest"
+                    onclick="toggleSetting('digest', this)"
+                  ></div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-info">
+                    <div>Sound effects</div>
+                    <div class="settings-info-sub">
+                      Completion sounds & alerts
+                    </div>
+                  </div>
+                  <div
+                    class="toggle-switch on"
+                    id="toggle-sound"
+                    onclick="toggleSetting('sound', this)"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="settings-section">
+                <div class="settings-title">💾 Data</div>
+                <div style="display: flex; flex-direction: column; gap: 10px">
+                  <button class="btn btn-ghost" onclick="exportData()">
+                    📤 Export Data (JSON)
+                  </button>
+                  <button
+                    class="btn btn-danger"
+                    onclick="
+                      if (confirm('Reset ALL data? This cannot be undone.'))
+                        resetAllData();
+                    "
+                  >
+                    🗑️ Reset All Data
+                  </button>
+                </div>
+              </div>
+              <div class="settings-section">
+                <div class="settings-title">ℹ️ About</div>
+                <div
+                  style="
+                    font-size: 13px;
+                    color: var(--text-muted);
+                    line-height: 1.8;
+                  "
+                >
+                  <div><strong>StudyFlow</strong> v1.0</div>
+                  <div>
+                    A modern study planner to help you ace your academics.
+                  </div>
+                  <div style="margin-top: 8px">
+                    All data is stored locally on your device.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <!-- end #app -->
+
+    <!-- ===== MODALS ===== -->
+    <!-- Add Task Modal -->
+    <div class="modal-overlay" id="modal-task">
+      <div class="modal">
+        <div class="modal-title">✅ New Task</div>
+        <div class="form-group">
+          <label class="form-label">Task Description</label>
+          <input
+            type="text"
+            class="input"
+            id="m-task-text"
+            placeholder="e.g. Complete Chapter 5 exercises"
+            onkeydown="if (event.key === 'Enter') submitTask();"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="input" id="m-task-cat">
+            <option value="other">Other</option>
+            <option value="math">Math</option>
+            <option value="science">Science</option>
+            <option value="english">English</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('modal-task')">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="submitTask()">
+            Add Task
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Exam Modal -->
+    <div class="modal-overlay" id="modal-exam">
+      <div class="modal">
+        <div class="modal-title">📅 New Exam</div>
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <input
+            type="text"
+            class="input"
+            id="m-exam-subject"
+            placeholder="e.g. Calculus II"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exam Date</label>
+          <input type="date" class="input" id="m-exam-date" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="input" id="m-exam-priority">
+            <option value="high">High Priority</option>
+            <option value="medium" selected>Medium Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Grade (%)</label>
+          <input
+            type="number"
+            class="input"
+            id="m-exam-grade"
+            placeholder="85"
+            min="0"
+            max="100"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('modal-exam')">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="submitExam()">
+            Add Exam
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="modal-profile">
+      <div class="modal">
+        <div class="modal-title">👤 Edit Profile</div>
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input
+            type="text"
+            class="input"
+            id="p-name"
+            placeholder="Your name"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Degree / Major</label>
+          <input
+            type="text"
+            class="input"
+            id="p-degree"
+            placeholder="Computer Science"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">University</label>
+          <input type="text" class="input" id="p-uni" placeholder="MIT" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('modal-profile')">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="saveProfile()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pet Select Modal -->
+    <div class="modal-overlay" id="modal-pet">
+      <div class="modal">
+        <div class="modal-title">🐾 Choose Your Companion</div>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+          "
+        >
+          <div
+            class="pet-badge-option"
+            onclick="selectPet('owl', '🦉', 'Owly', 'Wise & studious')"
+            style="
+              text-align: center;
+              cursor: pointer;
+              padding: 16px;
+              border-radius: var(--radius-sm);
+              border: 2px solid var(--border);
+              transition: all var(--transition);
+            "
+            onmouseover="this.style.borderColor = 'var(--primary)'"
+            onmouseout="this.style.borderColor = 'var(--border)'"
+          >
+            <div style="font-size: 40px">🦉</div>
+            <div style="font-size: 12px; font-weight: 600; margin-top: 6px">
+              Owly
+            </div>
+          </div>
+          <div
+            onclick="selectPet('fox', '🦊', 'Foxie', 'Quick & cunning')"
+            style="
+              text-align: center;
+              cursor: pointer;
+              padding: 16px;
+              border-radius: var(--radius-sm);
+              border: 2px solid var(--border);
+              transition: all var(--transition);
+            "
+            onmouseover="this.style.borderColor = 'var(--primary)'"
+            onmouseout="this.style.borderColor = 'var(--border)'"
+          >
+            <div style="font-size: 40px">🦊</div>
+            <div style="font-size: 12px; font-weight: 600; margin-top: 6px">
+              Foxie
+            </div>
+          </div>
+          <div
+            onclick="selectPet('dragon', '🐲', 'Drake', 'Bold & fierce')"
+            style="
+              text-align: center;
+              cursor: pointer;
+              padding: 16px;
+              border-radius: var(--radius-sm);
+              border: 2px solid var(--border);
+              transition: all var(--transition);
+            "
+            onmouseover="this.style.borderColor = 'var(--primary)'"
+            onmouseout="this.style.borderColor = 'var(--border)'"
+          >
+            <div style="font-size: 40px">🐲</div>
+            <div style="font-size: 12px; font-weight: 600; margin-top: 6px">
+              Drake
+            </div>
+          </div>
+          <div
+            onclick="selectPet('robot', '🤖', 'Robo', 'Logical & precise')"
+            style="
+              text-align: center;
+              cursor: pointer;
+              padding: 16px;
+              border-radius: var(--radius-sm);
+              border: 2px solid var(--border);
+              transition: all var(--transition);
+            "
+            onmouseover="this.style.borderColor = 'var(--primary)'"
+            onmouseout="this.style.borderColor = 'var(--border)'"
+          >
+            <div style="font-size: 40px">🤖</div>
+            <div style="font-size: 12px; font-weight: 600; margin-top: 6px">
+              Robo
+            </div>
+          </div>
+        </div>
+        <button
+          class="btn btn-ghost"
+          onclick="closeModal('modal-pet')"
+          style="width: 100%"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+      // ===================== DATA STORE =====================
+      const DEFAULT_DATA = {
+        user: {
+          name: "Scholar",
+          degree: "",
+          university: "",
+          theme: "dark",
+          petChoice: "owl",
+          petName: "Owly",
+          petEmoji: "🦉",
+        },
+        tasks: [],
+        exams: [],
+        timerSettings: { study: 25, short: 5, long: 15, sessionsBeforeLong: 4 },
+        sessions: [],
+        gamification: {
+          xp: 0,
+          level: 1,
+          streak: 0,
+          lastStudyDate: null,
+          badges: [],
+        },
+        settings: { digest: true, sound: true },
+        quoteIndex: 0,
+      };
+
+      let data =
+        JSON.parse(localStorage.getItem("studyflow-v1") || "null") ||
+        JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+      const save = () =>
+        localStorage.setItem("studyflow-v1", JSON.stringify(data));
+
+      const QUOTES = [
+        {
+          text: "The secret of getting ahead is getting started.",
+          author: "Mark Twain",
+        },
+        {
+          text: "Education is not the filling of a pail, but the lighting of a fire.",
+          author: "W.B. Yeats",
+        },
+        {
+          text: "The more that you read, the more things you will know.",
+          author: "Dr. Seuss",
+        },
+        {
+          text: "Success is the sum of small efforts, repeated day in and day out.",
+          author: "Robert Collier",
+        },
+        {
+          text: "An investment in knowledge pays the best interest.",
+          author: "Benjamin Franklin",
+        },
+        {
+          text: "The beautiful thing about learning is that no one can take it away from you.",
+          author: "B.B. King",
+        },
+        {
+          text: "Study hard what interests you the most in the most undisciplined way possible.",
+          author: "Richard Feynman",
+        },
+        {
+          text: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.",
+          author: "Brian Herbert",
+        },
+        {
+          text: "Live as if you were to die tomorrow. Learn as if you were to live forever.",
+          author: "Mahatma Gandhi",
+        },
+        {
+          text: "The more I learn, the more I realize how much I don't know.",
+          author: "Albert Einstein",
+        },
+      ];
+
+      const ALL_BADGES = [
+        {
+          id: "first_task",
+          icon: "🌟",
+          label: "First Step",
+          desc: "Complete your first task",
+        },
+        {
+          id: "ten_tasks",
+          icon: "💪",
+          label: "Taskmaster",
+          desc: "Complete 10 tasks",
+        },
+        {
+          id: "first_session",
+          icon: "⏱️",
+          label: "Focus Mode",
+          desc: "Complete first study session",
+        },
+        {
+          id: "streak_3",
+          icon: "🔥",
+          label: "On Fire",
+          desc: "3-day study streak",
+        },
+        {
+          id: "streak_7",
+          icon: "🔥🔥",
+          label: "Blazing",
+          desc: "7-day study streak",
+        },
+        {
+          id: "level_5",
+          icon: "⚡",
+          label: "Power User",
+          desc: "Reach Level 5",
+        },
+        {
+          id: "night_owl",
+          icon: "🦉",
+          label: "Night Owl",
+          desc: "Study after 10 PM",
+        },
+        {
+          id: "early_bird",
+          icon: "🌅",
+          label: "Early Bird",
+          desc: "Study before 7 AM",
+        },
+      ];
+
+      // ===================== NAVIGATION =====================
+      let currentPage = "dashboard";
+
+      function navigate(page) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) => n.classList.remove("active"));
+        document.getElementById("page-" + page).classList.add("active");
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach((n) => {
+          if (
+            n.textContent
+              .trim()
+              .toLowerCase()
+              .includes(
+                page === "analytics"
+                  ? "analytics"
+                  : page === "timer"
+                    ? "timer"
+                    : page,
+              )
+          )
+            n.classList.add("active");
+        });
+        // Manual match
+        const labels = {
+          dashboard: "Dashboard",
+          tasks: "Tasks",
+          exams: "Exams",
+          timer: "Study Timer",
+          analytics: "Analytics",
+          profile: "Profile",
+          settings: "Settings",
+        };
+        navItems.forEach((n) => {
+          if (n.textContent.includes(labels[page])) n.classList.add("active");
+        });
+        currentPage = page;
+        if (window.innerWidth < 1024)
+          document.getElementById("sidebar").classList.remove("open");
+        if (page === "dashboard") refreshDashboard();
+        if (page === "tasks") renderTasks();
+        if (page === "exams") renderExams();
+        if (page === "analytics") renderAnalytics();
+        if (page === "profile") renderProfile();
+        if (page === "settings") loadSettings();
+        if (page === "timer") renderTodaySessions();
+      }
+
+      function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("open");
+      }
+
+      // ===================== THEME =====================
+      function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.dataset.theme === "dark";
+        html.dataset.theme = isDark ? "light" : "dark";
+        data.user.theme = html.dataset.theme;
+        document.getElementById("theme-icon").textContent = isDark
+          ? "🌙"
+          : "☀️";
+        document.getElementById("theme-label").textContent = isDark
+          ? "Dark Mode"
+          : "Light Mode";
+        save();
+      }
+
+      // ===================== TOAST =====================
+      function showToast(icon, title, sub, type = "info") {
+        const c = document.getElementById("toast-container");
+        const t = document.createElement("div");
+        t.className = "toast";
+        t.style.position = "relative";
+        t.innerHTML = `<span class="toast-icon">${icon}</span><div class="toast-body"><div class="toast-title">${title}</div>${sub ? `<div class="toast-sub">${sub}</div>` : ""}</div><div class="toast-progress"></div>`;
+        c.appendChild(t);
+        setTimeout(() => {
+          t.classList.add("removing");
+          setTimeout(() => t.remove(), 300);
+        }, 3000);
+      }
+
+      // ===================== CONFETTI =====================
+      function fireConfetti(x, y) {
+        const colors = ["#4F8EF7", "#7C5EFC", "#00D4AA", "#FFB830", "#FF5F7E"];
+        for (let i = 0; i < 15; i++) {
+          const piece = document.createElement("div");
+          piece.className = "confetti-piece";
+          piece.style.cssText = `left:${x + (Math.random() - 0.5) * 100}px;top:${y}px;background:${colors[Math.floor(Math.random() * colors.length)]};transform:rotate(${Math.random() * 360}deg);animation-delay:${Math.random() * 0.3}s;animation-duration:${1 + Math.random() * 0.5}s`;
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 2000);
+        }
+      }
+
+      // ===================== XP FLOAT =====================
+      function showXPFloat(amount, x, y) {
+        const el = document.createElement("div");
+        el.className = "xp-float";
+        el.textContent = "+" + amount + " XP";
+        el.style.cssText = `left:${x}px;top:${y}px`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1200);
+      }
+
+      // ===================== GAMIFICATION =====================
+      function addXP(amount, event) {
+        data.gamification.xp += amount;
+        const xpForLevel = data.gamification.level * 100;
+        if (data.gamification.xp >= xpForLevel) {
+          data.gamification.xp -= xpForLevel;
+          data.gamification.level++;
+          showToast(
+            "⚡",
+            "Level Up!",
+            `You reached Level ${data.gamification.level}! Keep going!`,
+          );
+          fireConfetti(window.innerWidth / 2, window.innerHeight / 3);
+        }
+        if (event) showXPFloat(amount, event.clientX, event.clientY);
+        document.getElementById("stat-xp").textContent = data.gamification.xp;
+        document.getElementById("stat-level").textContent =
+          data.gamification.level;
+        checkBadges();
+        save();
+      }
+
+      function checkBadges() {
+        const g = data.gamification;
+        const completedTasks = data.tasks.filter((t) => t.completed).length;
+        const toUnlock = [];
+        if (completedTasks >= 1 && !g.badges.includes("first_task"))
+          toUnlock.push("first_task");
+        if (completedTasks >= 10 && !g.badges.includes("ten_tasks"))
+          toUnlock.push("ten_tasks");
+        if (data.sessions.length >= 1 && !g.badges.includes("first_session"))
+          toUnlock.push("first_session");
+        if (g.streak >= 3 && !g.badges.includes("streak_3"))
+          toUnlock.push("streak_3");
+        if (g.streak >= 7 && !g.badges.includes("streak_7"))
+          toUnlock.push("streak_7");
+        if (g.level >= 5 && !g.badges.includes("level_5"))
+          toUnlock.push("level_5");
+        toUnlock.forEach((id) => {
+          g.badges.push(id);
+          const badge = ALL_BADGES.find((b) => b.id === id);
+          if (badge)
+            showToast("🏅", "Badge Unlocked!", badge.label + ": " + badge.desc);
+        });
+        if (toUnlock.length) save();
+      }
+
+      function updateStreak() {
+        const today = new Date().toDateString();
+        const g = data.gamification;
+        if (g.lastStudyDate === today) return;
+        if (g.lastStudyDate) {
+          const last = new Date(g.lastStudyDate);
+          const diff = (new Date() - last) / (1000 * 60 * 60 * 24);
+          if (diff < 2) g.streak++;
+          else g.streak = 1;
+        } else g.streak = 1;
+        g.lastStudyDate = today;
+        document.getElementById("streak-count").textContent = g.streak;
+        save();
+        checkBadges();
+      }
+
+      // ===================== TASKS =====================
+      let taskFilter = "all";
+
+      function addTask(fromModal = false) {
+        const input = fromModal
+          ? document.getElementById("m-task-text")
+          : document.getElementById("task-input");
+        const catEl = fromModal
+          ? document.getElementById("m-task-cat")
+          : document.getElementById("task-cat");
+        const text = input.value.trim();
+        if (!text) {
+          input.focus();
+          return;
+        }
+        const task = {
+          id: Date.now(),
+          text,
+          category: catEl.value || "other",
+          completed: false,
+          createdAt: new Date().toISOString(),
+        };
+        data.tasks.unshift(task);
+        input.value = "";
+        addXP(5);
+        save();
+        renderTasks();
+        updateTaskBadge();
+        refreshDashboard();
+        showToast("✅", "Task added!", task.text.substring(0, 40));
+      }
+
+      function submitTask() {
+        addTask(true);
+        closeModal("modal-task");
+      }
+
+      function toggleTask(id, event) {
+        const task = data.tasks.find((t) => t.id === id);
+        if (!task) return;
+        task.completed = !task.completed;
+        if (task.completed) {
+          addXP(10, event);
+          fireConfetti(event.clientX, event.clientY);
+          showToast("🎉", "Task complete!", task.text.substring(0, 40));
+        }
+        save();
+        renderTasks();
+        updateTaskBadge();
+        refreshDashboard();
+      }
+
+      function deleteTask(id) {
+        data.tasks = data.tasks.filter((t) => t.id !== id);
+        save();
+        renderTasks();
+        updateTaskBadge();
+        refreshDashboard();
+      }
+
+      function clearCompleted() {
+        data.tasks = data.tasks.filter((t) => !t.completed);
+        save();
+        renderTasks();
+        updateTaskBadge();
+        refreshDashboard();
+        showToast("🗑️", "Cleared", "Completed tasks removed");
+      }
+
+      function filterTasks(filter, el) {
+        taskFilter = filter;
+        document
+          .querySelectorAll("#page-tasks .mode-tab")
+          .forEach((t) => t.classList.remove("active"));
+        el.classList.add("active");
+        renderTasks();
+      }
+
+      function renderTasks() {
+        const list = document.getElementById("task-list");
+        let tasks = data.tasks;
+        if (taskFilter === "active") tasks = tasks.filter((t) => !t.completed);
+        if (taskFilter === "completed")
+          tasks = tasks.filter((t) => t.completed);
+        const total = data.tasks.length;
+        const done = data.tasks.filter((t) => t.completed).length;
+        const pct = total ? Math.round((done / total) * 100) : 0;
+        document.getElementById("task-progress-bar").style.width = pct + "%";
+        document.getElementById("task-progress-text").textContent =
+          `${done} / ${total} tasks completed`;
+
+        if (!tasks.length) {
+          list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">${taskFilter === "completed" ? "No completed tasks yet" : "All caught up!"}</div></div>`;
+          return;
+        }
+        list.innerHTML = tasks
+          .map(
+            (t) => `
+    <div class="todo-item ${t.completed ? "completed" : ""}" draggable="true" data-id="${t.id}"
+      ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
+      <div class="check-box ${t.completed ? "checked" : ""}" onclick="toggleTask(${t.id},event)"></div>
+      <div style="flex:1;min-width:0">
+        <div class="todo-text">${escHtml(t.text)}</div>
+        <span class="cat-badge cat-${t.category}">${t.category}</span>
+      </div>
+      <div class="todo-actions">
+        <button class="btn btn-danger btn-icon" style="width:30px;height:30px;font-size:12px" onclick="deleteTask(${t.id})">🗑</button>
+      </div>
+    </div>
+  `,
+          )
+          .join("");
+      }
+
+      function updateTaskBadge() {
+        const active = data.tasks.filter((t) => !t.completed).length;
+        document.getElementById("task-badge").textContent = active;
+      }
+
+      // Drag and drop
+      let dragSrcId = null;
+      function dragStart(e) {
+        dragSrcId = +e.currentTarget.dataset.id;
+        e.currentTarget.classList.add("dragging");
+      }
+      function dragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add("drag-over");
+      }
+      function dragLeave(e) {
+        e.currentTarget.classList.remove("drag-over");
+      }
+      function drop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove("drag-over");
+        const targetId = +e.currentTarget.dataset.id;
+        if (dragSrcId === targetId) return;
+        const si = data.tasks.findIndex((t) => t.id === dragSrcId);
+        const ti = data.tasks.findIndex((t) => t.id === targetId);
+        const [task] = data.tasks.splice(si, 1);
+        data.tasks.splice(ti, 0, task);
+        save();
+        renderTasks();
+      }
+
+      // ===================== EXAMS =====================
+      const EXAM_COLORS = [
+        "exam-bg-1",
+        "exam-bg-2",
+        "exam-bg-3",
+        "exam-bg-4",
+        "exam-bg-5",
+      ];
+
+      function getCountdown(dateStr) {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const exam = new Date(dateStr);
+        exam.setHours(0, 0, 0, 0);
+        const diff = Math.round((exam - now) / (1000 * 60 * 60 * 24));
+        return diff;
+      }
+
+      function getUrgency(days) {
+        if (days < 0)
+          return { cls: "urgency-done", text: "Passed", icon: "✅" };
+        if (days <= 3)
+          return {
+            cls: "urgency-critical",
+            text: days === 0 ? "TODAY!" : days + "d left",
+            icon: "🚨",
+          };
+        if (days <= 7)
+          return { cls: "urgency-soon", text: days + "d left", icon: "⚠️" };
+        return { cls: "urgency-ok", text: days + "d left", icon: "📅" };
+      }
+
+      function renderExams() {
+        const grid = document.getElementById("exam-grid");
+        const exams = data.exams.sort(
+          (a, b) => new Date(a.date) - new Date(b.date),
+        );
+        grid.innerHTML = `<div class="exam-add-card card-sm" onclick="openAddExam()"><span style="font-size:40px">➕</span><span>Add New Exam</span></div>`;
+        exams.forEach((ex, i) => {
+          const days = getCountdown(ex.date);
+          const urg = getUrgency(days);
+          const col = EXAM_COLORS[i % EXAM_COLORS.length];
+          const d = days < 0 ? 0 : days;
+          const dStr = new Date(ex.date).toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+          const card = document.createElement("div");
+          card.className = `exam-card ${col}`;
+          card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+        <div>
+          <div class="exam-subject">${escHtml(ex.subject)}</div>
+          <div class="exam-date-label">📅 ${dStr}</div>
+        </div>
+        <button class="btn btn-danger btn-icon" style="width:28px;height:28px;font-size:11px" onclick="deleteExam(${ex.id})">✕</button>
+      </div>
+      <div class="countdown-display">
+        <div class="countdown-unit"><span class="countdown-num">${Math.floor(d / 7)}</span><span class="countdown-lbl">wks</span></div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit"><span class="countdown-num">${d % 7}</span><span class="countdown-lbl">days</span></div>
+        ${ex.targetGrade ? `<div style="margin-left:auto;text-align:right"><div class="countdown-num" style="font-size:1.2rem">${ex.targetGrade}%</div><div class="countdown-lbl">target</div></div>` : ""}
+      </div>
+      <div class="urgency-badge ${urg.cls}">${urg.icon} ${urg.text}</div>
+    `;
+          grid.insertBefore(card, grid.firstChild);
+        });
+      }
+
+      function submitExam() {
+        const subj = document.getElementById("m-exam-subject").value.trim();
+        const date = document.getElementById("m-exam-date").value;
+        if (!subj || !date) {
+          showToast("⚠️", "Fill all fields", "Subject and date required");
+          return;
+        }
+        data.exams.push({
+          id: Date.now(),
+          subject: subj,
+          date,
+          priority: document.getElementById("m-exam-priority").value,
+          targetGrade: +document.getElementById("m-exam-grade").value || null,
+        });
+        save();
+        renderExams();
+        closeModal("modal-exam");
+        showToast("📅", "Exam added!", subj);
+      }
+
+      function deleteExam(id) {
+        data.exams = data.exams.filter((e) => e.id !== id);
+        save();
+        renderExams();
+      }
+
+      // ===================== POMODORO TIMER =====================
+      let timerInterval = null;
+      let timerRunning = false;
+      let timerSeconds = 25 * 60;
+      let timerTotal = 25 * 60;
+      let timerMode = "study";
+      let sessionCount = 0;
+      let sessionStart = null;
+
+      const CIRCUMFERENCE = 2 * Math.PI * 100; // r=100
+
+      function setTimerMode(mode, el) {
+        if (timerRunning) return;
+        timerMode = mode;
+        document
+          .querySelectorAll("#page-timer .mode-tab")
+          .forEach((t) => t.classList.remove("active"));
+        if (el) el.classList.add("active");
+        const s = data.timerSettings;
+        const durations = {
+          study: s.study * 60,
+          short: s.short * 60,
+          long: s.long * 60,
+        };
+        timerSeconds = timerTotal = durations[mode];
+        updateTimerDisplay();
+        updateTimerRing();
+        document.getElementById("timer-mode-text").textContent = {
+          study: "Focus Time",
+          short: "Short Break",
+          long: "Long Break",
+        }[mode];
+        document.getElementById("timer-btn").textContent = "▶ Start";
+        document.getElementById("timer-ring").style.stroke =
+          mode === "study"
+            ? "url(#timerGrad)"
+            : mode === "short"
+              ? "var(--accent2)"
+              : "var(--warning)";
+      }
+
+      function toggleTimer() {
+        if (timerRunning) {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById("timer-btn").innerHTML = "▶ Start";
+        } else {
+          if (timerMode === "study") sessionStart = new Date();
+          timerRunning = true;
+          document.getElementById("timer-btn").innerHTML = "⏸ Pause";
+          timerInterval = setInterval(() => {
+            timerSeconds--;
+            updateTimerDisplay();
+            updateTimerRing();
+            if (timerSeconds <= 0) {
+              clearInterval(timerInterval);
+              timerRunning = false;
+              onTimerComplete();
+            }
+          }, 1000);
+        }
+      }
+
+      function onTimerComplete() {
+        playSound("ding");
+        if (timerMode === "study") {
+          sessionCount++;
+          const duration =
+            Math.round((timerTotal - timerSeconds) / 60) ||
+            data.timerSettings.study;
+          const session = {
+            date: new Date().toISOString(),
+            duration: data.timerSettings.study,
+            focusScore: 5,
+          };
+          data.sessions.push(session);
+          updateStreak();
+          addXP(20);
+          showToast(
+            "🎉",
+            "Focus session complete!",
+            `+20 XP. Session ${sessionCount} done!`,
+          );
+          fireConfetti(window.innerWidth / 2, window.innerHeight / 4);
+          if (sessionCount % data.timerSettings.sessionsBeforeLong === 0)
+            setTimerMode("long", null);
+          else setTimerMode("short", null);
+          renderTodaySessions();
+          save();
+        } else {
+          showToast("⏰", "Break over!", "Time to focus again!");
+          setTimerMode("study", null);
+        }
+        renderSessionDots();
+        document.getElementById("timer-btn").innerHTML = "▶ Start";
+      }
+
+      function resetTimer() {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        setTimerMode(timerMode, null);
+        document.getElementById("timer-btn").innerHTML = "▶ Start";
+      }
+
+      function skipSession() {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        onTimerComplete();
+      }
+
+      function updateTimerDisplay() {
+        const m = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+        const s = String(timerSeconds % 60).padStart(2, "0");
+        document.getElementById("timer-display").textContent = `${m}:${s}`;
+      }
+
+      function updateTimerRing() {
+        const pct = timerSeconds / timerTotal;
+        const offset = CIRCUMFERENCE * (1 - pct);
+        document.getElementById("timer-ring").style.strokeDashoffset = offset;
+      }
+
+      function renderSessionDots() {
+        const n = data.timerSettings.sessionsBeforeLong;
+        const dots = document.getElementById("session-dots");
+        dots.innerHTML = Array.from(
+          { length: n },
+          (_, i) =>
+            `<div class="session-dot ${i < sessionCount % n ? "done" : i === sessionCount % n && timerRunning && timerMode === "study" ? "active" : ""}"></div>`,
+        ).join("");
+      }
+
+      function updateTimerSettings() {
+        data.timerSettings = {
+          study: +document.getElementById("set-focus").value || 25,
+          short: +document.getElementById("set-short").value || 5,
+          long: +document.getElementById("set-long").value || 15,
+          sessionsBeforeLong:
+            +document.getElementById("set-sessions").value || 4,
+        };
+        save();
+        if (!timerRunning) setTimerMode(timerMode, null);
+      }
+
+      function renderTodaySessions() {
+        const today = new Date().toDateString();
+        const sessions = data.sessions.filter(
+          (s) => new Date(s.date).toDateString() === today,
+        );
+        const el = document.getElementById("today-sessions");
+        if (!sessions.length) {
+          el.innerHTML =
+            '<div class="empty-state" style="padding:20px"><div class="empty-text">No sessions yet today</div></div>';
+          return;
+        }
+        el.innerHTML = sessions
+          .map(
+            (s) => `
+    <div class="log-item">
+      <div>
+        <div style="font-weight:600">📖 Study Session</div>
+        <div class="log-date">${new Date(s.date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</div>
+      </div>
+      <div style="color:var(--primary);font-weight:700">${s.duration}m</div>
+    </div>
+  `,
+          )
+          .join("");
+      }
+
+      // ===================== ANALYTICS =====================
+      let weeklyChartInst = null,
+        categoryChartInst = null;
+
+      function renderAnalytics() {
+        const today = new Date();
+        const weekData = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(today);
+          d.setDate(d.getDate() - (6 - i));
+          const dStr = d.toDateString();
+          const total = data.sessions
+            .filter((s) => new Date(s.date).toDateString() === dStr)
+            .reduce((a, s) => a + s.duration, 0);
+          return {
+            label: d.toLocaleDateString("en-US", { weekday: "short" }),
+            value: Math.round((total / 60) * 10) / 10,
+          };
+        });
+
+        const catCount = { math: 0, science: 0, english: 0, other: 0 };
+        data.tasks.forEach((t) => {
+          if (catCount[t.category] !== undefined) catCount[t.category]++;
+          else catCount.other++;
+        });
+
+        const totalSess = data.sessions.length;
+        const totalMin = data.sessions.reduce((a, s) => a + s.duration, 0);
+
+        document.getElementById("total-sessions").textContent = totalSess;
+        document.getElementById("total-time").textContent =
+          totalMin >= 60
+            ? Math.round((totalMin / 60) * 10) / 10 + "h"
+            : totalMin + "m";
+        document.getElementById("best-streak").textContent =
+          data.gamification.streak;
+
+        const chartDefaults = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: "rgba(232,237,248,0.7)",
+                font: { family: "Lexend" },
+              },
+            },
+          },
+        };
+
+        if (weeklyChartInst) weeklyChartInst.destroy();
+        weeklyChartInst = new Chart(document.getElementById("weeklyChart"), {
+          type: "bar",
+          data: {
+            labels: weekData.map((d) => d.label),
+            datasets: [
+              {
+                label: "Hours",
+                data: weekData.map((d) => d.value),
+                backgroundColor: "rgba(79,142,247,0.6)",
+                borderColor: "#4F8EF7",
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            ...chartDefaults,
+            scales: {
+              x: {
+                ticks: { color: "rgba(232,237,248,0.5)" },
+                grid: { color: "rgba(255,255,255,0.05)" },
+              },
+              y: {
+                ticks: { color: "rgba(232,237,248,0.5)" },
+                grid: { color: "rgba(255,255,255,0.05)" },
+              },
+            },
+          },
+        });
+
+        if (categoryChartInst) categoryChartInst.destroy();
+        categoryChartInst = new Chart(
+          document.getElementById("categoryChart"),
+          {
+            type: "doughnut",
+            data: {
+              labels: ["Math", "Science", "English", "Other"],
+              datasets: [
+                {
+                  data: Object.values(catCount),
+                  backgroundColor: [
+                    "rgba(79,142,247,0.8)",
+                    "rgba(0,212,170,0.8)",
+                    "rgba(255,184,48,0.8)",
+                    "rgba(124,94,252,0.8)",
+                  ],
+                  borderWidth: 0,
+                },
+              ],
+            },
+            options: { ...chartDefaults, cutout: "65%" },
+          },
+        );
+      }
+
+      // ===================== PROFILE =====================
+      function renderProfile() {
+        const g = data.gamification;
+        const u = data.user;
+        document.getElementById("profile-name-disp").textContent =
+          u.name || "Scholar";
+        document.getElementById("profile-detail-disp").textContent =
+          [u.degree, u.university].filter(Boolean).join(" — ") || "Student";
+        document.getElementById("profile-level").textContent = g.level;
+        document.getElementById("profile-xp-label").textContent = g.xp + " XP";
+        document.getElementById("level-badge-num").textContent = g.level;
+        const xpToNext = g.level * 100;
+        document.getElementById("profile-xp-to-next").textContent =
+          xpToNext - g.xp + " XP to next level";
+        document.getElementById("xp-bar-fill").style.width =
+          Math.min(100, (g.xp / xpToNext) * 100) + "%";
+        document.getElementById("pet-emoji").textContent = u.petEmoji || "🦉";
+        document.getElementById("pet-name").textContent = u.petName || "Owly";
+
+        const grid = document.getElementById("badges-grid");
+        grid.innerHTML = ALL_BADGES.map(
+          (b) => `
+    <div class="badge-item ${g.badges.includes(b.id) ? "" : "locked"}" title="${b.desc}">
+      <span class="badge-icon">${b.icon}</span>
+      <div class="badge-label">${b.label}</div>
+    </div>
+  `,
+        ).join("");
+
+        const q = QUOTES[data.quoteIndex % QUOTES.length];
+        document.getElementById("quote-text").textContent = q.text;
+        document.getElementById("quote-author").textContent = q.author;
+        document.getElementById("quote-mini").textContent = q.text;
+      }
+
+      function nextQuote() {
+        data.quoteIndex = (data.quoteIndex + 1) % QUOTES.length;
+        save();
+        renderProfile();
+      }
+
+      function petInteract() {
+        const el = document.getElementById("pet-emoji");
+        el.style.transform = "scale(1.4) rotate(10deg)";
+        setTimeout(() => (el.style.transform = ""), 300);
+        addXP(1);
+        const moods = [
+          "Excited! 🎉",
+          "Happy 😊",
+          "Focused 🧠",
+          "Hungry 🍕",
+          "Sleepy 😴",
+        ];
+        document.getElementById("pet-mood").textContent =
+          "Mood: " + moods[Math.floor(Math.random() * moods.length)];
+      }
+
+      function selectPet(id, emoji, name, desc) {
+        data.user.petChoice = id;
+        data.user.petEmoji = emoji;
+        data.user.petName = name;
+        save();
+        closeModal("modal-pet");
+        renderProfile();
+        showToast(emoji, "New companion!", name + " joins you!");
+      }
+
+      // ===================== DASHBOARD =====================
+      function refreshDashboard() {
+        const h = new Date().getHours();
+        document.getElementById("timeOfDay").textContent =
+          h < 12 ? "morning" : h < 17 ? "afternoon" : "evening";
+        document.getElementById("userName").textContent =
+          data.user.name || "Scholar";
+        document.getElementById("today-date").textContent =
+          new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+
+        const active = data.tasks.filter((t) => !t.completed).length;
+        const done = data.tasks.filter((t) => t.completed).length;
+        document.getElementById("stat-tasks").textContent =
+          done + "/" + data.tasks.length;
+        document.getElementById("stat-xp").textContent = data.gamification.xp;
+        document.getElementById("stat-level").textContent =
+          data.gamification.level;
+        document.getElementById("streak-count").textContent =
+          data.gamification.streak;
+
+        const today = new Date().toDateString();
+        const todaySessions = data.sessions.filter(
+          (s) => new Date(s.date).toDateString() === today,
+        );
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - 7);
+        const weekSessions = data.sessions.filter(
+          (s) => new Date(s.date) >= weekStart,
+        );
+        const weekMin = weekSessions.reduce((a, s) => a + s.duration, 0);
+        document.getElementById("stat-hours").textContent =
+          Math.round((weekMin / 60) * 10) / 10 + "h";
+
+        const upcoming = data.exams
+          .filter((e) => getCountdown(e.date) >= 0)
+          .sort((a, b) => new Date(a.date) - new Date(b.date));
+        document.getElementById("stat-exams").textContent = upcoming.length;
+        document.getElementById("stat-next-exam").textContent = upcoming.length
+          ? `Next: ${upcoming[0].subject}`
+          : "None scheduled";
+
+        // Daily overview
+        document.getElementById("daily-overview").textContent =
+          `${active} active tasks, ${upcoming.length} upcoming exams, ${data.gamification.streak} day streak`;
+
+        // Tasks list (first 5)
+        const taskList = document.getElementById("dashboard-tasks-list");
+        const recent = data.tasks.slice(0, 5);
+        if (!recent.length) {
+          taskList.innerHTML =
+            '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No tasks yet</div></div>';
+        } else {
+          taskList.innerHTML = recent
+            .map(
+              (t) => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div class="check-box ${t.completed ? "checked" : ""}" style="flex-shrink:0;width:18px;height:18px" onclick="toggleTask(${t.id},event)"></div>
+        <div class="todo-text" style="font-size:13px;${t.completed ? "text-decoration:line-through;color:var(--text-muted)" : ""}">${escHtml(t.text)}</div>
+        <span class="cat-badge cat-${t.category}">${t.category}</span>
+      </div>
+    `,
+            )
+            .join("");
+          const pct = data.tasks.length
+            ? Math.round((done / data.tasks.length) * 100)
+            : 0;
+          document.getElementById("dash-task-progress").style.width = pct + "%";
+        }
+
+        // Exams list
+        const examList = document.getElementById("dashboard-exams-list");
+        if (!upcoming.length) {
+          examList.innerHTML =
+            '<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-text">No exams scheduled</div></div>';
+        } else {
+          examList.innerHTML = upcoming
+            .slice(0, 4)
+            .map((ex) => {
+              const days = getCountdown(ex.date);
+              const urg = getUrgency(days);
+              return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-weight:600;font-size:14px">${escHtml(ex.subject)}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${new Date(ex.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</div>
+        </div>
+        <span class="urgency-badge ${urg.cls}">${urg.icon} ${urg.text}</span>
+      </div>`;
+            })
+            .join("");
+        }
+
+        // Sessions
+        const sessEl = document.getElementById("dashboard-sessions");
+        const lastSess = data.sessions.slice(-5).reverse();
+        if (!lastSess.length) {
+          sessEl.innerHTML =
+            '<div class="empty-state"><div class="empty-icon">⏰</div><div class="empty-text">No sessions yet. Start the timer!</div></div>';
+        } else {
+          sessEl.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px">${lastSess
+            .map(
+              (s) => `
+      <div class="card-sm" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:1.4rem;font-family:var(--font-head);font-weight:800">${s.duration}m</div>
+        <div style="font-size:11px;color:var(--text-muted)">${new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+      </div>
+    `,
+            )
+            .join("")}</div>`;
+        }
+
+        updateTaskBadge();
+      }
+
+      // ===================== MODALS =====================
+      function openAddTask() {
+        document.getElementById("modal-task").classList.add("open");
+        document.getElementById("m-task-text").focus();
+      }
+      function openAddExam() {
+        document.getElementById("modal-exam").classList.add("open");
+        document.getElementById("m-exam-date").min = new Date()
+          .toISOString()
+          .split("T")[0];
+      }
+      function openEditProfile() {
+        const u = data.user;
+        document.getElementById("p-name").value = u.name || "";
+        document.getElementById("p-degree").value = u.degree || "";
+        document.getElementById("p-uni").value = u.university || "";
+        document.getElementById("modal-profile").classList.add("open");
+      }
+      function openPetSelect() {
+        document.getElementById("modal-pet").classList.add("open");
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+
+      document.querySelectorAll(".modal-overlay").forEach((m) => {
+        m.addEventListener("click", (e) => {
+          if (e.target === m) m.classList.remove("open");
+        });
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape")
+          document
+            .querySelectorAll(".modal-overlay.open")
+            .forEach((m) => m.classList.remove("open"));
+      });
+
+      function saveProfile() {
+        data.user.name = document.getElementById("p-name").value || "Scholar";
+        data.user.degree = document.getElementById("p-degree").value;
+        data.user.university = document.getElementById("p-uni").value;
+        save();
+        closeModal("modal-profile");
+        refreshDashboard();
+        renderProfile();
+        showToast("👤", "Profile updated!", "");
+      }
+
+      // ===================== SETTINGS =====================
+      function loadSettings() {
+        document.getElementById("s-name").value = data.user.name || "";
+        document.getElementById("s-degree").value = data.user.degree || "";
+        document.getElementById("s-university").value =
+          data.user.university || "";
+        const s = data.settings;
+        if (!s.digest)
+          document.getElementById("toggle-digest").classList.remove("on");
+        if (!s.sound)
+          document.getElementById("toggle-sound").classList.remove("on");
+      }
+
+      function saveProfileFromSettings() {
+        data.user.name = document.getElementById("s-name").value;
+        data.user.degree = document.getElementById("s-degree").value;
+        data.user.university = document.getElementById("s-university").value;
+        save();
+      }
+
+      function toggleSetting(key, el) {
+        el.classList.toggle("on");
+        data.settings[key] = el.classList.contains("on");
+        save();
+      }
+
+      function exportData() {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "studyflow-backup.json";
+        a.click();
+        showToast("📤", "Data exported!", "studyflow-backup.json downloaded");
+      }
+
+      function resetAllData() {
+        data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        save();
+        location.reload();
+      }
+
+      // ===================== SOUND =====================
+      function playSound(type) {
+        if (!data.settings.sound) return;
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          if (type === "ding") {
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(
+              440,
+              ctx.currentTime + 0.3,
+            );
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(
+              0.001,
+              ctx.currentTime + 0.4,
+            );
+            osc.start();
+            osc.stop(ctx.currentTime + 0.4);
+          } else if (type === "pop") {
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(
+              0.001,
+              ctx.currentTime + 0.1,
+            );
+            osc.start();
+            osc.stop(ctx.currentTime + 0.1);
+          }
+        } catch (e) {}
+      }
+
+      // ===================== UTIL =====================
+      function escHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // ===================== INIT =====================
+      function init() {
+        // Restore theme
+        document.documentElement.dataset.theme = data.user.theme || "dark";
+        if (data.user.theme === "light") {
+          document.getElementById("theme-icon").textContent = "☀️";
+          document.getElementById("theme-label").textContent = "Light Mode";
+        }
+
+        // Init timer display
+        const ts = data.timerSettings;
+        document.getElementById("set-focus").value = ts.study;
+        document.getElementById("set-short").value = ts.short;
+        document.getElementById("set-long").value = ts.long;
+        document.getElementById("set-sessions").value = ts.sessionsBeforeLong;
+        timerSeconds = timerTotal = ts.study * 60;
+        updateTimerDisplay();
+        updateTimerRing();
+        renderSessionDots();
+
+        refreshDashboard();
+        renderTasks();
+
+        // Staggered card animation
+        setTimeout(() => {
+          document
+            .querySelectorAll(".stat-card, .card, .welcome-banner")
+            .forEach((el, i) => {
+              el.style.opacity = "0";
+              el.style.transform = "translateY(20px)";
+              setTimeout(() => {
+                el.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+              }, i * 60);
+            });
+        }, 100);
+
+        // Digest toast
+        if (data.settings.digest) {
+          setTimeout(() => {
+            const active = data.tasks.filter((t) => !t.completed).length;
+            const upcoming = data.exams.filter(
+              (e) => getCountdown(e.date) >= 0 && getCountdown(e.date) <= 7,
+            ).length;
+            showToast(
+              "📚",
+              "Good day, " + (data.user.name || "Scholar") + "!",
+              `${active} tasks active · ${upcoming} exams this week`,
+            );
+          }, 1000);
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
