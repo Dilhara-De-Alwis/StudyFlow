@@ -1,0 +1,59 @@
+***Can you generate me a prompt to build this task with animations when loading the page using modern ui and ux design previews (example glass morphism, rounded corners), loading animations and other sort of annimations, also make sure to make the design responsive to all screen sizes like TV, laptop, desktop and mobile phone as other web developers create. Also use a professional color pallete (I prefer blue with primary colors for better view in both dark and light modes), I will also provide you some kind of designs of the dashboards(not an idea board so just take the Ui and UX idea only) and sort of things You can take the designing idea from them as well. Use HTML CSS and JS Only. think longer for better answers and search web for better understanding. Thank You.
+STUDY PLANNER Features***
+
+1. To do list
+2. Exam countdown
+3. Study timers
+4. Dashboard
+5. User Profile with Gamification
+
+
+
+1. To do list.
+	Check box & Name
+	Supportive emojis
+	Design like idea - board.
+	Sub-task branching: Break big tasks into checkable sub-items (Easily can do with tab option in the keyboard)
+	Notification for not Completed tasks on end of each day for today's tasks and on start of the next day, like you have 7 tasks not done or something.
+	Percentage for completed in to do list.
+	Completion celebration: Micro-animations + sound effects when checking off
+	Streak freeze: One "rest day" per week without breaking streaks
+
+
+2. Exam countdown
+	Subject Name & Exam date
+	Random card background colors.
+	Current date & countdown.
+	Priority scoring: Auto-rank exams by urgency + difficulty level set by the user
+	Grade goals: Set target grades, track required scores
+	Post-exam archive: Move completed exams to "Victory Hall" (gamification)
+
+
+3. Study timers
+	Pomodoro With Breaks timer to set, Like we can adjust the study timer, break timer and big break timer to specific mins as we like, but after study timer finished it must turn on the break timer automatically and after 2-3 sessions(user can select when he wants the big break it can also be after 10 sessions also)
+	Focus Time Records (1h main sessions but also 15 mins sessions with 4 dotted lines, Time Slots from 12AM to 12AM that the timer was active and also the timer must reset after today, I mean new one for tomorrow)
+	Focus score: Rate each session 1-10, correlate with time of day/conditions
+	Weekly focus report: Best/worst times, average session quality
+	Consistency score: "You studied 5/7 days this week" badge
+
+
+
+4. Dashboard
+	Total study hours
+	Total Upcoming Exams
+	Total To-Do things remaining for today
+	Chart for completed in to do lists daily for last 7 days.
+	Random Motivational quotes (There must be 100 or more short motivational quotes to be stored locally and with each day and also as per users wish it can be refreshed so new one appears)
+	Study Analytics (Productivity patterns: "You're most focused 9-11 AM", etc)
+
+
+5. User Profile with Gamification
+	User's basic info like Name, Degree, University, Email, which gonna save locally by the user.
+	Based on Habitica and Study Bunny success :
+		XP & Leveling: Gain XP for completed tasks, level up your "Scholar Rank"
+		Achievement badges:
+			🔥 "7-Day Streak"
+			🦉 "Night Owl" (study after 10 PM)
+			🎯 "Deadline Crusher" (complete early)
+			🧠 "Deep Diver" (4h+ focus day)
+	Virtual pet/study buddy: Pet that grows/evolves with your progress (Can select from 3 to 4 pets and maintain it)

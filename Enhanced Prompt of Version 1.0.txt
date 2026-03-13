@@ -1,0 +1,184 @@
+Production-Ready Prompt: Modern Study Planner Dashboard
+Design System & Visual Language
+Color Palette (Professional Blue-Centric System):
+Primary Blue: #2563EB (Royal Blue) for light mode, #3B82F6 for dark mode
+Secondary Accents: #0EA5E9 (Sky Blue), #6366F1 (Indigo)
+Success: #10B981 (Emerald) | Warning: #F59E0B (Amber) | Danger: #EF4444 (Rose)
+Neutrals: Slate palette (#F8FAFC to #0F172A) - avoid pure black, use blue-tinted darks (#0B1120, #1E293B) 
+Glass Effects: White/black overlays with rgba(255,255,255,0.08) to rgba(255,255,255,0.15) for dark mode glass; rgba(255,255,255,0.7) with backdrop-filter: blur(20px) for light mode 
+Glass Morphism Specifications:
+Frosted Glass: backdrop-filter: blur(20px) saturate(180%), background: rgba(255,255,255,0.08), border: 1px solid rgba(255,255,255,0.1) 
+Layered Depth: Multiple z-index layers with varying opacity (0.05, 0.08, 0.12) to create hierarchy 
+Soft Shadows: box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15) for floating cards 
+Subtle Borders: 1px semi-transparent borders to define edges without harsh lines 
+Typography:
+Font Family: Inter or system-ui stack for clean readability
+Scale: Fluid typography using clamp() for responsive headings (H1: clamp(1.5rem, 4vw, 2.5rem))
+Weights: 400 (body), 500 (labels), 600 (headings), 700 (emphasis)
+Responsive Architecture
+Breakpoint System:
+Mobile: 320px - 767px (4-column grid, single column layout)
+Tablet: 768px - 1023px (8-column grid, 2-column layouts)
+Desktop: 1024px - 1919px (12-column grid, multi-column dashboard)
+TV/Large Screens: 1920px+ (12-column grid with max-width containers, increased spacing) 
+Responsive Patterns:
+Mobile-First: Stack all widgets vertically, full-width cards, bottom navigation bar (48px touch targets) 
+Tablet: 2-column grid for dashboard widgets, sidebar collapses to icons
+Desktop: Multi-column masonry layout, persistent sidebar navigation, hover states enabled
+TV: Increased padding (32px+), larger typography scale, simplified data density, focus states for remote navigation 
+Layout Strategy:
+CSS Grid with auto-fit and minmax() for fluid widget sizing
+Flexbox for component-level alignment
+Container queries for component-specific responsiveness
+Safe areas for notched devices (env(safe-area-inset-*))
+Animation & Interaction System
+Loading Sequences:
+Initial Load: Staggered fade-in (0.6s ease-out) for dashboard widgets with 100ms delays between cards
+Skeleton Screens: Shimmer effect using linear-gradient animation while data loads (1.5s infinite) 
+Progressive Reveal: Content fades in as localStorage data retrieves (no blank states)
+Micro-interactions:
+Button Hover: Scale(1.02) + shadow elevation increase (200ms cubic-bezier(0.4, 0, 0.2, 1))
+Card Hover: Subtle lift translateY(-4px) with enhanced shadow (glass layers shift opacity)
+Checkbox Completion: Spring animation (scale bounce 1.2 → 1.0) + confetti burst for task completion 
+Toggle Switches: Smooth slide with elastic overshoot
+Focus States: Visible ring outline: 2px solid var(--primary-blue) for accessibility 
+Page Transitions:
+Route Changes: Fade-through animation (300ms) between dashboard sections
+Modal Open: Backdrop blur intensifies, modal scales up from 0.95 with opacity fade
+Toast Notifications: Slide in from right + progress bar countdown
+Gamification Animations:
+XP Gain: Number counter animation rolling up to new value + floating "+XP" text
+Level Up: Full-screen modal with particle burst, badge shine effect
+Streak Flame: CSS flicker animation on flame icon, pulsing glow effect
+Pet Evolution: Morphing SVG animation with sparkle overlays
+Performance Optimization:
+Use transform and opacity only for animations (GPU accelerated)
+Implement prefers-reduced-motion media query fallbacks 
+Throttle scroll events to 16ms (60fps)
+Use CSS animations over JavaScript where possible 
+Component Specifications
+1. Navigation & Layout
+Glass Header: Fixed top, backdrop-filter: blur(20px), border-bottom on scroll
+Sidebar: Collapsible glass panel with icon + label (desktop), bottom sheet (mobile)
+Theme Toggle: Sun/moon icon rotation animation with background gradient transition
+2. Dashboard Widgets (Glass Cards)
+Structure: Rounded corners (border-radius: 24px), 1px border, inner padding 24px
+Hover State: Increased border opacity, subtle shadow expansion
+Grid Layout: CSS Grid with gap: 24px, responsive columns
+Widget Types:
+Stats Cards: Large typography for numbers, trend indicators with sparklines
+Charts: Recharts or Chart.js with glass tooltip overlays, gradient fills
+Lists: Scrollable with custom glass scrollbar, hover highlight rows
+3. To-Do List (Idea Board Style)
+Visual Design: Masonry grid layout, cards with random subtle gradient backgrounds (pastel blues/purples)
+Interactions:
+Drag-and-drop reordering with smooth list animations
+Tab key creates sub-task with indentation animation
+Check animation: SVG stroke draw + strikethrough slide-in
+Delete: Card shrinks + fades out (300ms)
+Progress Ring: Circular SVG progress indicator with percentage text
+Empty State: Illustration with "Add your first task" CTA
+4. Exam Countdown
+Card Design: Full-bleed background gradients (randomized from curated palette: blue-purple, blue-teal, indigo-violet)
+Countdown Display: Large monospace numbers with flip animation on change
+Priority Indicator: Color-coded urgency badges (Red: <3 days, Amber: <7 days, Blue: >7 days)
+Victory Hall: Archived exams in grayscale with trophy overlay, confetti on revisit
+5. Study Timer (Pomodoro)
+Timer Display: Large circular progress ring (SVG) with time in center
+Controls: Glassmorphism buttons with hover glow effects
+Session Tracking: Visual dots/bars for completed sessions, pulsing active indicator
+Break Transition: Smooth color shift (blue → green) with scale pulse
+Focus Score: Star rating interaction with hover preview
+6. User Profile & Gamification
+Profile Card: Avatar with level ring progress, glass stats overlay
+XP Bar: Animated fill with segment markers for level thresholds
+Badges: 3D tilt effect on hover (CSS transform perspective), shine animation on unlock
+Virtual Pet:
+SVG character with idle bobbing animation
+Evolution transitions with particle effects
+Interactive click reactions (happy bounce)
+Selection modal with 4 pet options (Owl, Fox, Dragon, Robot)
+Technical Implementation Stack
+Core Technologies:
+HTML5: Semantic structure, accessibility attributes (ARIA labels)
+CSS3:
+Custom Properties (CSS variables) for theming
+Grid & Flexbox layouts
+backdrop-filter for glass effects
+clamp() for fluid sizing
+@media (prefers-color-scheme) for system theme detection
+Vanilla JavaScript:
+ES6+ modules
+LocalStorage API for data persistence
+Web Audio API for notification sounds (optional)
+Intersection Observer for scroll animations
+ResizeObserver for responsive adjustments
+Key Libraries (Optional but Recommended):
+Chart.js or ApexCharts for analytics (lightweight, responsive)
+SortableJS for drag-and-drop lists
+Canvas Confetti for celebration effects
+Accessibility Requirements:
+WCAG 2.1 AA compliance
+Keyboard navigation support (Tab, Enter, Escape)
+Screen reader announcements for dynamic content
+Focus management for modals
+prefers-reduced-motion support 
+Data Structure & Local Storage
+Storage Schema:
+JavaScript
+Copy
+{
+  user: { name, degree, university, email, theme, petChoice },
+  tasks: [{ id, text, completed, subtasks: [], createdAt, category }],
+  exams: [{ id, subject, date, priority, difficulty, targetGrade, completed }],
+  timerSettings: { studyDuration, shortBreak, longBreak, sessionsBeforeLongBreak },
+  sessions: [{ date, duration, focusScore, startTime, endTime }],
+  gamification: { xp, level, streak, lastStudyDate, badges: [], streakFreezesUsed },
+  quotes: { currentQuoteIndex, lastUpdated }
+}
+Special Features Implementation
+Notification System:
+Daily Digest: Toast notification on app open showing incomplete tasks from yesterday + today's pending count
+Exam Reminders: Browser notification API for upcoming exams (24h, 3h warnings)
+Streak Alerts: Celebration modal when streak milestones reached
+Sound Design:
+Toggle: Mute/unmute control in settings
+Effects: Soft "pop" for task completion, "ding" for timer completion, subtle "level-up" chime
+Implementation: Web Audio API with oscillators (no external files needed)
+Dark/Light Mode:
+Toggle: Smooth transition (0.3s) on all color properties
+Glass Adaptation:
+Light: rgba(255,255,255,0.7) background, darker text
+Dark: rgba(15,23,42,0.6) background, lighter text, stronger blur 
+File Structure
+plain
+Copy
+/index.html
+/css/
+  ├── variables.css (design tokens)
+  ├── base.css (reset + typography)
+  ├── glass.css (glassmorphism utilities)
+  ├── components.css (buttons, cards, inputs)
+  ├── animations.css (keyframes + transitions)
+  ├── responsive.css (media queries)
+  └── themes.css (light/dark modes)
+/js/
+  ├── app.js (main initialization)
+  ├── storage.js (localStorage management)
+  ├── dashboard.js (widget logic)
+  ├── todo.js (task management)
+  ├── timer.js (pomodoro logic)
+  ├── gamification.js (XP, badges, pet)
+  ├── notifications.js (toast system)
+  └── utils.js (helpers, animations)
+/assets/
+  ├── icons/ (SVG sprite)
+  └── sounds/ (generated audio)
+Quality Assurance Checklist
+[ ] Performance: Lighthouse score >90, <3s load on 3G
+[ ] Responsive: Tested on actual devices (iPhone SE, iPad, 4K monitor)
+[ ] Accessibility: Keyboard-only navigation possible, screen reader tested
+[ ] Animations: 60fps on mid-range devices, reduced-motion fallback works
+[ ] Browser Support: Chrome, Firefox, Safari, Edge (last 2 versions)
+[ ] Data Integrity: LocalStorage backup/export feature included
+[ ] Offline: Service worker for basic offline functionality (PWA-ready)
