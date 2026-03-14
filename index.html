@@ -344,6 +344,9 @@
         margin-top: auto;
         padding-top: 16px;
         border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
       }
       .streak-pill {
         display: flex;
@@ -1288,7 +1291,16 @@
         filter: grayscale(1);
       }
 
-      /* PET */
+      .pinned-task {
+        border-left: 3px solid var(--warning) !important;
+        background: rgba(255, 184, 48, 0.04);
+      }
+      .matrix-task-list {
+        min-height: 40px;
+      }
+      .matrix-task-list .todo-item {
+        margin-bottom: 6px;
+      }
       .pet-section {
         display: flex;
         flex-direction: column;
@@ -1991,6 +2003,7 @@
                 /></svg
             ></span>
             <span>Exams</span>
+            <span class="nav-badge" id="exam-badge">0</span>
           </div>
           <div class="nav-item" onclick="navigate('timer')" data-page="timer">
             <span class="nav-icon"
@@ -2000,6 +2013,28 @@
                 /></svg
             ></span>
             <span>Study Timer</span>
+          </div>
+          <div class="nav-item" onclick="navigate('grades')" data-page="grades">
+            <span class="nav-icon"
+              ><svg viewBox="0 0 24 24">
+                <path
+                  d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"
+                /></svg
+            ></span>
+            <span>GPA Tracker</span>
+          </div>
+          <div
+            class="nav-item"
+            onclick="navigate('calendar')"
+            data-page="calendar"
+          >
+            <span class="nav-icon"
+              ><svg viewBox="0 0 24 24">
+                <path
+                  d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
+                /></svg
+            ></span>
+            <span>Calendar</span>
           </div>
         </div>
 
@@ -2017,37 +2052,6 @@
                 /></svg
             ></span>
             <span>Analytics</span>
-          </div>
-          <div class="nav-item" onclick="navigate('grades')" data-page="grades">
-            <span class="nav-icon"
-              ><svg viewBox="0 0 24 24">
-                <path
-                  d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"
-                /></svg
-            ></span>
-            <span>GPA Tracker</span>
-          </div>
-          <div class="nav-item" onclick="navigate('matrix')" data-page="matrix">
-            <span class="nav-icon"
-              ><svg viewBox="0 0 24 24">
-                <path
-                  d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"
-                /></svg
-            ></span>
-            <span>Matrix</span>
-          </div>
-          <div
-            class="nav-item"
-            onclick="navigate('calendar')"
-            data-page="calendar"
-          >
-            <span class="nav-icon"
-              ><svg viewBox="0 0 24 24">
-                <path
-                  d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
-                /></svg
-            ></span>
-            <span>Calendar</span>
           </div>
           <div
             class="nav-item"
@@ -2111,6 +2115,14 @@
               <div class="page-sub" id="today-date-time"></div>
             </div>
             <div class="page-actions">
+              <button class="btn btn-ghost" onclick="openAddExam()">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
+                  />
+                </svg>
+                Add Exam
+              </button>
               <button class="btn btn-primary" onclick="openAddTask()">
                 <svg viewBox="0 0 24 24">
                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -2236,13 +2248,15 @@
             >
               <div class="stat-icon">
                 <svg viewBox="0 0 24 24">
-                  <path d="M7 2v11h3v9l7-12h-4l4-8z" />
+                  <path
+                    d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"
+                  />
                 </svg>
               </div>
-              <div class="stat-label">XP Points</div>
-              <div class="stat-value" id="stat-xp">0</div>
+              <div class="stat-label">Current GPA</div>
+              <div class="stat-value" id="stat-xp">—</div>
               <div class="stat-change">
-                Level <span id="stat-level">1</span>
+                <span id="stat-level">out of 4.0</span>
               </div>
             </div>
           </div>
@@ -2409,12 +2423,6 @@
               <div class="mode-tab" onclick="filterTasks('today', this)">
                 Today
               </div>
-              <div class="mode-tab" onclick="filterTasks('active', this)">
-                Active
-              </div>
-              <div class="mode-tab" onclick="filterTasks('done', this)">
-                Done
-              </div>
               <div class="mode-tab" onclick="filterTasks('yesterday', this)">
                 Yesterday
               </div>
@@ -2432,28 +2440,28 @@
             </select>
           </div>
 
-          <div class="card">
+          <div class="card" style="margin-bottom: 20px">
             <div class="todo-input-row">
               <input
                 type="text"
                 class="input"
                 id="task-input"
-                placeholder="Add a new task... (press Enter)"
-                onkeydown="if (event.key === 'Enter') addTask();"
+                placeholder="Quick add task... (press Enter)"
+                onkeydown="if (event.key === 'Enter') addTaskInline();"
               />
               <select
                 class="input"
                 id="task-cat"
                 style="width: 160px; flex-shrink: 0"
               ></select>
-              <button class="btn btn-primary" onclick="addTask()">
+              <button class="btn btn-primary" onclick="addTaskInline()">
                 <svg viewBox="0 0 24 24">
                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                 </svg>
                 Add
               </button>
             </div>
-            <div class="progress-bar-wrap" style="margin-bottom: 16px">
+            <div class="progress-bar-wrap" style="margin-bottom: 8px">
               <div
                 class="progress-bar"
                 id="task-progress-bar"
@@ -2465,29 +2473,222 @@
                 font-size: 12px;
                 color: var(--text-muted);
                 text-align: right;
-                margin-top: -10px;
-                margin-bottom: 12px;
+                margin-bottom: 4px;
               "
               id="task-progress-text"
             >
-              0 / 0 tasks completed
+              0 / 0 tasks completed (0%)
             </div>
-            <div class="todo-list" id="task-list"></div>
+          </div>
+
+          <!-- Eisenhower Matrix 2x2 Combined Task Board -->
+          <div
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px"
+            id="matrix-task-grid"
+          >
+            <!-- Do First -->
             <div
-              style="margin-top: 16px; display: flex; justify-content: flex-end"
+              class="card"
+              style="border-top: 3px solid var(--danger); padding: 0"
             >
-              <button
-                class="btn btn-ghost"
-                onclick="clearCompleted()"
-                style="font-size: 12px; color: var(--text-muted)"
+              <div
+                class="matrix-header"
+                onclick="toggleMatrixSection('do')"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding: 16px 20px;
+                  cursor: pointer;
+                  user-select: none;
+                "
               >
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                  />
-                </svg>
-                Archive Completed Tasks
-              </button>
+                <span
+                  style="
+                    font-family: var(--font-head);
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                  "
+                  >🚨 Do First
+                  <span
+                    style="
+                      font-size: 11px;
+                      font-weight: 400;
+                      color: var(--text-muted);
+                    "
+                    >Urgent + Important</span
+                  ></span
+                >
+                <span
+                  id="matrix-toggle-do"
+                  style="font-size: 12px; color: var(--text-muted)"
+                  >▲</span
+                >
+              </div>
+              <div id="matrix-body-do" style="padding: 0 16px 16px">
+                <div
+                  id="task-list-do"
+                  class="matrix-task-list"
+                  ondragover="event.preventDefault()"
+                  ondrop="dropToQuadrant(event, 'do')"
+                ></div>
+              </div>
+            </div>
+            <!-- Schedule -->
+            <div
+              class="card"
+              style="border-top: 3px solid var(--primary); padding: 0"
+            >
+              <div
+                class="matrix-header"
+                onclick="toggleMatrixSection('schedule')"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding: 16px 20px;
+                  cursor: pointer;
+                  user-select: none;
+                "
+              >
+                <span
+                  style="
+                    font-family: var(--font-head);
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                  "
+                  >📅 Schedule
+                  <span
+                    style="
+                      font-size: 11px;
+                      font-weight: 400;
+                      color: var(--text-muted);
+                    "
+                    >Important, Not Urgent</span
+                  ></span
+                >
+                <span
+                  id="matrix-toggle-schedule"
+                  style="font-size: 12px; color: var(--text-muted)"
+                  >▲</span
+                >
+              </div>
+              <div id="matrix-body-schedule" style="padding: 0 16px 16px">
+                <div
+                  id="task-list-schedule"
+                  class="matrix-task-list"
+                  ondragover="event.preventDefault()"
+                  ondrop="dropToQuadrant(event, 'schedule')"
+                ></div>
+              </div>
+            </div>
+            <!-- Delegate -->
+            <div
+              class="card"
+              style="border-top: 3px solid var(--warning); padding: 0"
+            >
+              <div
+                class="matrix-header"
+                onclick="toggleMatrixSection('delegate')"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding: 16px 20px;
+                  cursor: pointer;
+                  user-select: none;
+                "
+              >
+                <span
+                  style="
+                    font-family: var(--font-head);
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                  "
+                  >📨 Delegate
+                  <span
+                    style="
+                      font-size: 11px;
+                      font-weight: 400;
+                      color: var(--text-muted);
+                    "
+                    >Urgent, Not Important</span
+                  ></span
+                >
+                <span
+                  id="matrix-toggle-delegate"
+                  style="font-size: 12px; color: var(--text-muted)"
+                  >▲</span
+                >
+              </div>
+              <div id="matrix-body-delegate" style="padding: 0 16px 16px">
+                <div
+                  id="task-list-delegate"
+                  class="matrix-task-list"
+                  ondragover="event.preventDefault()"
+                  ondrop="dropToQuadrant(event, 'delegate')"
+                ></div>
+              </div>
+            </div>
+            <!-- Eliminate -->
+            <div
+              class="card"
+              style="border-top: 3px solid var(--text-faint); padding: 0"
+            >
+              <div
+                class="matrix-header"
+                onclick="toggleMatrixSection('eliminate')"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding: 16px 20px;
+                  cursor: pointer;
+                  user-select: none;
+                "
+              >
+                <span
+                  style="
+                    font-family: var(--font-head);
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                  "
+                  >🗑️ Eliminate
+                  <span
+                    style="
+                      font-size: 11px;
+                      font-weight: 400;
+                      color: var(--text-muted);
+                    "
+                    >Not Urgent, Not Important</span
+                  ></span
+                >
+                <span
+                  id="matrix-toggle-eliminate"
+                  style="font-size: 12px; color: var(--text-muted)"
+                  >▲</span
+                >
+              </div>
+              <div id="matrix-body-eliminate" style="padding: 0 16px 16px">
+                <div
+                  id="task-list-eliminate"
+                  class="matrix-task-list"
+                  ondragover="event.preventDefault()"
+                  ondrop="dropToQuadrant(event, 'eliminate')"
+                ></div>
+              </div>
             </div>
           </div>
         </section>
@@ -2506,6 +2707,14 @@
               <div class="page-sub">Track your upcoming assessments</div>
             </div>
             <div class="page-actions">
+              <button class="btn btn-ghost" onclick="openManageSubjects()">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 2l-5.5 9h11z M17.5 22a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM3 13.5h8v8H3z"
+                  />
+                </svg>
+                Subjects
+              </button>
               <button class="btn btn-primary" onclick="openAddExam()">
                 <svg viewBox="0 0 24 24">
                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -2538,32 +2747,6 @@
               <div class="page-sub">Pomodoro technique for deep focus</div>
             </div>
           </div>
-          <div style="margin-bottom: 16px">
-            <input
-              type="text"
-              class="input"
-              id="session-title-input"
-              placeholder="Study Session"
-              style="max-width: 400px; font-size: 15px; font-weight: 600"
-            />
-          </div>
-          <div style="margin-bottom: 12px">
-            <button
-              class="btn btn-ghost"
-              onclick="enterFocusMode()"
-              id="focus-mode-btn"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                style="width: 16px; height: 16px; fill: currentColor"
-              >
-                <path
-                  d="M3 3h7v2H5v5H3zm11 0h7v7h-2V5h-5zm-4 8H7v7h2v-5h4v5h2v-7h-2v2H10zm7 4h-2v5h-5v2h7z"
-                />
-              </svg>
-              Enter Focus Mode
-            </button>
-          </div>
           <div class="grid-2" style="align-items: start">
             <div class="card">
               <div class="mode-tabs">
@@ -2580,6 +2763,15 @@
                   Long Break
                 </div>
               </div>
+              <div style="margin-bottom: 16px">
+                <input
+                  type="text"
+                  class="input"
+                  id="session-title-input"
+                  placeholder="What are you studying?"
+                  style="font-size: 14px; font-weight: 600; text-align: center"
+                />
+              </div>
               <div class="timer-wrapper">
                 <div class="timer-ring-wrap">
                   <svg width="220" height="220" viewBox="0 0 220 220">
@@ -2591,7 +2783,7 @@
                       cy="110"
                       r="100"
                       stroke="url(#timerGrad)"
-                      stroke-dasharray="628.3"
+                      stroke-dasharray="628.32"
                       stroke-dashoffset="0"
                     />
                     <defs>
@@ -2614,6 +2806,24 @@
                     </div>
                     <div class="session-dots" id="session-dots"></div>
                   </div>
+                </div>
+                <div style="margin: 8px 0 4px; text-align: center">
+                  <button
+                    class="btn btn-ghost"
+                    onclick="enterFocusMode()"
+                    id="focus-mode-btn"
+                    style="font-size: 12px; padding: 7px 16px"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      style="width: 14px; height: 14px; fill: currentColor"
+                    >
+                      <path
+                        d="M3 3h7v2H5v5H3zm11 0h7v7h-2V5h-5zm-4 8H7v7h2v-5h4v5h2v-7h-2v2H10zm7 4h-2v5h-5v2h7z"
+                      />
+                    </svg>
+                    Enter Focus Mode
+                  </button>
                 </div>
                 <div class="timer-controls">
                   <button
@@ -2640,9 +2850,8 @@
                       viewBox="0 0 24 24"
                       style="width: 18px; height: 18px; fill: #fff"
                     >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    Start
+                      <path d="M8 5v14l11-7z" /></svg
+                    >Start
                   </button>
                   <button
                     class="btn btn-ghost btn-icon"
@@ -3037,9 +3246,26 @@
                 style="display: none"
                 onchange="handleAvatarUpload(event)"
               />
-              <span style="font-size: 10px; color: var(--text-faint)"
-                >Click to upload</span
-              >
+              <div style="display: flex; gap: 6px; margin-top: 4px">
+                <span style="font-size: 10px; color: var(--text-faint)"
+                  >Click to upload</span
+                >
+                <button
+                  id="remove-avatar-btn"
+                  onclick="removeAvatar()"
+                  style="
+                    font-size: 10px;
+                    color: var(--danger);
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    display: none;
+                    padding: 0;
+                  "
+                >
+                  ✕ Remove
+                </button>
+              </div>
             </div>
 
             <!-- Profile Info - Inline Edit -->
@@ -3053,12 +3279,23 @@
                 "
               >
                 <div class="form-group" style="margin: 0">
-                  <label class="form-label">Name</label>
+                  <label class="form-label">First Name</label>
                   <input
                     type="text"
                     class="input"
-                    id="inline-p-name"
-                    placeholder="Your name"
+                    id="inline-p-firstname"
+                    placeholder="First name"
+                    oninput="saveInlineProfile()"
+                    style="font-size: 14px; padding: 8px 12px"
+                  />
+                </div>
+                <div class="form-group" style="margin: 0">
+                  <label class="form-label">Last Name</label>
+                  <input
+                    type="text"
+                    class="input"
+                    id="inline-p-lastname"
+                    placeholder="Last name"
                     oninput="saveInlineProfile()"
                     style="font-size: 14px; padding: 8px 12px"
                   />
@@ -3096,7 +3333,7 @@
                     style="font-size: 14px; padding: 8px 12px"
                   />
                 </div>
-                <div class="form-group" style="margin: 0; grid-column: 1/-1">
+                <div class="form-group" style="margin: 0">
                   <label class="form-label">Email</label>
                   <input
                     type="email"
@@ -3391,7 +3628,7 @@
                   "
                 >
                   <div>
-                    <strong>StudyFlow</strong> v3.0 — Your Academic Partner
+                    <strong>StudyFlow</strong> v4.1 — Your Academic Partner
                   </div>
                   <div>
                     A modern study planner to help you ace your academics.
@@ -3422,6 +3659,14 @@
               </div>
             </div>
             <div class="page-actions">
+              <button class="btn btn-ghost" onclick="openManageSubjects()">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 2l-5.5 9h11z M17.5 22a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM3 13.5h8v8H3z"
+                  />
+                </svg>
+                Subjects
+              </button>
               <button class="btn btn-primary" onclick="openAddGradeEntry()">
                 <svg viewBox="0 0 24 24">
                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -3471,9 +3716,507 @@
             </div>
           </div>
 
+          <!-- Grading Scale Reference -->
+          <details style="margin-bottom: 20px">
+            <summary
+              style="
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-muted);
+                padding: 8px 0;
+                list-style: none;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                user-select: none;
+              "
+            >
+              <svg
+                viewBox="0 0 24 24"
+                style="
+                  width: 14px;
+                  height: 14px;
+                  fill: var(--primary);
+                  flex-shrink: 0;
+                "
+              >
+                <path
+                  d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"
+                />
+              </svg>
+              View Grading Scale Reference
+            </summary>
+            <div class="card" style="margin-top: 10px; padding: 16px">
+              <div
+                style="
+                  font-family: var(--font-head);
+                  font-weight: 700;
+                  font-size: 0.85rem;
+                  margin-bottom: 12px;
+                  color: var(--text-muted);
+                  text-transform: uppercase;
+                  letter-spacing: 0.8px;
+                "
+              >
+                Grading Scale
+              </div>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                  gap: 6px;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--success);
+                    "
+                    >A+</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      85 – 100%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 4.00 · Superior
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--success);
+                    "
+                    >A</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      70 – 84%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 4.00 · Superior
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--success);
+                    "
+                    >A-</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      65 – 69%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 3.70 · Superior
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--primary);
+                    "
+                    >B+</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      60 – 64%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 3.30 · Meritorious
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--primary);
+                    "
+                    >B</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      55 – 59%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 3.00 · Meritorious
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--primary);
+                    "
+                    >B-</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      50 – 54%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 2.70 · Meritorious
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--warning);
+                    "
+                    >C+</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      45 – 49%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 2.30 · Adequate
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--warning);
+                    "
+                    >C</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      40 – 44%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 2.00 · Adequate
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--warning);
+                    "
+                    >C-</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      35 – 39%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 1.70 · Adequate
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: rgba(255, 184, 48, 0.7);
+                    "
+                    >D+</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      30 – 34%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 1.30 · Minimal
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: rgba(255, 184, 48, 0.7);
+                    "
+                    >D</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      25 – 29%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 1.00 · Minimal
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 8px;
+                    border-radius: 8px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                  "
+                >
+                  <span
+                    style="
+                      font-weight: 800;
+                      font-size: 13px;
+                      min-width: 28px;
+                      color: var(--danger);
+                    "
+                    >F</span
+                  >
+                  <div>
+                    <div style="font-size: 11px; color: var(--text-muted)">
+                      00 – 24%
+                    </div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: var(--text-faint);
+                      "
+                    >
+                      GPV 0.00 · Fail
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
           <div class="grid-2" style="align-items: start">
             <div class="card">
-              <div class="chart-title"><span>Grade Entries</span></div>
+              <div class="chart-title">
+                <span>Grade Entries</span>
+                <div style="display: flex; gap: 8px; align-items: center">
+                  <select
+                    class="input"
+                    id="grade-filter-subject"
+                    style="width: 130px; font-size: 12px"
+                    onchange="renderGrades()"
+                  >
+                    <option value="all">All Subjects</option>
+                  </select>
+                  <select
+                    class="input"
+                    id="grade-filter-sem"
+                    style="width: 110px; font-size: 12px"
+                    onchange="renderGrades()"
+                  >
+                    <option value="all">All Semesters</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                  </select>
+                </div>
+              </div>
               <div id="grade-entries-list">
                 <div class="empty-state">
                   <div class="empty-text">No grades added yet</div>
@@ -3481,7 +4224,17 @@
               </div>
             </div>
             <div class="card">
-              <div class="chart-title"><span>Performance Trend</span></div>
+              <div class="chart-title">
+                <span>Performance Trend</span>
+                <select
+                  class="input"
+                  id="grade-chart-filter"
+                  style="width: 130px; font-size: 12px"
+                  onchange="renderGrades()"
+                >
+                  <option value="all">All Subjects</option>
+                </select>
+              </div>
               <div class="chart-container">
                 <canvas id="gradeChart"></canvas>
               </div>
@@ -3877,6 +4630,10 @@
           ><select class="input" id="m-task-cat"></select>
         </div>
         <div class="form-group">
+          <label class="form-label">Due Date & Time (optional)</label>
+          <input type="datetime-local" class="input" id="m-task-due" />
+        </div>
+        <div class="form-group">
           <label class="form-label">Priority Quadrant</label>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
             <label
@@ -4016,13 +4773,8 @@
         </div>
         <input type="hidden" id="edit-grade-id" />
         <div class="form-group">
-          <label class="form-label">Module / Subject</label>
-          <input
-            type="text"
-            class="input"
-            id="g-module"
-            placeholder="e.g. Calculus II"
-          />
+          <label class="form-label">Subject / Module</label>
+          <select class="input" id="g-module"></select>
         </div>
         <div class="form-group">
           <label class="form-label">Assessment Type</label>
@@ -4033,6 +4785,8 @@
             <option value="final">Final Exam</option>
             <option value="project">Project</option>
             <option value="lab">Lab</option>
+            <option value="presentation">Presentation</option>
+            <option value="coursework">Coursework</option>
           </select>
         </div>
         <div class="form-group">
@@ -4083,6 +4837,10 @@
             />
           </div>
         </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="input" id="g-date" />
+        </div>
         <div class="modal-actions">
           <button class="btn btn-ghost" onclick="closeModal('modal-grade')">
             Cancel
@@ -4106,8 +4864,8 @@
         </div>
         <input type="hidden" id="edit-task-id" />
         <div class="form-group">
-          <label class="form-label">Task Description</label
-          ><input
+          <label class="form-label">Task Description</label>
+          <input
             type="text"
             class="input"
             id="edit-task-text"
@@ -4115,8 +4873,25 @@
           />
         </div>
         <div class="form-group">
-          <label class="form-label">Category</label
-          ><select class="input" id="edit-task-cat"></select>
+          <label class="form-label">Category</label>
+          <select class="input" id="edit-task-cat"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date & Time (optional)</label>
+          <input type="datetime-local" class="input" id="edit-task-due" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority Quadrant</label>
+          <select class="input" id="edit-task-priority">
+            <option value="do">🚨 Do First (Urgent + Important)</option>
+            <option value="schedule">
+              📅 Schedule (Important, Not Urgent)
+            </option>
+            <option value="delegate">
+              📨 Delegate (Urgent, Not Important)
+            </option>
+            <option value="eliminate">🗑️ Eliminate (Neither)</option>
+          </select>
         </div>
         <div class="modal-actions">
           <button class="btn btn-ghost" onclick="closeModal('modal-edit-task')">
@@ -4138,37 +4913,44 @@
           >New Exam
         </div>
         <div class="form-group">
-          <label class="form-label">Subject</label
-          ><input
-            type="text"
-            class="input"
-            id="m-exam-subject"
-            placeholder="e.g. Calculus II"
-          />
+          <label class="form-label">Subject</label>
+          <select class="input" id="m-exam-subject"></select>
         </div>
         <div class="form-group">
-          <label class="form-label">Exam Date</label
-          ><input type="date" class="input" id="m-exam-date" />
+          <label class="form-label">Exam Date</label>
+          <input type="date" class="input" id="m-exam-date" />
         </div>
         <div class="form-group">
-          <label class="form-label">Exam Time (optional)</label
-          ><input type="time" class="input" id="m-exam-time" />
+          <label class="form-label">Exam Time (optional)</label>
+          <input type="time" class="input" id="m-exam-time" />
         </div>
         <div class="form-group">
-          <label class="form-label">Priority</label
-          ><select class="input" id="m-exam-priority">
+          <label class="form-label">Priority</label>
+          <select class="input" id="m-exam-priority">
             <option value="high">High Priority</option>
             <option value="medium" selected>Medium Priority</option>
             <option value="low">Low Priority</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Target Grade (%)</label
-          ><input
+          <label class="form-label">Target Grade (%)</label>
+          <input
             type="number"
             class="input marks-input"
             id="m-exam-grade"
             placeholder="85"
+            min="0"
+            max="100"
+            oninput="clampMarks(this)"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exam Weight (% of module)</label>
+          <input
+            type="number"
+            class="input marks-input"
+            id="m-exam-weight"
+            placeholder="40"
             min="0"
             max="100"
             oninput="clampMarks(this)"
@@ -4190,38 +4972,48 @@
       <div class="modal">
         <div class="modal-title">
           <svg viewBox="0 0 24 24">
-            <path
-              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-            /></svg
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" /></svg
           >Edit Exam
         </div>
         <input type="hidden" id="edit-exam-id" />
         <div class="form-group">
-          <label class="form-label">Subject</label
-          ><input type="text" class="input" id="edit-exam-subject" />
+          <label class="form-label">Subject</label>
+          <select class="input" id="edit-exam-subject"></select>
         </div>
         <div class="form-group">
-          <label class="form-label">Exam Date</label
-          ><input type="date" class="input" id="edit-exam-date" />
+          <label class="form-label">Exam Date</label>
+          <input type="date" class="input" id="edit-exam-date" />
         </div>
         <div class="form-group">
-          <label class="form-label">Exam Time (optional)</label
-          ><input type="time" class="input" id="edit-exam-time" />
+          <label class="form-label">Exam Time (optional)</label>
+          <input type="time" class="input" id="edit-exam-time" />
         </div>
         <div class="form-group">
-          <label class="form-label">Priority</label
-          ><select class="input" id="edit-exam-priority">
+          <label class="form-label">Priority</label>
+          <select class="input" id="edit-exam-priority">
             <option value="high">High Priority</option>
             <option value="medium">Medium Priority</option>
             <option value="low">Low Priority</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Target Grade (%)</label
-          ><input
+          <label class="form-label">Target Grade (%)</label>
+          <input
             type="number"
             class="input marks-input"
             id="edit-exam-grade"
+            min="0"
+            max="100"
+            oninput="clampMarks(this)"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exam Weight (% of module)</label>
+          <input
+            type="number"
+            class="input marks-input"
+            id="edit-exam-weight"
+            placeholder="40"
             min="0"
             max="100"
             oninput="clampMarks(this)"
@@ -4236,6 +5028,90 @@
       </div>
     </div>
 
+    <!-- Manage Subjects Modal -->
+    <div class="modal-overlay" id="modal-subjects">
+      <div class="modal" style="max-width: 520px">
+        <div class="modal-title">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 2l-5.5 9h11z M17.5 22a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM3 13.5h8v8H3z"
+            /></svg
+          >Manage Subjects
+        </div>
+        <div
+          id="subject-list"
+          style="margin-bottom: 16px; max-height: 200px; overflow-y: auto"
+        ></div>
+        <div style="border-top: 1px solid var(--border); padding-top: 14px">
+          <div
+            style="
+              font-size: 12px;
+              font-weight: 600;
+              color: var(--text-muted);
+              text-transform: uppercase;
+              letter-spacing: 0.6px;
+              margin-bottom: 10px;
+            "
+          >
+            Add New Subject
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject Name</label
+            ><input
+              type="text"
+              class="input"
+              id="new-subj-name"
+              placeholder="e.g. Calculus II"
+            />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+            <div class="form-group">
+              <label class="form-label">Total Credits (optional)</label
+              ><input
+                type="number"
+                class="input"
+                id="new-subj-credits"
+                placeholder="3"
+                min="0"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Year (optional)</label
+              ><input
+                type="number"
+                class="input"
+                id="new-subj-year"
+                placeholder="2"
+                min="1"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Semester (optional)</label
+            ><select class="input" id="new-subj-sem">
+              <option value="">— Select —</option>
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+            </select>
+          </div>
+          <button
+            class="btn btn-primary"
+            style="width: 100%"
+            onclick="addSubject()"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" /></svg
+            >Add Subject
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('modal-subjects')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Edit Profile Modal -->
     <div class="modal-overlay" id="modal-profile">
       <div class="modal">
@@ -4246,18 +5122,29 @@
             /></svg
           >Edit Profile
         </div>
-        <div class="form-group">
-          <label class="form-label">Name</label
-          ><input
-            type="text"
-            class="input"
-            id="p-name"
-            placeholder="Your name"
-          />
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input
+              type="text"
+              class="input"
+              id="p-firstname"
+              placeholder="First name"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input
+              type="text"
+              class="input"
+              id="p-lastname"
+              placeholder="Last name"
+            />
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Designation / Role</label
-          ><input
+          <label class="form-label">Designation / Role</label>
+          <input
             type="text"
             class="input"
             id="p-designation"
@@ -4265,8 +5152,8 @@
           />
         </div>
         <div class="form-group">
-          <label class="form-label">Degree / Major</label
-          ><input
+          <label class="form-label">Degree / Major</label>
+          <input
             type="text"
             class="input"
             id="p-degree"
@@ -4274,12 +5161,12 @@
           />
         </div>
         <div class="form-group">
-          <label class="form-label">University</label
-          ><input type="text" class="input" id="p-uni" placeholder="MIT" />
+          <label class="form-label">University</label>
+          <input type="text" class="input" id="p-uni" placeholder="MIT" />
         </div>
         <div class="form-group">
-          <label class="form-label">Email</label
-          ><input
+          <label class="form-label">Email</label>
+          <input
             type="email"
             class="input"
             id="p-email"
@@ -4450,6 +5337,8 @@
       const DEFAULT_DATA = {
         user: {
           name: "Scholar",
+          firstName: "",
+          lastName: "",
           designation: "Student",
           degree: "",
           university: "",
@@ -4462,6 +5351,7 @@
         tasks: [],
         exams: [],
         grades: [],
+        subjects: [],
         timerSettings: { study: 25, short: 5, long: 15, sessionsBeforeLong: 4 },
         sessions: [],
         gamification: {
@@ -4484,6 +5374,7 @@
       if (!data.user.designation) data.user.designation = "Student";
       if (data.user.theme === undefined) data.user.theme = "light";
       if (!data.grades) data.grades = [];
+      if (!data.subjects) data.subjects = [];
       if (data.user.avatarDataUrl === undefined) data.user.avatarDataUrl = null;
 
       const save = () =>
@@ -4625,6 +5516,42 @@
           label: "Marathon",
           desc: "Study 5 hours total",
         },
+        {
+          id: "exam_ace",
+          icon: "🎓",
+          label: "Exam Ace",
+          desc: "Add your first exam",
+        },
+        {
+          id: "grade_hunter",
+          icon: "📈",
+          label: "Grade Hunter",
+          desc: "Log your first grade entry",
+        },
+        {
+          id: "planner",
+          icon: "📋",
+          label: "Planner",
+          desc: "Add 5 tasks in one day",
+        },
+        {
+          id: "gpa_3",
+          icon: "⭐",
+          label: "Dean's List",
+          desc: "Achieve a GPA of 3.0+",
+        },
+        {
+          id: "perfect_score",
+          icon: "💯",
+          label: "Perfect Score",
+          desc: "Get 100% on any assessment",
+        },
+        {
+          id: "consistent",
+          icon: "🗓️",
+          label: "Consistent",
+          desc: "21-day study streak",
+        },
       ];
 
       // ===================== NAVIGATION =====================
@@ -4651,12 +5578,18 @@
           populateCategorySelects();
           renderTasks();
         }
-        if (page === "exams") renderExams();
+        if (page === "exams") {
+          renderExams();
+          populateSubjectSelects();
+        }
+        if (page === "grades") {
+          renderGrades();
+          populateSubjectSelects();
+        }
         if (page === "analytics") renderAnalytics();
         if (page === "profile") renderProfile();
         if (page === "settings") loadSettings();
         if (page === "timer") renderTodaySessions();
-        if (page === "grades") renderGrades();
         if (page === "matrix") renderMatrix();
         if (page === "calendar") renderCalendar();
       }
@@ -4797,6 +5730,61 @@
         setTimeout(() => el.remove(), 1200);
       }
 
+      // ===================== SHARED GPA HELPER =====================
+      // Computes credit-weighted GPA correctly:
+      //   1. Average raw % scores within each module using assessment weights
+      //   2. Convert the module average ONCE to a GPV
+      //   3. Weight GPVs by credit hours across modules
+      // Optionally filter to a specific semester name.
+      function computeWeightedGPA(semesterFilter) {
+        if (!data.grades || !data.grades.length) return null;
+
+        // Determine which module names are in scope
+        let scopeModules = null; // null = all modules
+        if (semesterFilter && semesterFilter !== "all") {
+          scopeModules = new Set(
+            (data.subjects || [])
+              .filter((s) => s.semester === semesterFilter)
+              .map((s) => s.name),
+          );
+        }
+
+        // Step 1 – group grade entries by module, accumulate assessment-weighted scores
+        const byModule = {};
+        data.grades.forEach((g) => {
+          if (scopeModules && !scopeModules.has(g.module)) return;
+          if (!byModule[g.module]) {
+            byModule[g.module] = { weightedSum: 0, totalWeight: 0, credits: 0 };
+          }
+          const w = g.weight || 20;
+          byModule[g.module].weightedSum += g.actual * w;
+          byModule[g.module].totalWeight += w;
+        });
+
+        if (!Object.keys(byModule).length) return null;
+
+        // Step 2 – attach credit hours from data.subjects (default 3)
+        (data.subjects || []).forEach((s) => {
+          if (byModule[s.name]) byModule[s.name].credits = s.credits || 3;
+        });
+        Object.keys(byModule).forEach((key) => {
+          if (!byModule[key].credits) byModule[key].credits = 3;
+        });
+
+        // Step 3 – credit-weighted GPV
+        let totalCredits = 0,
+          creditWeightedGPV = 0;
+        Object.values(byModule).forEach((mod) => {
+          if (!mod.totalWeight) return;
+          const avgScore = mod.weightedSum / mod.totalWeight;
+          const gpv = scoreToGPA(avgScore); // convert AFTER averaging
+          creditWeightedGPV += gpv * mod.credits;
+          totalCredits += mod.credits;
+        });
+
+        return totalCredits ? creditWeightedGPV / totalCredits : null;
+      }
+
       // ===================== GAMIFICATION =====================
       function addXP(amount, event) {
         const prevLevel = data.gamification.level;
@@ -4854,6 +5842,29 @@
           toUnlock.push("level_10");
         if (totalMin >= 300 && !g.badges.includes("marathon"))
           toUnlock.push("marathon");
+        if (data.exams.length >= 1 && !g.badges.includes("exam_ace"))
+          toUnlock.push("exam_ace");
+        if (data.grades.length >= 1 && !g.badges.includes("grade_hunter"))
+          toUnlock.push("grade_hunter");
+        const todayStr = new Date().toDateString();
+        const todayTasks = data.tasks.filter(
+          (t) => new Date(t.createdAt).toDateString() === todayStr,
+        ).length;
+        if (todayTasks >= 5 && !g.badges.includes("planner"))
+          toUnlock.push("planner");
+
+        // ── FIXED: use shared helper so badge check matches displayed GPA ──
+        const gpaCheck = computeWeightedGPA() ?? 0;
+        if (gpaCheck >= 3.0 && !g.badges.includes("gpa_3"))
+          toUnlock.push("gpa_3");
+
+        if (
+          data.grades.some((gr) => gr.actual === 100) &&
+          !g.badges.includes("perfect_score")
+        )
+          toUnlock.push("perfect_score");
+        if (g.streak >= 21 && !g.badges.includes("consistent"))
+          toUnlock.push("consistent");
         const hr = new Date().getHours();
         if (
           hr >= 22 &&
@@ -4986,7 +5997,6 @@
           input.focus();
           return;
         }
-        // Get selected quadrant (from modal radio buttons)
         let priority = "do";
         if (fromModal) {
           const checked = document.querySelector(
@@ -4994,13 +6004,18 @@
           );
           priority = checked ? checked.value : "do";
         }
+        const dueDate = fromModal
+          ? document.getElementById("m-task-due")?.value || null
+          : null;
         data.tasks.unshift({
           id: Date.now(),
           text,
           category: catEl.value || data.categories[0]?.id || "other",
           completed: false,
           createdAt: new Date().toISOString(),
-          priority: priority,
+          priority,
+          pinned: false,
+          dueDate,
         });
         input.value = "";
         addXP(5);
@@ -5016,29 +6031,6 @@
         closeModal("modal-task");
       }
 
-      function toggleTask(id, event) {
-        const task = data.tasks.find((t) => t.id === id);
-        if (!task) return;
-        task.completed = !task.completed;
-        if (task.completed) {
-          addXP(10, event);
-          fireConfetti(event.clientX, event.clientY);
-          showToast("🎉", "Task complete!", task.text.substring(0, 40));
-        }
-        save();
-        renderTasks();
-        updateTaskBadge();
-        refreshDashboard();
-      }
-
-      function deleteTask(id) {
-        data.tasks = data.tasks.filter((t) => t.id !== id);
-        save();
-        renderTasks();
-        updateTaskBadge();
-        refreshDashboard();
-      }
-
       function openEditTask(id) {
         const task = data.tasks.find((t) => t.id === id);
         if (!task) return;
@@ -5046,6 +6038,10 @@
         document.getElementById("edit-task-id").value = id;
         document.getElementById("edit-task-text").value = task.text;
         document.getElementById("edit-task-cat").value = task.category;
+        document.getElementById("edit-task-priority").value =
+          task.priority || "do";
+        const dueEl = document.getElementById("edit-task-due");
+        if (dueEl) dueEl.value = task.dueDate ? task.dueDate.slice(0, 16) : "";
         document.getElementById("modal-edit-task").classList.add("open");
       }
 
@@ -5056,6 +6052,9 @@
         task.text =
           document.getElementById("edit-task-text").value.trim() || task.text;
         task.category = document.getElementById("edit-task-cat").value;
+        task.priority = document.getElementById("edit-task-priority").value;
+        const dueVal = document.getElementById("edit-task-due")?.value;
+        task.dueDate = dueVal || null;
         save();
         closeModal("modal-edit-task");
         renderTasks();
@@ -5063,13 +6062,28 @@
         showToast("✅", "Task updated!", "");
       }
 
-      function clearCompleted() {
-        data.tasks = data.tasks.filter((t) => !t.completed);
+      function toggleTask(id, event) {
+        const task = data.tasks.find((t) => t.id === id);
+        if (!task) return;
+        task.completed = !task.completed;
+        if (task.completed) {
+          addXP(10, event);
+          if (event) fireConfetti(event.clientX, event.clientY);
+          showToast("🎉", "Task complete!", task.text.substring(0, 40));
+        }
         save();
         renderTasks();
         updateTaskBadge();
         refreshDashboard();
-        showToast("🗑️", "Cleared", "Completed tasks removed");
+        checkBadges();
+      }
+
+      function deleteTask(id) {
+        data.tasks = data.tasks.filter((t) => t.id !== id);
+        save();
+        renderTasks();
+        updateTaskBadge();
+        refreshDashboard();
       }
 
       function filterTasks(filter, el) {
@@ -5083,12 +6097,65 @@
         renderTasks();
       }
 
+      function addTaskInline() {
+        const input = document.getElementById("task-input");
+        const catEl = document.getElementById("task-cat");
+        const text = input.value.trim();
+        if (!text) {
+          input.focus();
+          return;
+        }
+        data.tasks.unshift({
+          id: Date.now(),
+          text,
+          category: catEl.value || data.categories[0]?.id || "other",
+          completed: false,
+          createdAt: new Date().toISOString(),
+          priority: "do",
+          pinned: false,
+          dueDate: null,
+        });
+        input.value = "";
+        addXP(5);
+        save();
+        renderTasks();
+        updateTaskBadge();
+        refreshDashboard();
+        showToast("✅", "Task added!", text.substring(0, 40));
+      }
+
+      function togglePin(id) {
+        const task = data.tasks.find((t) => t.id === id);
+        if (!task) return;
+        task.pinned = !task.pinned;
+        save();
+        renderTasks();
+        refreshDashboard();
+        showToast(
+          task.pinned ? "📌" : "📍",
+          task.pinned ? "Task pinned!" : "Task unpinned",
+          "",
+        );
+      }
+
+      const matrixCollapsed = {
+        do: false,
+        schedule: false,
+        delegate: false,
+        eliminate: false,
+      };
+      function toggleMatrixSection(q) {
+        matrixCollapsed[q] = !matrixCollapsed[q];
+        const body = document.getElementById("matrix-body-" + q);
+        const toggle = document.getElementById("matrix-toggle-" + q);
+        if (body) body.style.display = matrixCollapsed[q] ? "none" : "";
+        if (toggle) toggle.textContent = matrixCollapsed[q] ? "▼" : "▲";
+      }
+
       function renderTasks() {
-        const list = document.getElementById("task-list");
-        if (!list) return;
         const catFilter =
           document.getElementById("task-cat-filter")?.value || "all";
-        let tasks = data.tasks;
+        let tasks = [...data.tasks];
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -5097,10 +6164,7 @@
         const last7 = new Date(today);
         last7.setDate(last7.getDate() - 6);
 
-        if (taskFilter === "active") tasks = tasks.filter((t) => !t.completed);
-        else if (taskFilter === "done")
-          tasks = tasks.filter((t) => t.completed);
-        else if (taskFilter === "today") {
+        if (taskFilter === "today") {
           tasks = tasks.filter((t) => {
             const d = new Date(t.createdAt);
             d.setHours(0, 0, 0, 0);
@@ -5122,42 +6186,69 @@
 
         if (catFilter !== "all")
           tasks = tasks.filter((t) => t.category === catFilter);
+
         const total = data.tasks.length,
           done = data.tasks.filter((t) => t.completed).length;
         const pct = total ? Math.round((done / total) * 100) : 0;
         const pb = document.getElementById("task-progress-bar");
         if (pb) pb.style.width = pct + "%";
         const pt = document.getElementById("task-progress-text");
-        if (pt) pt.textContent = `${done} / ${total} tasks completed`;
-        if (!tasks.length) {
-          list.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="empty-text">${taskFilter === "done" ? "No completed tasks yet" : "All caught up!"}</div></div>`;
-          return;
-        }
-        list.innerHTML = tasks
-          .map((t) => {
-            const s = getCatStyle(t.category);
-            const catName =
-              data.categories.find((c) => c.id === t.category)?.name ||
-              t.category;
-            return `<div class="todo-item ${t.completed ? "completed" : ""}" draggable="true" data-id="${t.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
-      <div class="check-box ${t.completed ? "checked" : ""}" onclick="toggleTask(${t.id},event)"></div>
-      <div style="flex:1;min-width:0">
-        <div class="todo-text">${escHtml(t.text)}</div>
-        <span class="cat-badge" style="background:${s.bg};color:${s.color}">${catName}</span>
-      </div>
-      <div class="todo-actions">
-        <button class="btn btn-ghost btn-icon" style="width:30px;height:30px;font-size:12px" onclick="openEditTask(${t.id})"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-        <button class="btn btn-danger btn-icon" style="width:30px;height:30px;font-size:12px" onclick="deleteTask(${t.id})"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-      </div>
-    </div>`;
-          })
-          .join("");
+        if (pt) pt.textContent = `${done} / ${total} tasks completed (${pct}%)`;
+
+        const quadrants = ["do", "schedule", "delegate", "eliminate"];
+        quadrants.forEach((q) => {
+          const listEl = document.getElementById("task-list-" + q);
+          if (!listEl) return;
+          const qTasks = tasks.filter((t) => (t.priority || "do") === q);
+          const active = qTasks.filter((t) => !t.completed);
+          const completed = qTasks.filter((t) => t.completed);
+          // Pinned active tasks first
+          const pinnedActive = active.filter((t) => t.pinned);
+          const unpinnedActive = active.filter((t) => !t.pinned);
+          const sorted = [...pinnedActive, ...unpinnedActive, ...completed];
+
+          if (!sorted.length) {
+            listEl.innerHTML = `<div style="padding:12px;text-align:center;color:var(--text-faint);font-size:13px;">No tasks here</div>`;
+            return;
+          }
+          listEl.innerHTML = sorted
+            .map((t) => {
+              const s = getCatStyle(t.category);
+              const catName =
+                data.categories.find((c) => c.id === t.category)?.name ||
+                t.category;
+              const dueDateStr = t.dueDate
+                ? `<span style="font-size:10px;color:var(--warning);margin-left:4px;">📅 ${new Date(t.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>`
+                : "";
+              return `<div class="todo-item ${t.completed ? "completed" : ""} ${t.pinned ? "pinned-task" : ""}" draggable="true" data-id="${t.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)" style="margin-bottom:6px;">
+              <div class="check-box ${t.completed ? "checked" : ""}" onclick="toggleTask(${t.id},event)"></div>
+              <div style="flex:1;min-width:0">
+                <div class="todo-text" style="${t.completed ? "text-decoration:line-through;opacity:0.5;" : ""}">${t.pinned ? "📌 " : ""}${escHtml(t.text)}${dueDateStr}</div>
+                <span class="cat-badge" style="background:${s.bg};color:${s.color}">${catName}</span>
+              </div>
+              <div class="todo-actions">
+                <button class="btn btn-ghost btn-icon" style="width:28px;height:28px;" title="${t.pinned ? "Unpin" : "Pin"}" onclick="togglePin(${t.id})"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg></button>
+                <button class="btn btn-ghost btn-icon" style="width:28px;height:28px;" onclick="openEditTask(${t.id})"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg></button>
+                <button class="btn btn-danger btn-icon" style="width:28px;height:28px;" onclick="deleteTask(${t.id})"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+              </div>
+            </div>`;
+            })
+            .join("");
+        });
       }
 
       function updateTaskBadge() {
         const active = data.tasks.filter((t) => !t.completed).length;
         const b = document.getElementById("task-badge");
         if (b) b.textContent = active;
+      }
+
+      function updateExamBadge() {
+        const upcoming = data.exams.filter(
+          (e) => getCountdown(e.date) >= 0,
+        ).length;
+        const b = document.getElementById("exam-badge");
+        if (b) b.textContent = upcoming;
       }
 
       // Drag and drop
@@ -5194,6 +6285,89 @@
         if (v > 100) el.value = 100;
       }
 
+      // ===================== SUBJECTS =====================
+      function populateSubjectSelects() {
+        const selects = [
+          "m-exam-subject",
+          "edit-exam-subject",
+          "g-module",
+          "edit-g-module",
+        ];
+        selects.forEach((id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.innerHTML = data.subjects.length
+            ? data.subjects
+                .map(
+                  (s) =>
+                    `<option value="${escHtml(s.name)}">${escHtml(s.name)}${s.semester ? " · Sem " + s.semester : ""}${s.year ? " · Yr " + s.year : ""}</option>`,
+                )
+                .join("")
+            : '<option value="">— Add subjects first —</option>';
+        });
+      }
+
+      function openManageSubjects() {
+        renderSubjectList();
+        document.getElementById("modal-subjects").classList.add("open");
+      }
+
+      function renderSubjectList() {
+        const list = document.getElementById("subject-list");
+        if (!list) return;
+        if (!data.subjects.length) {
+          list.innerHTML =
+            '<div style="text-align:center;color:var(--text-faint);padding:12px;font-size:13px;">No subjects added yet</div>';
+          return;
+        }
+        list.innerHTML = data.subjects
+          .map(
+            (s) => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-weight:600;font-size:13px;">${escHtml(s.name)}</div>
+              <div style="font-size:11px;color:var(--text-muted);">${[s.credits ? s.credits + " credits" : "", s.year ? "Year " + s.year : "", s.semester ? "Semester " + s.semester : ""].filter(Boolean).join(" · ") || "No details"}</div>
+            </div>
+            <button class="btn btn-danger btn-icon" style="width:28px;height:28px;" onclick="deleteSubject(${s.id})">✕</button>
+          </div>`,
+          )
+          .join("");
+      }
+
+      function addSubject() {
+        const name = document.getElementById("new-subj-name").value.trim();
+        if (!name) {
+          showToast("⚠️", "Subject name required", "");
+          return;
+        }
+        if (
+          data.subjects.find((s) => s.name.toLowerCase() === name.toLowerCase())
+        ) {
+          showToast("⚠️", "Subject already exists", "");
+          return;
+        }
+        const credits =
+          +document.getElementById("new-subj-credits").value || null;
+        const year = +document.getElementById("new-subj-year").value || null;
+        const semester = document.getElementById("new-subj-sem").value || null;
+        data.subjects.push({ id: Date.now(), name, credits, year, semester });
+        document.getElementById("new-subj-name").value = "";
+        document.getElementById("new-subj-credits").value = "";
+        document.getElementById("new-subj-year").value = "";
+        document.getElementById("new-subj-sem").value = "";
+        save();
+        renderSubjectList();
+        populateSubjectSelects();
+        showToast("📚", "Subject added!", name);
+      }
+
+      function deleteSubject(id) {
+        data.subjects = data.subjects.filter((s) => s.id !== id);
+        save();
+        renderSubjectList();
+        populateSubjectSelects();
+      }
+
       // ===================== EXAMS =====================
       const EXAM_COLORS = [
         "exam-bg-1",
@@ -5202,6 +6376,39 @@
         "exam-bg-4",
         "exam-bg-5",
       ];
+      const PRIORITY_WEIGHT = { high: 0, medium: 1, low: 2 };
+
+      function getDynamicCountdown(dateStr, timeStr) {
+        const examDate = new Date(
+          dateStr + (timeStr ? "T" + timeStr : "T00:00:00"),
+        );
+        const now = new Date();
+        const diffMs = examDate - now;
+        if (diffMs < 0) return { text: "Passed", passed: true };
+        const totalSecs = Math.floor(diffMs / 1000);
+        const totalMins = Math.floor(totalSecs / 60);
+        const totalHours = Math.floor(totalMins / 60);
+        const totalDays = Math.floor(totalHours / 24);
+        const totalWeeks = Math.floor(totalDays / 7);
+        if (totalMins < 60) return { text: `${totalMins}m left`, urgent: true };
+        if (totalHours < 24) {
+          const h = totalHours,
+            m = totalMins % 60;
+          return { text: `${h}h ${m}m left`, urgent: true };
+        }
+        if (totalDays === 1)
+          return { text: `1 day ${totalHours % 24}h left`, urgent: true };
+        if (totalDays <= 2)
+          return {
+            text: `${totalDays} days ${totalHours % 24}h left`,
+            soon: true,
+          };
+        if (totalDays < 7)
+          return { text: `${totalDays} days left`, soon: totalDays <= 3 };
+        if (totalWeeks < 4)
+          return { text: `${totalWeeks}w ${totalDays % 7}d left`, ok: true };
+        return { text: `${totalWeeks} weeks left`, ok: true };
+      }
 
       function getCountdown(dateStr) {
         const now = new Date();
@@ -5228,15 +6435,20 @@
       function renderExams() {
         const grid = document.getElementById("exam-grid");
         if (!grid) return;
-        const exams = data.exams.sort(
-          (a, b) => new Date(a.date) - new Date(b.date),
-        );
+        const exams = [...data.exams].sort((a, b) => {
+          const dateDiff = new Date(a.date) - new Date(b.date);
+          if (dateDiff !== 0) return dateDiff;
+          return (
+            (PRIORITY_WEIGHT[a.priority] ?? 1) -
+            (PRIORITY_WEIGHT[b.priority] ?? 1)
+          );
+        });
         grid.innerHTML = `<div class="exam-add-card card-sm" onclick="openAddExam()"><svg viewBox="0 0 24 24" style="width:40px;height:40px;fill:currentColor;opacity:0.6"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg><span>Add New Exam</span></div>`;
         exams.forEach((ex, i) => {
           const days = getCountdown(ex.date);
           const urg = getUrgency(days);
+          const dynCD = getDynamicCountdown(ex.date, ex.time);
           const col = EXAM_COLORS[i % EXAM_COLORS.length];
-          const d = days < 0 ? 0 : days;
           const dStr = new Date(ex.date).toLocaleDateString("en-US", {
             weekday: "short",
             month: "short",
@@ -5246,50 +6458,74 @@
           const timeStr = ex.time
             ? `<div class="exam-time-label"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>${ex.time}</div>`
             : "";
+          const priorityColor =
+            ex.priority === "high"
+              ? "var(--danger)"
+              : ex.priority === "low"
+                ? "var(--success)"
+                : "var(--warning)";
+          const priorityLabel =
+            (ex.priority || "medium").charAt(0).toUpperCase() +
+            (ex.priority || "medium").slice(1);
+          const cdColor = dynCD.urgent
+            ? "var(--danger)"
+            : dynCD.soon
+              ? "var(--warning)"
+              : "var(--primary)";
           const card = document.createElement("div");
           card.className = `exam-card ${col}`;
           card.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
-        <div style="flex:1">
-          <div class="exam-subject">${escHtml(ex.subject)}</div>
-          <div class="exam-date-label" style="display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>${dStr}</div>
-          ${timeStr}
-        </div>
-        <div class="exam-card-actions">
-          <button class="btn btn-ghost btn-icon" style="width:28px;height:28px;font-size:11px" onclick="openEditExam(${ex.id})"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg></button>
-          <button class="btn btn-danger btn-icon" style="width:28px;height:28px;font-size:11px" onclick="deleteExam(${ex.id})">✕</button>
-        </div>
-      </div>
-      <div class="countdown-display">
-        <div class="countdown-unit"><span class="countdown-num">${Math.floor(d / 7)}</span><span class="countdown-lbl">wks</span></div>
-        <span class="countdown-sep">:</span>
-        <div class="countdown-unit"><span class="countdown-num">${d % 7}</span><span class="countdown-lbl">days</span></div>
-        ${ex.targetGrade ? `<div style="margin-left:auto;text-align:right"><div class="countdown-num" style="font-size:1.2rem">${ex.targetGrade}%</div><div class="countdown-lbl">target</div></div>` : ""}
-      </div>
-      <div class="urgency-badge ${urg.cls}">${urg.icon} ${urg.text}</div>`;
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+              <div style="flex:1">
+                <div class="exam-subject">${escHtml(ex.subject)}</div>
+                <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
+                  <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;background:rgba(${ex.priority === "high" ? "255,95,126" : ex.priority === "low" ? "0,212,170" : "255,184,48"},0.2);color:${priorityColor};">${priorityLabel}</span>
+                  ${ex.weight ? `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;background:rgba(79,142,247,0.15);color:var(--primary);">${ex.weight}% weight</span>` : ""}
+                </div>
+              </div>
+              <div class="exam-card-actions">
+                <button class="btn btn-ghost btn-icon" style="width:28px;height:28px;" onclick="openEditExam(${ex.id})"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg></button>
+                <button class="btn btn-danger btn-icon" style="width:28px;height:28px;" onclick="deleteExam(${ex.id})">✕</button>
+              </div>
+            </div>
+            <div class="exam-date-label" style="display:flex;align-items:center;gap:4px;margin-bottom:4px;"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>${dStr}</div>
+            ${timeStr}
+            <div style="margin:12px 0;padding:10px 14px;border-radius:12px;background:rgba(0,0,0,0.08);text-align:center;">
+              <div style="font-family:var(--font-head);font-weight:900;font-size:1.5rem;color:${dynCD.passed ? "var(--text-faint)" : cdColor};letter-spacing:-1px;">${dynCD.passed ? "Passed" : dynCD.text}</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span class="urgency-badge ${urg.cls}">${urg.icon} ${urg.text}</span>
+              ${ex.targetGrade ? `<span style="font-size:11px;font-weight:700;color:var(--text-muted);">Target: ${ex.targetGrade}%</span>` : ""}
+            </div>`;
           grid.insertBefore(card, grid.firstChild);
         });
+        updateExamBadge();
       }
 
       function openAddExam() {
+        populateSubjectSelects();
         document.getElementById("modal-exam").classList.add("open");
         document.getElementById("m-exam-date").min = new Date()
           .toISOString()
           .split("T")[0];
-        document.getElementById("m-exam-subject").value = "";
         document.getElementById("m-exam-date").value = "";
         document.getElementById("m-exam-time").value = "";
         document.getElementById("m-exam-grade").value = "";
+        document.getElementById("m-exam-weight").value = "";
       }
 
       function submitExam() {
-        const subj = document.getElementById("m-exam-subject").value.trim();
+        const subjEl = document.getElementById("m-exam-subject");
+        const subj = subjEl ? subjEl.value.trim() : "";
         const date = document.getElementById("m-exam-date").value;
         if (!subj || !date) {
           showToast("⚠️", "Fill all fields", "Subject and date required");
           return;
         }
         const grade = parseFloat(document.getElementById("m-exam-grade").value);
+        const weight = parseFloat(
+          document.getElementById("m-exam-weight").value,
+        );
         data.exams.push({
           id: Date.now(),
           subject: subj,
@@ -5297,6 +6533,7 @@
           time: document.getElementById("m-exam-time").value,
           priority: document.getElementById("m-exam-priority").value,
           targetGrade: isNaN(grade) ? null : Math.min(100, Math.max(0, grade)),
+          weight: isNaN(weight) ? null : Math.min(100, Math.max(0, weight)),
         });
         save();
         renderExams();
@@ -5305,15 +6542,27 @@
       }
 
       function openEditExam(id) {
+        populateSubjectSelects();
         const ex = data.exams.find((e) => e.id === id);
         if (!ex) return;
         document.getElementById("edit-exam-id").value = id;
-        document.getElementById("edit-exam-subject").value = ex.subject;
+        const sel = document.getElementById("edit-exam-subject");
+        if (sel) {
+          sel.value = ex.subject;
+          if (!sel.value) {
+            const opt = document.createElement("option");
+            opt.value = ex.subject;
+            opt.textContent = ex.subject;
+            sel.insertBefore(opt, sel.firstChild);
+            sel.value = ex.subject;
+          }
+        }
         document.getElementById("edit-exam-date").value = ex.date;
         document.getElementById("edit-exam-time").value = ex.time || "";
         document.getElementById("edit-exam-priority").value =
           ex.priority || "medium";
         document.getElementById("edit-exam-grade").value = ex.targetGrade || "";
+        document.getElementById("edit-exam-weight").value = ex.weight || "";
         document.getElementById("modal-edit-exam").classList.add("open");
       }
 
@@ -5321,14 +6570,15 @@
         const id = +document.getElementById("edit-exam-id").value;
         const ex = data.exams.find((e) => e.id === id);
         if (!ex) return;
-        ex.subject =
-          document.getElementById("edit-exam-subject").value.trim() ||
-          ex.subject;
+        const subjEl = document.getElementById("edit-exam-subject");
+        ex.subject = (subjEl ? subjEl.value.trim() : "") || ex.subject;
         ex.date = document.getElementById("edit-exam-date").value || ex.date;
         ex.time = document.getElementById("edit-exam-time").value;
         ex.priority = document.getElementById("edit-exam-priority").value;
         const g = parseFloat(document.getElementById("edit-exam-grade").value);
         ex.targetGrade = isNaN(g) ? null : Math.min(100, Math.max(0, g));
+        const w = parseFloat(document.getElementById("edit-exam-weight").value);
+        ex.weight = isNaN(w) ? null : Math.min(100, Math.max(0, w));
         save();
         closeModal("modal-edit-exam");
         renderExams();
@@ -5349,7 +6599,7 @@
         timerMode = "study",
         sessionCount = 0,
         sessionStart = null;
-      const CIRCUMFERENCE = 2 * Math.PI * 100;
+      const CIRCUMFERENCE = 2 * Math.PI * 100; // r=100 → 628.318
 
       function setTimerMode(mode, el) {
         if (timerRunning) return;
@@ -5475,12 +6725,16 @@
         const s = String(timerSeconds % 60).padStart(2, "0");
         const el = document.getElementById("timer-display");
         if (el) el.textContent = `${m}:${s}`;
+        syncFocusOverlay();
       }
       function updateTimerRing() {
-        const pct = timerSeconds / timerTotal;
+        const pct = timerTotal > 0 ? timerSeconds / timerTotal : 1;
         const offset = CIRCUMFERENCE * (1 - pct);
         const ring = document.getElementById("timer-ring");
-        if (ring) ring.style.strokeDashoffset = offset;
+        if (ring) {
+          ring.style.strokeDasharray = CIRCUMFERENCE;
+          ring.style.strokeDashoffset = offset;
+        }
       }
       function renderSessionDots() {
         const n = data.timerSettings.sessionsBeforeLong;
@@ -5501,7 +6755,21 @@
             +document.getElementById("set-sessions").value || 4,
         };
         save();
-        if (!timerRunning) setTimerMode(timerMode, null);
+        // Always reset timer to new values
+        clearInterval(timerInterval);
+        timerRunning = false;
+        const durations = {
+          study: data.timerSettings.study * 60,
+          short: data.timerSettings.short * 60,
+          long: data.timerSettings.long * 60,
+        };
+        timerSeconds = timerTotal = durations[timerMode];
+        updateTimerDisplay();
+        updateTimerRing();
+        renderSessionDots();
+        const btn = document.getElementById("timer-btn");
+        if (btn)
+          btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#fff"><path d="M8 5v14l11-7z"/></svg> Start`;
       }
       function renderTodaySessions() {
         const today = new Date().toDateString();
@@ -5759,10 +7027,20 @@
         const g = data.gamification;
         const u = data.user;
 
+        // Migrate old name to firstName/lastName if needed
+        if (!u.firstName && u.name && u.name !== "Scholar") {
+          const parts = u.name.split(" ");
+          u.firstName = parts[0] || "";
+          u.lastName = parts.slice(1).join(" ") || "";
+        }
+
         // Inline profile form
-        const inName = document.getElementById("inline-p-name");
-        if (inName && inName !== document.activeElement)
-          inName.value = u.name || "";
+        const inFN = document.getElementById("inline-p-firstname");
+        if (inFN && inFN !== document.activeElement)
+          inFN.value = u.firstName || "";
+        const inLN = document.getElementById("inline-p-lastname");
+        if (inLN && inLN !== document.activeElement)
+          inLN.value = u.lastName || "";
         const inDes = document.getElementById("inline-p-designation");
         if (inDes && inDes !== document.activeElement)
           inDes.value = u.designation || "";
@@ -5776,13 +7054,16 @@
         if (inEmail && inEmail !== document.activeElement)
           inEmail.value = u.email || "";
 
-        // Avatar
+        // Avatar + remove button
         const avatarEl = document.getElementById("profile-avatar");
+        const removeBtn = document.getElementById("remove-avatar-btn");
         if (avatarEl) {
           if (u.avatarDataUrl) {
             avatarEl.innerHTML = `<img src="${u.avatarDataUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+            if (removeBtn) removeBtn.style.display = "inline";
           } else {
             avatarEl.textContent = "🎓";
+            if (removeBtn) removeBtn.style.display = "none";
           }
         }
 
@@ -5815,8 +7096,11 @@
       }
 
       function saveInlineProfile() {
-        data.user.name =
-          document.getElementById("inline-p-name")?.value || "Scholar";
+        const fn = document.getElementById("inline-p-firstname")?.value || "";
+        const ln = document.getElementById("inline-p-lastname")?.value || "";
+        data.user.firstName = fn;
+        data.user.lastName = ln;
+        data.user.name = [fn, ln].filter(Boolean).join(" ") || "Scholar";
         data.user.designation =
           document.getElementById("inline-p-designation")?.value || "Student";
         data.user.degree =
@@ -5826,9 +7110,15 @@
         data.user.email =
           document.getElementById("inline-p-email")?.value || "";
         save();
-        // Update dashboard name without full re-render
         const nameEl = document.getElementById("userName");
-        if (nameEl) nameEl.textContent = data.user.name || "Scholar";
+        if (nameEl) nameEl.textContent = fn || "Scholar";
+      }
+
+      function removeAvatar() {
+        data.user.avatarDataUrl = null;
+        save();
+        renderProfile();
+        showToast("🗑️", "Photo removed", "");
       }
 
       function handleAvatarUpload(event) {
@@ -5898,20 +7188,27 @@
 
       // ===================== DASHBOARD =====================
       function refreshDashboard() {
+        const firstName = (data.user.name || "Scholar").split(" ")[0];
         const nameEl = document.getElementById("userName");
-        if (nameEl) nameEl.textContent = data.user.name || "Scholar";
+        if (nameEl) nameEl.textContent = firstName;
         updateClock();
+
+        // Streak
+        const scEl = document.getElementById("streak-count");
+        if (scEl) scEl.textContent = data.gamification.streak;
 
         const active = data.tasks.filter((t) => !t.completed).length;
         const done = data.tasks.filter((t) => t.completed).length;
         const stEl = document.getElementById("stat-tasks");
         if (stEl) stEl.textContent = done + "/" + data.tasks.length;
+
+        // ── FIXED: GPA stat card uses shared helper ──────────────────────────
+        const gpaResult = computeWeightedGPA();
+        const gpaVal = gpaResult !== null ? gpaResult.toFixed(2) : "—";
         const sxEl = document.getElementById("stat-xp");
-        if (sxEl) sxEl.textContent = data.gamification.xp;
+        if (sxEl) sxEl.textContent = gpaVal;
         const slEl = document.getElementById("stat-level");
-        if (slEl) slEl.textContent = data.gamification.level;
-        const scEl = document.getElementById("streak-count");
-        if (scEl) scEl.textContent = data.gamification.streak;
+        if (slEl) slEl.textContent = "out of 4.0";
 
         const weekStart = new Date();
         weekStart.setDate(weekStart.getDate() - 7);
@@ -5921,9 +7218,17 @@
         const shEl = document.getElementById("stat-hours");
         if (shEl) shEl.textContent = Math.round((weekMin / 60) * 10) / 10 + "h";
 
+        const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
         const upcoming = data.exams
           .filter((e) => getCountdown(e.date) >= 0)
-          .sort((a, b) => new Date(a.date) - new Date(b.date));
+          .sort((a, b) => {
+            const dateDiff = new Date(a.date) - new Date(b.date);
+            if (dateDiff !== 0) return dateDiff;
+            return (
+              (PRIORITY_ORDER[a.priority] ?? 1) -
+              (PRIORITY_ORDER[b.priority] ?? 1)
+            );
+          });
         const seEl = document.getElementById("stat-exams");
         if (seEl) seEl.textContent = upcoming.length;
         const snEl = document.getElementById("stat-next-exam");
@@ -5938,7 +7243,10 @@
         // Tasks list
         const taskList = document.getElementById("dashboard-tasks-list");
         if (taskList) {
-          const recent = data.tasks.slice(0, 5);
+          const allActive = data.tasks.filter((t) => !t.completed);
+          const pinned = allActive.filter((t) => t.pinned);
+          const unpinned = allActive.filter((t) => !t.pinned);
+          const recent = [...pinned, ...unpinned].slice(0, 5);
           if (!recent.length) {
             taskList.innerHTML =
               '<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="empty-text">No tasks yet</div></div>';
@@ -5949,7 +7257,12 @@
                 const catName =
                   data.categories.find((c) => c.id === t.category)?.name ||
                   t.category;
-                return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div class="check-box ${t.completed ? "checked" : ""}" style="flex-shrink:0;width:18px;height:18px" onclick="toggleTask(${t.id},event)"></div><div class="todo-text" style="font-size:13px;${t.completed ? "text-decoration:line-through;color:var(--text-muted)" : ""}">${escHtml(t.text)}</div><span class="cat-badge" style="background:${s.bg};color:${s.color}">${catName}</span></div>`;
+                return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+                  ${t.pinned ? '<span title="Pinned" style="font-size:13px;flex-shrink:0;">📌</span>' : ""}
+                  <div class="check-box ${t.completed ? "checked" : ""}" style="flex-shrink:0;width:18px;height:18px" onclick="toggleTask(${t.id},event)"></div>
+                  <div class="todo-text" style="font-size:13px;${t.completed ? "text-decoration:line-through;color:var(--text-muted)" : ""}">${escHtml(t.text)}</div>
+                  <span class="cat-badge" style="background:${s.bg};color:${s.color}">${catName}</span>
+                </div>`;
               })
               .join("");
             const pct = data.tasks.length
@@ -5990,20 +7303,30 @@
           }
         }
         updateTaskBadge();
+        updateExamBadge();
       }
-
-      // ===================== MODALS =====================
       function openAddTask() {
         populateCategorySelects();
+        const dueEl = document.getElementById("m-task-due");
+        if (dueEl) dueEl.value = "";
         document.getElementById("modal-task").classList.add("open");
+        document.getElementById("m-task-text").value = "";
         document.getElementById("m-task-text").focus();
+        selectQuadrant("do");
       }
       function openAddExam2() {
         openAddExam();
       }
       function openEditProfile() {
         const u = data.user;
-        document.getElementById("p-name").value = u.name || "";
+        document.getElementById("p-firstname").value =
+          u.firstName ||
+          (u.name && u.name !== "Scholar" ? u.name.split(" ")[0] : "");
+        document.getElementById("p-lastname").value =
+          u.lastName ||
+          (u.name && u.name !== "Scholar"
+            ? u.name.split(" ").slice(1).join(" ")
+            : "");
         document.getElementById("p-designation").value = u.designation || "";
         document.getElementById("p-degree").value = u.degree || "";
         document.getElementById("p-uni").value = u.university || "";
@@ -6027,7 +7350,11 @@
       });
 
       function saveProfile() {
-        data.user.name = document.getElementById("p-name").value || "Scholar";
+        const fn = document.getElementById("p-firstname").value.trim();
+        const ln = document.getElementById("p-lastname").value.trim();
+        data.user.firstName = fn;
+        data.user.lastName = ln;
+        data.user.name = [fn, ln].filter(Boolean).join(" ") || "Scholar";
         data.user.designation =
           document.getElementById("p-designation").value || "Student";
         data.user.degree = document.getElementById("p-degree").value;
@@ -6171,15 +7498,6 @@
         });
       }
 
-      // Reset quadrant selection when opening modal
-      const _origOpenAddTask = openAddTask;
-      function openAddTask() {
-        populateCategorySelects();
-        document.getElementById("modal-task").classList.add("open");
-        document.getElementById("m-task-text").focus();
-        selectQuadrant("do");
-      }
-
       // ===================== FOCUS MODE =====================
       let focusModeActive = false;
       function enterFocusMode() {
@@ -6197,34 +7515,26 @@
       }
       function syncFocusOverlay() {
         if (!focusModeActive) return;
-        // Sync timer display
         const mainDisp = document.getElementById("timer-display");
         const focusDisp = document.getElementById("focus-timer-disp");
         if (mainDisp && focusDisp) focusDisp.textContent = mainDisp.textContent;
-        // Sync ring
         const mainRing = document.getElementById("timer-ring");
         const focusRing = document.getElementById("focus-ring");
-        if (mainRing && focusRing)
+        if (mainRing && focusRing) {
+          focusRing.style.strokeDasharray =
+            mainRing.style.strokeDasharray || CIRCUMFERENCE;
           focusRing.style.strokeDashoffset = mainRing.style.strokeDashoffset;
-        // Sync mode label
+        }
         const mainLbl = document.getElementById("timer-mode-text");
         const focusLbl = document.getElementById("focus-mode-lbl");
         if (mainLbl && focusLbl) focusLbl.textContent = mainLbl.textContent;
-        // Sync session title
         const titleEl = document.getElementById("session-title-input");
         const focusLabelEl = document.getElementById("focus-session-label");
         if (titleEl && focusLabelEl)
           focusLabelEl.textContent = titleEl.value || "Study Session";
-        // Sync button
         const mainBtn = document.getElementById("timer-btn");
         const focusBtn = document.getElementById("focus-toggle-btn");
         if (mainBtn && focusBtn) focusBtn.innerHTML = mainBtn.innerHTML;
-      }
-      // Patch updateTimerDisplay to also sync focus overlay
-      const _origUpdateTimerDisplay = updateTimerDisplay;
-      function updateTimerDisplay() {
-        _origUpdateTimerDisplay();
-        syncFocusOverlay();
       }
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && focusModeActive) exitFocusMode();
@@ -6443,36 +7753,63 @@
       let gradeChartInst = null;
 
       function openAddGradeEntry() {
+        populateSubjectSelects();
+        populateGradeFilterSelects();
         document.getElementById("edit-grade-id").value = "";
-        document.getElementById("g-module").value = "";
+        const modEl = document.getElementById("g-module");
+        if (modEl && modEl.options.length) modEl.selectedIndex = 0;
         document.getElementById("g-name").value = "";
         document.getElementById("g-actual").value = "";
         document.getElementById("g-target").value = "";
         document.getElementById("g-weight").value = "20";
         document.getElementById("g-type").value = "assignment";
+        const dateEl = document.getElementById("g-date");
+        if (dateEl) dateEl.value = new Date().toISOString().split("T")[0];
         document.getElementById("modal-grade").classList.add("open");
       }
 
+      function populateGradeFilterSelects() {
+        const subjects = [...new Set(data.grades.map((g) => g.module))];
+        ["grade-filter-subject", "grade-chart-filter"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          const cur = el.value;
+          el.innerHTML =
+            '<option value="all">All Subjects</option>' +
+            subjects
+              .map(
+                (s) => `<option value="${escHtml(s)}">${escHtml(s)}</option>`,
+              )
+              .join("");
+          el.value = subjects.includes(cur) ? cur : "all";
+        });
+      }
+
       function submitGradeEntry() {
-        const mod = document.getElementById("g-module").value.trim();
+        const modEl = document.getElementById("g-module");
+        const mod = modEl ? modEl.value.trim() : "";
         const name = document.getElementById("g-name").value.trim();
         const actual = parseFloat(document.getElementById("g-actual").value);
         const target = parseFloat(document.getElementById("g-target").value);
         const weight =
           parseFloat(document.getElementById("g-weight").value) || 20;
         const type = document.getElementById("g-type").value;
+        const dateVal = document.getElementById("g-date")?.value;
         if (!mod || isNaN(actual)) {
           showToast(
             "⚠️",
             "Fill required fields",
-            "Module and Score are required",
+            "Subject and Score are required",
           );
           return;
         }
         const editId = document.getElementById("edit-grade-id").value;
+        const dateIso = dateVal
+          ? new Date(dateVal).toISOString()
+          : new Date().toISOString();
         if (editId) {
           const entry = data.grades.find((g) => g.id === +editId);
-          if (entry) {
+          if (entry)
             Object.assign(entry, {
               module: mod,
               name,
@@ -6480,9 +7817,8 @@
               target: isNaN(target) ? null : Math.min(100, Math.max(0, target)),
               weight,
               type,
-              date: entry.date,
+              date: dateIso,
             });
-          }
         } else {
           data.grades.push({
             id: Date.now(),
@@ -6492,7 +7828,7 @@
             actual: Math.min(100, Math.max(0, actual)),
             target: isNaN(target) ? null : Math.min(100, Math.max(0, target)),
             weight,
-            date: new Date().toISOString(),
+            date: dateIso,
           });
         }
         save();
@@ -6502,15 +7838,28 @@
       }
 
       function editGradeEntry(id) {
+        populateSubjectSelects();
         const g = data.grades.find((g) => g.id === id);
         if (!g) return;
         document.getElementById("edit-grade-id").value = id;
-        document.getElementById("g-module").value = g.module;
+        const modEl = document.getElementById("g-module");
+        if (modEl) {
+          modEl.value = g.module;
+          if (!modEl.value) {
+            const opt = document.createElement("option");
+            opt.value = g.module;
+            opt.textContent = g.module;
+            modEl.insertBefore(opt, modEl.firstChild);
+            modEl.value = g.module;
+          }
+        }
         document.getElementById("g-name").value = g.name || "";
         document.getElementById("g-actual").value = g.actual;
         document.getElementById("g-target").value = g.target || "";
         document.getElementById("g-weight").value = g.weight || 20;
         document.getElementById("g-type").value = g.type || "assignment";
+        const dateEl = document.getElementById("g-date");
+        if (dateEl) dateEl.value = g.date ? g.date.split("T")[0] : "";
         document.getElementById("modal-grade").classList.add("open");
       }
 
@@ -6521,15 +7870,46 @@
       }
 
       function scoreToGPA(score) {
-        if (score >= 90) return 4.0;
-        if (score >= 80) return 3.0;
-        if (score >= 70) return 2.0;
-        if (score >= 60) return 1.0;
-        return 0.0;
+        if (score >= 85) return 4.0; // A+  Superior
+        if (score >= 70) return 4.0; // A   Superior
+        if (score >= 65) return 3.7; // A-  Superior
+        if (score >= 60) return 3.3; // B+  Meritorious
+        if (score >= 55) return 3.0; // B   Meritorious
+        if (score >= 50) return 2.7; // B-  Meritorious
+        if (score >= 45) return 2.3; // C+  Adequate
+        if (score >= 40) return 2.0; // C   Adequate
+        if (score >= 35) return 1.7; // C-  Adequate
+        if (score >= 30) return 1.3; // D+  Minimal
+        if (score >= 25) return 1.0; // D   Minimal
+        return 0.0; // F   Fail
+      }
+
+      function scoreToGrade(score) {
+        if (score >= 85) return { grade: "A+", label: "Superior" };
+        if (score >= 70) return { grade: "A", label: "Superior" };
+        if (score >= 65) return { grade: "A-", label: "Superior" };
+        if (score >= 60) return { grade: "B+", label: "Meritorious" };
+        if (score >= 55) return { grade: "B", label: "Meritorious" };
+        if (score >= 50) return { grade: "B-", label: "Meritorious" };
+        if (score >= 45) return { grade: "C+", label: "Adequate" };
+        if (score >= 40) return { grade: "C", label: "Adequate" };
+        if (score >= 35) return { grade: "C-", label: "Adequate" };
+        if (score >= 30) return { grade: "D+", label: "Minimal" };
+        if (score >= 25) return { grade: "D", label: "Minimal" };
+        return { grade: "F", label: "Fail" };
       }
 
       function renderGrades() {
         if (!data.grades) data.grades = [];
+        populateGradeFilterSelects();
+
+        const subjFilter =
+          document.getElementById("grade-filter-subject")?.value || "all";
+        const semFilter =
+          document.getElementById("grade-filter-sem")?.value || "all";
+        const chartFilter =
+          document.getElementById("grade-chart-filter")?.value || "all";
+
         const list = document.getElementById("grade-entries-list");
         const wGPA = document.getElementById("gpa-weighted");
         const avg = document.getElementById("gpa-avg");
@@ -6547,76 +7927,115 @@
           return;
         }
 
-        // Group by module
-        const byModule = {};
-        data.grades.forEach((g) => {
-          if (!byModule[g.module]) byModule[g.module] = [];
-          byModule[g.module].push(g);
-        });
-        const moduleNames = Object.keys(byModule);
-        if (mods) mods.textContent = moduleNames.length;
+        // ── Overall GPA (all modules, all semesters) ──────────────────────────
+        const overallGPA = computeWeightedGPA();
+        if (wGPA)
+          wGPA.textContent = overallGPA !== null ? overallGPA.toFixed(2) : "—";
 
-        // Weighted GPA
-        let totalWeight = 0,
-          weightedSum = 0;
-        data.grades.forEach((g) => {
-          const w = g.weight || 20;
-          weightedSum += scoreToGPA(g.actual) * w;
-          totalWeight += w;
-        });
-        const gpaVal = totalWeight
-          ? (weightedSum / totalWeight).toFixed(2)
-          : "—";
-        if (wGPA) wGPA.textContent = gpaVal;
+        // Module count (always from all grades)
+        const allModules = new Set(data.grades.map((g) => g.module));
+        if (mods) mods.textContent = allModules.size;
 
-        // Average
+        // ── Semester-filtered GPA (shown separately if a sem filter is active) ─
+        // The wGPA card always shows overall; if you want per-sem you can add a
+        // second element. For now we keep existing behaviour and simply ensure
+        // the semFilter is respected in the entry list below.
+
+        // ── Simple descriptive stats (all entries) ────────────────────────────
         const scores = data.grades.map((g) => g.actual);
-        const avgVal = scores.length
-          ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) + "%"
-          : "—";
-        if (avg) avg.textContent = avgVal;
+        if (avg)
+          avg.textContent = scores.length
+            ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) +
+              "%"
+            : "—";
+        if (best)
+          best.textContent = scores.length ? Math.max(...scores) + "%" : "—";
 
-        // Best
-        const bestScore = scores.length ? Math.max(...scores) : null;
-        if (best) best.textContent = bestScore !== null ? bestScore + "%" : "—";
-
-        // Render list
-        if (list) {
-          list.innerHTML = data.grades
-            .slice()
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .map((g) => {
-              const diff = g.target ? g.actual - g.target : null;
-              const diffHtml =
-                diff !== null
-                  ? `<span style="font-size:11px;font-weight:700;color:${diff >= 0 ? "var(--success)" : "var(--danger)"};">${diff >= 0 ? "+" : ""}${diff.toFixed(1)}%</span>`
-                  : "";
-              return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:8px;">
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:600;font-size:13px;">${escHtml(g.module)} <span style="font-size:11px;font-weight:400;color:var(--text-muted);">${escHtml(g.name || g.type)}</span></div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${g.type} · Weight: ${g.weight}% · ${new Date(g.date).toLocaleDateString()}</div>
-              </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <div style="font-family:var(--font-head);font-weight:800;font-size:1.1rem;">${g.actual}%</div>
-                ${g.target ? `<div style="font-size:10px;color:var(--text-muted);">Target: ${g.target}%</div>` : ""}
-                ${diffHtml}
-              </div>
-              <div style="display:flex;gap:4px;flex-shrink:0;">
-                <button class="btn btn-ghost btn-icon" style="width:28px;height:28px;" onclick="editGradeEntry(${g.id})"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg></button>
-                <button class="btn btn-danger btn-icon" style="width:28px;height:28px;" onclick="deleteGradeEntry(${g.id})">✕</button>
-              </div>
-            </div>`;
-            })
-            .join("");
+        // ── Filtered entry list ───────────────────────────────────────────────
+        let filteredGrades = data.grades.slice();
+        if (subjFilter !== "all")
+          filteredGrades = filteredGrades.filter(
+            (g) => g.module === subjFilter,
+          );
+        if (semFilter !== "all") {
+          const semSubjects = (data.subjects || [])
+            .filter((s) => s.semester === semFilter)
+            .map((s) => s.name);
+          filteredGrades = filteredGrades.filter((g) =>
+            semSubjects.includes(g.module),
+          );
         }
 
-        // Chart
+        if (list) {
+          if (!filteredGrades.length) {
+            list.innerHTML =
+              '<div class="empty-state"><div class="empty-text">No grades match the filter</div></div>';
+          } else {
+            list.innerHTML = filteredGrades
+              .slice()
+              .sort((a, b) => new Date(b.date) - new Date(a.date))
+              .map((g) => {
+                const diff = g.target ? g.actual - g.target : null;
+                const diffHtml =
+                  diff !== null
+                    ? `<span style="font-size:11px;font-weight:700;color:${diff >= 0 ? "var(--success)" : "var(--danger)"};">${diff >= 0 ? "+" : ""}${diff.toFixed(1)}%</span>`
+                    : "";
+                const gpv = scoreToGPA(g.actual);
+                const gradeInfo = scoreToGrade(g.actual);
+                const gradeBg =
+                  gpv >= 4
+                    ? "rgba(0,212,170,0.18)"
+                    : gpv >= 3.3
+                      ? "rgba(79,142,247,0.18)"
+                      : gpv >= 2.7
+                        ? "rgba(255,184,48,0.18)"
+                        : gpv >= 1.7
+                          ? "rgba(255,184,48,0.12)"
+                          : "rgba(255,95,126,0.15)";
+                const gradeColor =
+                  gpv >= 4
+                    ? "var(--success)"
+                    : gpv >= 3.3
+                      ? "var(--primary)"
+                      : gpv >= 2.7
+                        ? "var(--warning)"
+                        : gpv >= 1.7
+                          ? "var(--warning)"
+                          : "var(--danger)";
+                return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:8px;">
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;font-size:13px;">${escHtml(g.module)} <span style="font-size:11px;font-weight:400;color:var(--text-muted);">${escHtml(g.name || g.type)}</span></div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${g.type} · Weight: ${g.weight || "?"}% · ${new Date(g.date).toLocaleDateString()}</div>
+                  </div>
+                  <div style="text-align:right;flex-shrink:0;">
+                    <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+                      <span style="font-family:var(--font-head);font-weight:900;font-size:1.1rem;">${g.actual}%</span>
+                      <span style="font-size:11px;font-weight:800;padding:2px 7px;border-radius:8px;background:${gradeBg};color:${gradeColor};">${gradeInfo.grade}</span>
+                    </div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">GPV ${gpv.toFixed(2)} · ${gradeInfo.label}</div>
+                    ${g.target ? `<div style="font-size:10px;color:var(--text-muted);">Target: ${g.target}%</div>` : ""}
+                    ${diffHtml}
+                  </div>
+                  <div style="display:flex;gap:4px;flex-shrink:0;">
+                    <button class="btn btn-ghost btn-icon" style="width:28px;height:28px;" onclick="editGradeEntry(${g.id})"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg></button>
+                    <button class="btn btn-danger btn-icon" style="width:28px;height:28px;" onclick="deleteGradeEntry(${g.id})">✕</button>
+                  </div>
+                </div>`;
+              })
+              .join("");
+          }
+        }
+
+        // ── Chart (filtered by chart filter) ─────────────────────────────────
         const ctx = document.getElementById("gradeChart");
         if (ctx) {
           if (gradeChartInst) gradeChartInst.destroy();
-          const sortedGrades = data.grades
-            .slice()
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
+          let chartGrades = data.grades.slice();
+          if (chartFilter !== "all")
+            chartGrades = chartGrades.filter((g) => g.module === chartFilter);
+          const sortedGrades = chartGrades.sort(
+            (a, b) => new Date(a.date) - new Date(b.date),
+          );
           const cc = getChartColors();
           gradeChartInst = new Chart(ctx, {
             type: "line",
@@ -6692,11 +8111,14 @@
             ) {
               data = imported;
               if (!data.grades) data.grades = [];
+              if (!data.subjects) data.subjects = [];
               if (!data.categories)
                 data.categories = JSON.parse(
                   JSON.stringify(DEFAULT_CATEGORIES),
                 );
               if (!data.user.avatarDataUrl) data.user.avatarDataUrl = null;
+              if (!data.user.firstName) data.user.firstName = "";
+              if (!data.user.lastName) data.user.lastName = "";
               save();
               location.reload();
             }
@@ -6715,26 +8137,38 @@
         document.documentElement.dataset.theme = theme;
         updateThemeIcon();
 
-        // Timer
+        // Timer — set correct dasharray from the start
         const ts = data.timerSettings;
         document.getElementById("set-focus").value = ts.study;
         document.getElementById("set-short").value = ts.short;
         document.getElementById("set-long").value = ts.long;
         document.getElementById("set-sessions").value = ts.sessionsBeforeLong;
         timerSeconds = timerTotal = ts.study * 60;
+        const ring = document.getElementById("timer-ring");
+        if (ring) {
+          ring.style.strokeDasharray = CIRCUMFERENCE;
+          ring.style.strokeDashoffset = 0;
+        }
         updateTimerDisplay();
         updateTimerRing();
         renderSessionDots();
 
         populateCategorySelects();
+        populateSubjectSelects();
         loadQuote();
         refreshDashboard();
         renderTasks();
+        updateTaskBadge();
+        updateExamBadge();
+
+        // Ensure streak count is shown immediately
+        const scEl = document.getElementById("streak-count");
+        if (scEl) scEl.textContent = data.gamification.streak;
 
         // Clock updates every second
         setInterval(updateClock, 1000);
 
-        // Staggered animation
+        // Staggered animation — run after a tick so content is visible first
         setTimeout(() => {
           document
             .querySelectorAll(".stat-card,.card,.welcome-banner")
@@ -6756,9 +8190,10 @@
             const upcoming = data.exams.filter(
               (e) => getCountdown(e.date) >= 0 && getCountdown(e.date) <= 7,
             ).length;
+            const firstName = (data.user.name || "Scholar").split(" ")[0];
             showToast(
               "📚",
-              "Welcome back, " + (data.user.name || "Scholar") + "!",
+              "Welcome back, " + firstName + "!",
               `${active} tasks active · ${upcoming} exams this week`,
             );
           }, 1000);

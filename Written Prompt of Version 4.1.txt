@@ -1,0 +1,62 @@
+Version v4.1
+
+
+01. Bugs in the Side Bar
+Position - Change the position of Calendar and GPA Tracker to the main section from the insights section (Matrix will be merged, mentioned below)
+Number of exams - I can’t see the number of exams that I have to face in future at the sidebar just like the tasks section. Add that too.
+Day streak - this doesn't load up when we launch the page initially.
+Position - Position of the day streak and dark mode light mode option at the bottom of the side bar. This version it's misaligned
+
+
+02. Bugs in the Dashboard Section
+	
+Exams priority - exams must be ordered based on the next exam(Based on date time) and the priority of the exam(High to Low) in the dashboard section
+Add exam option - Add an option to add exam next to the Add task button
+Quote of the moment - this doesn't load up when we launch the page initially.
+Loading your overview - this doesn't load up when we launch the page initially.
+Today's Tasks - this doesn't load up when we launch the page initially.
+Next Exams - this doesn't load up when we launch the page initially.
+Recent Study Sessions - this doesn't load up when we launch the page initially.
+Other cards - these cards also don't load up when we launch the page initially, Tasks, Study Hours, Upcoming Exams, XP Points.
+XP Points - Change this one with something like current GPA or something meaningful
+Name - Only show the first name of the user in the dashboard
+
+
+03. Bugs in the Tasks Section
+Add task option in the card - There is a bug when we add a task from the nav bar it asks us "Priority Quadrant" while the option to add task in the card doesn't, also I think it would be best to remove that button from there since there is already an option in the navbar
+Combining Task Board and Eisenhower Matrix - Keep the nav bar of the tasks section as it is, and let's change the card design and combine that card design with Eisenhower Matrix section card/s, Use 2x2 grid system as it was used in the v3.0. 
+Editing tasks - Also when editing the tasks it doesn't ask to change the  "Priority Quadrant", change that as well. 
+Archive Completed Tasks - Remove this option completely
+Pinned / starred tasks - Let student pin their most critical tasks to the top of the task list and the dashboard panel — so the most important work is always the first thing they see.
+Also add a percentage next to the 0 / 0 tasks completed part
+Filtering System - Let's Keep All, Today, Yesterday, Last 7 Days only and, since we combining Eisenhower Matrix with the task board, shall we add collapse and expanding option in each card of it with options like Active on top and done on end, expandable and collapsible menu kind of thing.
+Date time - Add a date and time when adding a task, so user can input future tasks today as well.
+
+
+04. Bugs in the Exam Countdown Section
+Subjects Dropdown - Shall we add a dropdown system like categories in nav bar in task section to the Exam Countdown section as subjects so we can select subjects using a dropdown when we adding an exam instead of typing them(Like we selecting the category when adding a task), also in the same section let the user to add the total credits for the subject, year and semester as well and make it optional. Adding a subject is a complete seperate one from adding an exam(Example when adding an exam they ask is, Subject dropdown, exam date time, priority, Target grade, exam weight based on the subject)(Example when adding a subject they ask is, Subject name, total credits for the subject, year, semester - 1 or 2).
+Countdown - Also when an exam is near shall we show the time left for in mins hours secs, if the exam is after 1day or 2days - time with days and hours, if exams is in weeks - weeks and days, and sort of like they use in real life applications and also Change the card design of the exam to make it look good, dynamic colors work perfect but Card design looks outdated
+Exams priority - exams must be ordered based on the next exam(Based on date time) and the priority of the exam(High to Low) in the Exam Countdown section
+Adding an exam - Let the user to add the Weight (%) of the exam when adding the exam so it will help when calculating the GPA.
+
+
+05. Bugs in the Study Timer Section
+Timer - Focus countdown, both short and long break countdowns are not working properly including the timer and the circle path.
+Timer Settings - When we change the Focus countdown, both short and long break, it doesn't change the timer
+Focus mode - Even you entered focus mode in that particular section, same issue happens as in the timer.
+UI Enhancements - Change the position of study session text box field into inside of the timer card, top of the timer circle, change the position of the enter focus mode into inside of the timer card and below of the timer circle and top of start button.
+
+
+06. Bugs in the GPA & Grade Tracker Section
+Subjects Dropdown - Use the same newly added dropdown system in the Exam Countdown Section using the same data. So we don't need to add the same subjects twice
+Assessment Type Dropdown - Shall we add a dropdown system like categories in nav bar in task section to the GPA & Grade Tracker Section as Assessment Type so we can select Assessment Type using a dropdown when we adding a Grade Entry instead of typing them(Like we selecting the category when adding a task), also in the same section let the user to add the total credits for the subject, year and semester as well and make it optional. Adding a subject is a complete seperate one from adding a grade entry(Example when adding a grade entry they ask is, Subject dropdown, Assessment Type dropdown, marks obtained, Target grade, weight% based on the subject, date)(Example when adding a subject they ask is, Subject name, total credits for the subject, year, semester - 1 or 2).
+Filtering System - Add a filtering system to Grade Entries based on relevant things (Just example don't know whether it's relevant or not, All [with Paging], Subjects/Modules[Use only one common word for all sections], Semester, etc.)
+Filtering System - Add a filtering system to Performance Trend line chart based on relevant things (Just example don't know whether it's relevant or not, All, Subjects/Modules[Use only one common word for all sections], Semester, etc.)
+
+07. Bugs in the Profile & XP Section
+Profile picture - Can't Remove the profile picture once it is added.
+Name - Let's break the name into first name and last name.
+Achievements - Shall we add 6 more achievement to make the box look filled. 
+
+08. Bugs in the Settings Section
+Version - Change the version to v4.0 or v4.1
