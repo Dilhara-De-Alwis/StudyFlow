@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>StudyFlow — Smart Study Planner</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%234f8ef7'/%3E%3Cpath d='M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z' fill='white'/%3E%3C/svg%3E"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -174,7 +179,7 @@
         display: flex;
         flex-direction: column;
         padding: 24px 16px;
-        z-index: 100;
+        z-index: 130;
         transition:
           transform var(--transition),
           width var(--transition);
@@ -1733,10 +1738,11 @@
         display: none;
         position: fixed;
         top: 16px;
-        left: 16px;
-        z-index: 200;
-        width: 40px;
-        height: 40px;
+        right: 16px;
+        left: auto;
+        z-index: 150;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
         background: var(--surface);
         border: 1px solid var(--border);
@@ -1744,6 +1750,7 @@
         cursor: pointer;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
       }
       .hamburger svg {
         width: 20px;
@@ -1814,7 +1821,7 @@
         .main,
         .main.collapsed {
           margin-left: 0;
-          padding: 70px 16px 20px;
+          padding: 70px 16px 80px;
         }
         .hamburger {
           display: flex;
@@ -1865,6 +1872,52 @@
       /* MARKS validation */
       input[type="number"].marks-input::-webkit-inner-spin-button {
         opacity: 1;
+      }
+
+      /* MATRIX */
+      .matrix-quadrant {
+        min-height: 120px;
+        border-radius: var(--radius-sm);
+        padding: 4px 0;
+      }
+
+      /* CALENDAR cell hover */
+      #cal-grid > div:hover {
+        transform: scale(1.02);
+      }
+
+      /* INLINE PROFILE FORM */
+      @media (max-width: 640px) {
+        .profile-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .profile-header > div:first-child {
+          align-self: center;
+        }
+        #page-grades .grid-2 {
+          grid-template-columns: 1fr;
+        }
+        #matrix-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+
+      /* MODE TABS - allow wrap on mobile */
+      .mode-tabs {
+        flex-wrap: wrap;
+      }
+      @media (max-width: 640px) {
+        .mode-tabs .mode-tab {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+        .page-actions {
+          flex-wrap: wrap;
+        }
+        .todo-input-row {
+          flex-wrap: wrap;
+        }
       }
     </style>
   </head>
@@ -1965,6 +2018,37 @@
             ></span>
             <span>Analytics</span>
           </div>
+          <div class="nav-item" onclick="navigate('grades')" data-page="grades">
+            <span class="nav-icon"
+              ><svg viewBox="0 0 24 24">
+                <path
+                  d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"
+                /></svg
+            ></span>
+            <span>GPA Tracker</span>
+          </div>
+          <div class="nav-item" onclick="navigate('matrix')" data-page="matrix">
+            <span class="nav-icon"
+              ><svg viewBox="0 0 24 24">
+                <path
+                  d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"
+                /></svg
+            ></span>
+            <span>Matrix</span>
+          </div>
+          <div
+            class="nav-item"
+            onclick="navigate('calendar')"
+            data-page="calendar"
+          >
+            <span class="nav-icon"
+              ><svg viewBox="0 0 24 24">
+                <path
+                  d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
+                /></svg
+            ></span>
+            <span>Calendar</span>
+          </div>
           <div
             class="nav-item"
             onclick="navigate('profile')"
@@ -2044,23 +2128,61 @@
               </div>
             </div>
             <div>
-              <div class="quote-dash-card" id="quote-dash-card">
-                <div id="quote-dash-text">Loading quote...</div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  margin-bottom: 6px;
+                "
+              >
+                <span
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: var(--text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.8px;
+                  "
+                  >Quote of the moment</span
+                >
+                <button
+                  class="quote-refresh-btn"
+                  onclick="refreshQuote()"
+                  title="New quote"
+                >
+                  <svg viewBox="0 0 24 24">
+                    <path
+                      d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div
+                class="quote-dash-card"
+                id="quote-dash-card"
+                style="
+                  min-height: 70px;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: center;
+                "
+              >
+                <div
+                  id="quote-dash-text"
+                  style="
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                  "
+                >
+                  Loading quote...
+                </div>
                 <div class="quote-dash-author">
                   — <span id="quote-dash-author"></span>
                 </div>
               </div>
-              <button
-                class="quote-refresh-btn"
-                onclick="refreshQuote()"
-                title="New quote"
-              >
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
-                  />
-                </svg>
-              </button>
             </div>
           </div>
 
@@ -2261,14 +2383,6 @@
                 </svg>
                 Categories
               </button>
-              <button class="btn btn-ghost" onclick="clearCompleted()">
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                  />
-                </svg>
-                Clear Done
-              </button>
               <button class="btn btn-primary" onclick="openAddTask()">
                 <svg viewBox="0 0 24 24">
                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -2285,23 +2399,33 @@
               align-items: center;
               margin-bottom: 20px;
               flex-wrap: wrap;
+              justify-content: space-between;
             "
           >
-            <div class="mode-tabs" style="margin: 0">
+            <div class="mode-tabs" style="margin: 0; flex-wrap: wrap">
               <div class="mode-tab active" onclick="filterTasks('all', this)">
                 All
+              </div>
+              <div class="mode-tab" onclick="filterTasks('today', this)">
+                Today
               </div>
               <div class="mode-tab" onclick="filterTasks('active', this)">
                 Active
               </div>
-              <div class="mode-tab" onclick="filterTasks('completed', this)">
+              <div class="mode-tab" onclick="filterTasks('done', this)">
                 Done
+              </div>
+              <div class="mode-tab" onclick="filterTasks('yesterday', this)">
+                Yesterday
+              </div>
+              <div class="mode-tab" onclick="filterTasks('last7', this)">
+                Last 7 Days
               </div>
             </div>
             <select
               class="input"
               id="task-cat-filter"
-              style="width: 160px"
+              style="width: 160px; flex-shrink: 0"
               onchange="filterTasks(null, null)"
             >
               <option value="all">All Categories</option>
@@ -2349,6 +2473,22 @@
               0 / 0 tasks completed
             </div>
             <div class="todo-list" id="task-list"></div>
+            <div
+              style="margin-top: 16px; display: flex; justify-content: flex-end"
+            >
+              <button
+                class="btn btn-ghost"
+                onclick="clearCompleted()"
+                style="font-size: 12px; color: var(--text-muted)"
+              >
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                  />
+                </svg>
+                Archive Completed Tasks
+              </button>
+            </div>
           </div>
         </section>
 
@@ -2397,6 +2537,32 @@
               </div>
               <div class="page-sub">Pomodoro technique for deep focus</div>
             </div>
+          </div>
+          <div style="margin-bottom: 16px">
+            <input
+              type="text"
+              class="input"
+              id="session-title-input"
+              placeholder="Study Session"
+              style="max-width: 400px; font-size: 15px; font-weight: 600"
+            />
+          </div>
+          <div style="margin-bottom: 12px">
+            <button
+              class="btn btn-ghost"
+              onclick="enterFocusMode()"
+              id="focus-mode-btn"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                style="width: 16px; height: 16px; fill: currentColor"
+              >
+                <path
+                  d="M3 3h7v2H5v5H3zm11 0h7v7h-2V5h-5zm-4 8H7v7h2v-5h4v5h2v-7h-2v2H10zm7 4h-2v5h-5v2h7z"
+                />
+              </svg>
+              Enter Focus Mode
+            </button>
           </div>
           <div class="grid-2" style="align-items: start">
             <div class="card">
@@ -2804,31 +2970,144 @@
               </div>
               <div class="page-sub">Your academic journey</div>
             </div>
-            <button class="btn btn-ghost" onclick="openEditProfile()">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-                />
-              </svg>
-              Edit Profile
-            </button>
           </div>
 
-          <div class="profile-header">
-            <div class="avatar-ring">
-              <div class="avatar-inner" id="profile-avatar">🎓</div>
+          <!-- Inline Profile Card -->
+          <div
+            class="profile-header"
+            style="align-items: flex-start; flex-wrap: wrap; gap: 20px"
+          >
+            <!-- Avatar -->
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+              "
+            >
+              <div
+                class="avatar-ring"
+                style="
+                  width: 90px;
+                  height: 90px;
+                  cursor: pointer;
+                  position: relative;
+                "
+                onclick="document.getElementById('avatar-upload').click()"
+                title="Click to upload photo"
+              >
+                <div
+                  class="avatar-inner"
+                  id="profile-avatar"
+                  style="font-size: 36px; overflow: hidden"
+                >
+                  🎓
+                </div>
+                <div
+                  style="
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    width: 26px;
+                    height: 26px;
+                    background: var(--primary);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 2px solid var(--bg2);
+                  "
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    style="width: 14px; height: 14px; fill: white"
+                  >
+                    <path
+                      d="M3 4V1h2v3h3v2H5v3H3V6H0V4h3zm3 6V7h3V4h7l1.83 2H21c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V10h3zm7 9c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-3.2-5c0 1.77 1.43 3.2 3.2 3.2 1.77 0 3.2-1.43 3.2-3.2 0-1.77-1.43-3.2-3.2-3.2-1.77 0-3.2 1.43-3.2 3.2z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <input
+                type="file"
+                id="avatar-upload"
+                accept="image/*"
+                style="display: none"
+                onchange="handleAvatarUpload(event)"
+              />
+              <span style="font-size: 10px; color: var(--text-faint)"
+                >Click to upload</span
+              >
             </div>
-            <div class="profile-info">
-              <div class="profile-name" id="profile-name-disp">Scholar</div>
-              <div class="profile-detail" id="profile-detail-disp">Student</div>
+
+            <!-- Profile Info - Inline Edit -->
+            <div class="profile-info" style="flex: 1; min-width: 200px">
               <div
                 style="
-                  font-size: 12px;
-                  color: var(--text-muted);
-                  margin-top: 2px;
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 10px;
+                  margin-bottom: 10px;
                 "
-                id="profile-email-disp"
-              ></div>
+              >
+                <div class="form-group" style="margin: 0">
+                  <label class="form-label">Name</label>
+                  <input
+                    type="text"
+                    class="input"
+                    id="inline-p-name"
+                    placeholder="Your name"
+                    oninput="saveInlineProfile()"
+                    style="font-size: 14px; padding: 8px 12px"
+                  />
+                </div>
+                <div class="form-group" style="margin: 0">
+                  <label class="form-label">Role</label>
+                  <input
+                    type="text"
+                    class="input"
+                    id="inline-p-designation"
+                    placeholder="e.g. Student"
+                    oninput="saveInlineProfile()"
+                    style="font-size: 14px; padding: 8px 12px"
+                  />
+                </div>
+                <div class="form-group" style="margin: 0">
+                  <label class="form-label">Degree / Major</label>
+                  <input
+                    type="text"
+                    class="input"
+                    id="inline-p-degree"
+                    placeholder="Computer Science"
+                    oninput="saveInlineProfile()"
+                    style="font-size: 14px; padding: 8px 12px"
+                  />
+                </div>
+                <div class="form-group" style="margin: 0">
+                  <label class="form-label">University</label>
+                  <input
+                    type="text"
+                    class="input"
+                    id="inline-p-uni"
+                    placeholder="MIT"
+                    oninput="saveInlineProfile()"
+                    style="font-size: 14px; padding: 8px 12px"
+                  />
+                </div>
+                <div class="form-group" style="margin: 0; grid-column: 1/-1">
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="input"
+                    id="inline-p-email"
+                    placeholder="you@example.com"
+                    oninput="saveInlineProfile()"
+                    style="font-size: 14px; padding: 8px 12px"
+                  />
+                </div>
+              </div>
               <div class="xp-bar-section">
                 <div class="xp-bar-label">
                   <span
@@ -2945,6 +3224,10 @@
                 color: var(--text-muted);
                 line-height: 1.8;
                 position: relative;
+                min-height: 100px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
               "
             >
               <span
@@ -2960,7 +3243,16 @@
                 "
                 >"</span
               >
-              <div id="quote-text" style="padding-left: 20px">
+              <div
+                id="quote-text"
+                style="
+                  padding-left: 20px;
+                  overflow: hidden;
+                  display: -webkit-box;
+                  -webkit-line-clamp: 3;
+                  -webkit-box-orient: vertical;
+                "
+              >
                 The secret of getting ahead is getting started.
               </div>
               <div
@@ -3048,6 +3340,26 @@
                     Export Data (JSON)
                   </button>
                   <button
+                    class="btn btn-ghost"
+                    onclick="
+                      document.getElementById('import-json-input').click()
+                    "
+                  >
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M5 15H3v4c0 1.1.9 2 2 2h4v-2H5v-4zM5 5h4V3H5c-1.1 0-2 .9-2 2v4h2V5zm14-2h-4v2h4v4h2V5c0-1.1-.9-2-2-2zm0 16h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zM12 9l-4 4h3v4h2v-4h3l-4-4z"
+                      />
+                    </svg>
+                    Import Data (JSON)
+                  </button>
+                  <input
+                    type="file"
+                    id="import-json-input"
+                    accept=".json"
+                    style="display: none"
+                    onchange="importData(event)"
+                  />
+                  <button
                     class="btn btn-danger"
                     onclick="
                       if (confirm('Reset ALL data? This cannot be undone.'))
@@ -3079,7 +3391,7 @@
                   "
                 >
                   <div>
-                    <strong>StudyFlow</strong> v2.0 — Your Academic Partner
+                    <strong>StudyFlow</strong> v3.0 — Your Academic Partner
                   </div>
                   <div>
                     A modern study planner to help you ace your academics.
@@ -3092,7 +3404,452 @@
             </div>
           </div>
         </section>
+
+        <!-- ===== GPA TRACKER ===== -->
+        <section class="page" id="page-grades">
+          <div class="page-header">
+            <div>
+              <div class="page-title">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"
+                  />
+                </svg>
+                GPA & Grade Tracker
+              </div>
+              <div class="page-sub">
+                Track your academic performance by module
+              </div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="openAddGradeEntry()">
+                <svg viewBox="0 0 24 24">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg>
+                Add Grade
+              </button>
+            </div>
+          </div>
+
+          <!-- GPA Summary -->
+          <div
+            class="grid-4"
+            style="margin-bottom: 20px"
+            id="gpa-summary-cards"
+          >
+            <div
+              class="stat-card"
+              style="--c1: var(--primary); --c2: var(--accent)"
+            >
+              <div class="stat-label">Weighted GPA</div>
+              <div class="stat-value" id="gpa-weighted">—</div>
+              <div class="stat-change">out of 4.0</div>
+            </div>
+            <div
+              class="stat-card"
+              style="--c1: var(--accent2); --c2: var(--primary)"
+            >
+              <div class="stat-label">Semester Avg</div>
+              <div class="stat-value" id="gpa-avg">—</div>
+              <div class="stat-change">percentage</div>
+            </div>
+            <div
+              class="stat-card"
+              style="--c1: var(--warning); --c2: var(--danger)"
+            >
+              <div class="stat-label">Modules</div>
+              <div class="stat-value" id="gpa-modules">0</div>
+              <div class="stat-change">tracked</div>
+            </div>
+            <div
+              class="stat-card"
+              style="--c1: var(--accent); --c2: var(--accent2)"
+            >
+              <div class="stat-label">Best Score</div>
+              <div class="stat-value" id="gpa-best">—</div>
+              <div class="stat-change">highest grade</div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="align-items: start">
+            <div class="card">
+              <div class="chart-title"><span>Grade Entries</span></div>
+              <div id="grade-entries-list">
+                <div class="empty-state">
+                  <div class="empty-text">No grades added yet</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="chart-title"><span>Performance Trend</span></div>
+              <div class="chart-container">
+                <canvas id="gradeChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== EISENHOWER MATRIX ===== -->
+        <section class="page" id="page-matrix">
+          <div class="page-header">
+            <div>
+              <div class="page-title">
+                <svg viewBox="0 0 24 24">
+                  <path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z" />
+                </svg>
+                Eisenhower Matrix
+              </div>
+              <div class="page-sub">
+                Prioritize tasks by urgency and importance
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="openAddTask()">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              Add Task
+            </button>
+          </div>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              grid-template-rows: auto auto;
+              gap: 16px;
+            "
+            id="matrix-grid"
+          >
+            <div class="card" style="border-top: 3px solid var(--danger)">
+              <div class="chart-title">
+                <span>🚨 Do First</span
+                ><span style="font-size: 11px; color: var(--text-muted)"
+                  >Urgent + Important</span
+                >
+              </div>
+              <div
+                class="matrix-quadrant"
+                id="matrix-do"
+                ondragover="event.preventDefault()"
+                ondrop="dropToQuadrant(event, 'do')"
+              ></div>
+            </div>
+            <div class="card" style="border-top: 3px solid var(--primary)">
+              <div class="chart-title">
+                <span>📅 Schedule</span
+                ><span style="font-size: 11px; color: var(--text-muted)"
+                  >Important, Not Urgent</span
+                >
+              </div>
+              <div
+                class="matrix-quadrant"
+                id="matrix-schedule"
+                ondragover="event.preventDefault()"
+                ondrop="dropToQuadrant(event, 'schedule')"
+              ></div>
+            </div>
+            <div class="card" style="border-top: 3px solid var(--warning)">
+              <div class="chart-title">
+                <span>📨 Delegate</span
+                ><span style="font-size: 11px; color: var(--text-muted)"
+                  >Urgent, Not Important</span
+                >
+              </div>
+              <div
+                class="matrix-quadrant"
+                id="matrix-delegate"
+                ondragover="event.preventDefault()"
+                ondrop="dropToQuadrant(event, 'delegate')"
+              ></div>
+            </div>
+            <div class="card" style="border-top: 3px solid var(--text-faint)">
+              <div class="chart-title">
+                <span>🗑️ Eliminate</span
+                ><span style="font-size: 11px; color: var(--text-muted)"
+                  >Not Urgent, Not Important</span
+                >
+              </div>
+              <div
+                class="matrix-quadrant"
+                id="matrix-eliminate"
+                ondragover="event.preventDefault()"
+                ondrop="dropToQuadrant(event, 'eliminate')"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== CALENDAR ===== -->
+        <section class="page" id="page-calendar">
+          <div class="page-header">
+            <div>
+              <div class="page-title">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
+                  />
+                </svg>
+                Full Calendar
+              </div>
+              <div class="page-sub">
+                Birds-eye view of exams, tasks & study sessions
+              </div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost" onclick="calPrevMonth()">
+                ‹ Prev
+              </button>
+              <span
+                id="cal-month-label"
+                style="
+                  font-family: var(--font-head);
+                  font-weight: 700;
+                  font-size: 1rem;
+                  align-self: center;
+                  padding: 0 8px;
+                "
+              ></span>
+              <button class="btn btn-ghost" onclick="calNextMonth()">
+                Next ›
+              </button>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 2px;
+                margin-bottom: 8px;
+              "
+            >
+              <div
+                style="
+                  text-align: center;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  padding: 6px 0;
+                "
+              >
+                Sun
+              </div>
+              <div
+                style="
+                  text-align: center;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  padding: 6px 0;
+                "
+              >
+                Mon
+              </div>
+              <div
+                style="
+                  text-align: center;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  padding: 6px 0;
+                "
+              >
+                Tue
+              </div>
+              <div
+                style="
+                  text-align: center;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  padding: 6px 0;
+                "
+              >
+                Wed
+              </div>
+              <div
+                style="
+                  text-align: center;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  padding: 6px 0;
+                "
+              >
+                Thu
+              </div>
+              <div
+                style="
+                  text-align: center;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  padding: 6px 0;
+                "
+              >
+                Fri
+              </div>
+              <div
+                style="
+                  text-align: center;
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--text-muted);
+                  padding: 6px 0;
+                "
+              >
+                Sat
+              </div>
+            </div>
+            <div
+              id="cal-grid"
+              style="
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 3px;
+              "
+            ></div>
+          </div>
+          <div
+            id="cal-day-detail"
+            class="card"
+            style="margin-top: 16px; display: none"
+          >
+            <div class="chart-title">
+              <span id="cal-detail-date">Events</span>
+            </div>
+            <div id="cal-detail-content"></div>
+          </div>
+        </section>
       </main>
+    </div>
+
+    <!-- ===== FOCUS MODE OVERLAY ===== -->
+    <div
+      id="focus-overlay"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 5000;
+        background: var(--bg);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+      "
+    >
+      <div
+        style="
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 3px;
+          color: var(--text-muted);
+        "
+      >
+        Focus Mode
+      </div>
+      <div
+        id="focus-session-label"
+        style="
+          font-family: var(--font-head);
+          font-size: 1.2rem;
+          font-weight: 700;
+          color: var(--text-muted);
+        "
+      ></div>
+      <div style="position: relative">
+        <svg width="280" height="280" viewBox="0 0 220 220">
+          <circle class="timer-track" cx="110" cy="110" r="100" />
+          <circle
+            class="timer-progress"
+            id="focus-ring"
+            cx="110"
+            cy="110"
+            r="100"
+            stroke="url(#timerGrad2)"
+            stroke-dasharray="628.3"
+            stroke-dashoffset="0"
+          />
+          <defs>
+            <linearGradient id="timerGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--primary)" />
+              <stop offset="100%" stop-color="var(--accent)" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div
+          style="
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          <div
+            id="focus-timer-disp"
+            style="
+              font-family: var(--font-head);
+              font-size: 4rem;
+              font-weight: 900;
+              letter-spacing: -3px;
+            "
+          >
+            25:00
+          </div>
+          <div
+            id="focus-mode-lbl"
+            style="
+              font-size: 12px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 1.5px;
+              color: var(--text-muted);
+            "
+          >
+            Focus Time
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 16px; align-items: center">
+        <button
+          class="btn btn-primary"
+          id="focus-toggle-btn"
+          onclick="
+            toggleTimer();
+            syncFocusOverlay();
+          "
+          style="padding: 14px 36px; font-size: 15px"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            style="width: 18px; height: 18px; fill: #fff"
+          >
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          Start
+        </button>
+        <button
+          class="btn btn-ghost"
+          onclick="exitFocusMode()"
+          title="Exit focus mode (Esc)"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            style="width: 16px; height: 16px; fill: currentColor"
+          >
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
+          Exit Focus
+        </button>
+      </div>
+      <div style="font-size: 12px; color: var(--text-faint)">
+        Press Esc to exit · All distractions hidden
+      </div>
     </div>
 
     <!-- ===== MODALS ===== -->
@@ -3119,12 +3876,219 @@
           <label class="form-label">Category</label
           ><select class="input" id="m-task-cat"></select>
         </div>
+        <div class="form-group">
+          <label class="form-label">Priority Quadrant</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                cursor: pointer;
+                transition: all var(--transition);
+              "
+              id="quad-do"
+              onclick="selectQuadrant('do')"
+            >
+              <input
+                type="radio"
+                name="task-quadrant"
+                value="do"
+                style="display: none"
+              />
+              <span>🚨</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 700">Do First</div>
+                <div style="font-size: 10px; color: var(--text-muted)">
+                  Urgent + Important
+                </div>
+              </div>
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                cursor: pointer;
+                transition: all var(--transition);
+              "
+              id="quad-schedule"
+              onclick="selectQuadrant('schedule')"
+            >
+              <input
+                type="radio"
+                name="task-quadrant"
+                value="schedule"
+                style="display: none"
+              />
+              <span>📅</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 700">Schedule</div>
+                <div style="font-size: 10px; color: var(--text-muted)">
+                  Important, Not Urgent
+                </div>
+              </div>
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                cursor: pointer;
+                transition: all var(--transition);
+              "
+              id="quad-delegate"
+              onclick="selectQuadrant('delegate')"
+            >
+              <input
+                type="radio"
+                name="task-quadrant"
+                value="delegate"
+                style="display: none"
+              />
+              <span>📨</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 700">Delegate</div>
+                <div style="font-size: 10px; color: var(--text-muted)">
+                  Urgent, Not Important
+                </div>
+              </div>
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                cursor: pointer;
+                transition: all var(--transition);
+              "
+              id="quad-eliminate"
+              onclick="selectQuadrant('eliminate')"
+            >
+              <input
+                type="radio"
+                name="task-quadrant"
+                value="eliminate"
+                style="display: none"
+              />
+              <span>🗑️</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 700">Eliminate</div>
+                <div style="font-size: 10px; color: var(--text-muted)">
+                  Neither
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
         <div class="modal-actions">
           <button class="btn btn-ghost" onclick="closeModal('modal-task')">
             Cancel
           </button>
           <button class="btn btn-primary" onclick="submitTask()">
             Add Task
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Grade Modal -->
+    <div class="modal-overlay" id="modal-grade">
+      <div class="modal">
+        <div class="modal-title">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"
+            /></svg
+          >Add Grade Entry
+        </div>
+        <input type="hidden" id="edit-grade-id" />
+        <div class="form-group">
+          <label class="form-label">Module / Subject</label>
+          <input
+            type="text"
+            class="input"
+            id="g-module"
+            placeholder="e.g. Calculus II"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assessment Type</label>
+          <select class="input" id="g-type">
+            <option value="assignment">Assignment</option>
+            <option value="quiz">Quiz</option>
+            <option value="midterm">Midterm Exam</option>
+            <option value="final">Final Exam</option>
+            <option value="project">Project</option>
+            <option value="lab">Lab</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assessment Name</label>
+          <input
+            type="text"
+            class="input"
+            id="g-name"
+            placeholder="e.g. Chapter 3 Assignment"
+          />
+        </div>
+        <div
+          style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px"
+        >
+          <div class="form-group">
+            <label class="form-label">Score (%)</label>
+            <input
+              type="number"
+              class="input marks-input"
+              id="g-actual"
+              placeholder="82"
+              min="0"
+              max="100"
+              oninput="clampMarks(this)"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target (%)</label>
+            <input
+              type="number"
+              class="input marks-input"
+              id="g-target"
+              placeholder="85"
+              min="0"
+              max="100"
+              oninput="clampMarks(this)"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Weight (%)</label>
+            <input
+              type="number"
+              class="input"
+              id="g-weight"
+              placeholder="20"
+              min="0"
+              max="100"
+            />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal('modal-grade')">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="submitGradeEntry()">
+            Save
           </button>
         </div>
       </div>
@@ -3344,7 +4308,7 @@
         <div
           style="
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 16px;
           "
@@ -3493,9 +4457,11 @@
           theme: "light",
           petChoice: "owl",
           petName: "Owly",
+          avatarDataUrl: null,
         },
         tasks: [],
         exams: [],
+        grades: [],
         timerSettings: { study: 25, short: 5, long: 15, sessionsBeforeLong: 4 },
         sessions: [],
         gamification: {
@@ -3517,6 +4483,8 @@
         data.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
       if (!data.user.designation) data.user.designation = "Student";
       if (data.user.theme === undefined) data.user.theme = "light";
+      if (!data.grades) data.grades = [];
+      if (data.user.avatarDataUrl === undefined) data.user.avatarDataUrl = null;
 
       const save = () =>
         localStorage.setItem("studyflow-v2", JSON.stringify(data));
@@ -3669,7 +4637,9 @@
         document
           .querySelectorAll(".nav-item")
           .forEach((n) => n.classList.remove("active"));
-        document.getElementById("page-" + page).classList.add("active");
+        const pageEl = document.getElementById("page-" + page);
+        if (!pageEl) return;
+        pageEl.classList.add("active");
         document
           .querySelector(`.nav-item[data-page="${page}"]`)
           ?.classList.add("active");
@@ -3686,6 +4656,9 @@
         if (page === "profile") renderProfile();
         if (page === "settings") loadSettings();
         if (page === "timer") renderTodaySessions();
+        if (page === "grades") renderGrades();
+        if (page === "matrix") renderMatrix();
+        if (page === "calendar") renderCalendar();
       }
 
       function toggleSidebar() {
@@ -4013,12 +4986,21 @@
           input.focus();
           return;
         }
+        // Get selected quadrant (from modal radio buttons)
+        let priority = "do";
+        if (fromModal) {
+          const checked = document.querySelector(
+            'input[name="task-quadrant"]:checked',
+          );
+          priority = checked ? checked.value : "do";
+        }
         data.tasks.unshift({
           id: Date.now(),
           text,
           category: catEl.value || data.categories[0]?.id || "other",
           completed: false,
           createdAt: new Date().toISOString(),
+          priority: priority,
         });
         input.value = "";
         addXP(5);
@@ -4107,9 +5089,37 @@
         const catFilter =
           document.getElementById("task-cat-filter")?.value || "all";
         let tasks = data.tasks;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const last7 = new Date(today);
+        last7.setDate(last7.getDate() - 6);
+
         if (taskFilter === "active") tasks = tasks.filter((t) => !t.completed);
-        if (taskFilter === "completed")
+        else if (taskFilter === "done")
           tasks = tasks.filter((t) => t.completed);
+        else if (taskFilter === "today") {
+          tasks = tasks.filter((t) => {
+            const d = new Date(t.createdAt);
+            d.setHours(0, 0, 0, 0);
+            return d.getTime() === today.getTime();
+          });
+        } else if (taskFilter === "yesterday") {
+          tasks = tasks.filter((t) => {
+            const d = new Date(t.createdAt);
+            d.setHours(0, 0, 0, 0);
+            return d.getTime() === yesterday.getTime();
+          });
+        } else if (taskFilter === "last7") {
+          tasks = tasks.filter((t) => {
+            const d = new Date(t.createdAt);
+            d.setHours(0, 0, 0, 0);
+            return d >= last7 && d <= today;
+          });
+        }
+
         if (catFilter !== "all")
           tasks = tasks.filter((t) => t.category === catFilter);
         const total = data.tasks.length,
@@ -4120,7 +5130,7 @@
         const pt = document.getElementById("task-progress-text");
         if (pt) pt.textContent = `${done} / ${total} tasks completed`;
         if (!tasks.length) {
-          list.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="empty-text">${taskFilter === "completed" ? "No completed tasks yet" : "All caught up!"}</div></div>`;
+          list.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="empty-text">${taskFilter === "done" ? "No completed tasks yet" : "All caught up!"}</div></div>`;
           return;
         }
         list.innerHTML = tasks
@@ -4406,10 +5416,16 @@
         if (timerMode === "study") {
           sessionCount++;
           const dur = data.timerSettings.study;
+          const titleEl = document.getElementById("session-title-input");
+          const sessionLabel =
+            titleEl && titleEl.value.trim()
+              ? titleEl.value.trim()
+              : "Study Session";
           data.sessions.push({
             date: new Date().toISOString(),
             duration: dur,
             focusScore: 5,
+            title: sessionLabel,
           });
           updateStreak();
           addXP(20);
@@ -4502,7 +5518,7 @@
         el.innerHTML = sessions
           .map(
             (s) =>
-              `<div class="log-item"><div><div style="font-weight:600">Study Session</div><div class="log-date">${new Date(s.date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</div></div><div style="color:var(--primary);font-weight:700">${s.duration}m</div></div>`,
+              `<div class="log-item"><div><div style="font-weight:600">${s.title || "Study Session"}</div><div class="log-date">${new Date(s.date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</div></div><div style="color:var(--primary);font-weight:700">${s.duration}m</div></div>`,
           )
           .join("");
       }
@@ -4723,7 +5739,8 @@
       };
 
       function getPetLevel() {
-        return Math.min(9, Math.floor(data.gamification.level / 2));
+        // Pet level advances every 2 player levels, max index 9
+        return Math.min(9, Math.floor((data.gamification.level - 1) / 2));
       }
 
       function renderPet() {
@@ -4735,25 +5752,40 @@
         wrap.innerHTML = svgs[lvIdx] || svgs[0];
         const lvLabel = document.getElementById("pet-level-display");
         if (lvLabel)
-          lvLabel.textContent = `Lv.${lvIdx + 1} ${PET_LEVELS[lvIdx]}`;
+          lvLabel.textContent = `Lv.${lvIdx + 1} ${PET_LEVELS[lvIdx]} (Player Lv.${data.gamification.level})`;
       }
 
       function renderProfile() {
         const g = data.gamification;
         const u = data.user;
-        const nameEl = document.getElementById("profile-name-disp");
-        if (nameEl) nameEl.textContent = u.name || "Scholar";
-        const detEl = document.getElementById("profile-detail-disp");
-        if (detEl)
-          detEl.textContent = [
-            u.designation || "Student",
-            u.degree,
-            u.university,
-          ]
-            .filter(Boolean)
-            .join(" — ");
-        const emailEl = document.getElementById("profile-email-disp");
-        if (emailEl) emailEl.textContent = u.email || "";
+
+        // Inline profile form
+        const inName = document.getElementById("inline-p-name");
+        if (inName && inName !== document.activeElement)
+          inName.value = u.name || "";
+        const inDes = document.getElementById("inline-p-designation");
+        if (inDes && inDes !== document.activeElement)
+          inDes.value = u.designation || "";
+        const inDeg = document.getElementById("inline-p-degree");
+        if (inDeg && inDeg !== document.activeElement)
+          inDeg.value = u.degree || "";
+        const inUni = document.getElementById("inline-p-uni");
+        if (inUni && inUni !== document.activeElement)
+          inUni.value = u.university || "";
+        const inEmail = document.getElementById("inline-p-email");
+        if (inEmail && inEmail !== document.activeElement)
+          inEmail.value = u.email || "";
+
+        // Avatar
+        const avatarEl = document.getElementById("profile-avatar");
+        if (avatarEl) {
+          if (u.avatarDataUrl) {
+            avatarEl.innerHTML = `<img src="${u.avatarDataUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+          } else {
+            avatarEl.textContent = "🎓";
+          }
+        }
+
         const lvEl = document.getElementById("profile-level");
         if (lvEl) lvEl.textContent = g.level;
         const xpEl = document.getElementById("profile-xp-label");
@@ -4780,6 +5812,36 @@
             `<div class="badge-item ${g.badges.includes(b.id) ? "" : "locked"}" title="${b.desc}"><span class="badge-icon">${b.icon}</span><div class="badge-label">${b.label}</div></div>`,
         ).join("");
         loadQuote();
+      }
+
+      function saveInlineProfile() {
+        data.user.name =
+          document.getElementById("inline-p-name")?.value || "Scholar";
+        data.user.designation =
+          document.getElementById("inline-p-designation")?.value || "Student";
+        data.user.degree =
+          document.getElementById("inline-p-degree")?.value || "";
+        data.user.university =
+          document.getElementById("inline-p-uni")?.value || "";
+        data.user.email =
+          document.getElementById("inline-p-email")?.value || "";
+        save();
+        // Update dashboard name without full re-render
+        const nameEl = document.getElementById("userName");
+        if (nameEl) nameEl.textContent = data.user.name || "Scholar";
+      }
+
+      function handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          data.user.avatarDataUrl = e.target.result;
+          save();
+          renderProfile();
+          showToast("📷", "Photo updated!", "Profile picture saved");
+        };
+        reader.readAsDataURL(file);
       }
 
       function petInteract() {
@@ -5088,6 +6150,562 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
+      }
+
+      // ===================== QUADRANT SELECTION =====================
+      let selectedQuadrant = "do";
+      function selectQuadrant(q) {
+        selectedQuadrant = q;
+        ["do", "schedule", "delegate", "eliminate"].forEach((id) => {
+          const el = document.getElementById("quad-" + id);
+          if (!el) return;
+          if (id === q) {
+            el.style.borderColor = "var(--primary)";
+            el.style.background = "rgba(79,142,247,0.08)";
+            const inp = el.querySelector('input[type="radio"]');
+            if (inp) inp.checked = true;
+          } else {
+            el.style.borderColor = "var(--border)";
+            el.style.background = "";
+          }
+        });
+      }
+
+      // Reset quadrant selection when opening modal
+      const _origOpenAddTask = openAddTask;
+      function openAddTask() {
+        populateCategorySelects();
+        document.getElementById("modal-task").classList.add("open");
+        document.getElementById("m-task-text").focus();
+        selectQuadrant("do");
+      }
+
+      // ===================== FOCUS MODE =====================
+      let focusModeActive = false;
+      function enterFocusMode() {
+        focusModeActive = true;
+        const overlay = document.getElementById("focus-overlay");
+        overlay.style.display = "flex";
+        syncFocusOverlay();
+        document.body.style.overflow = "hidden";
+      }
+      function exitFocusMode() {
+        focusModeActive = false;
+        const overlay = document.getElementById("focus-overlay");
+        overlay.style.display = "none";
+        document.body.style.overflow = "";
+      }
+      function syncFocusOverlay() {
+        if (!focusModeActive) return;
+        // Sync timer display
+        const mainDisp = document.getElementById("timer-display");
+        const focusDisp = document.getElementById("focus-timer-disp");
+        if (mainDisp && focusDisp) focusDisp.textContent = mainDisp.textContent;
+        // Sync ring
+        const mainRing = document.getElementById("timer-ring");
+        const focusRing = document.getElementById("focus-ring");
+        if (mainRing && focusRing)
+          focusRing.style.strokeDashoffset = mainRing.style.strokeDashoffset;
+        // Sync mode label
+        const mainLbl = document.getElementById("timer-mode-text");
+        const focusLbl = document.getElementById("focus-mode-lbl");
+        if (mainLbl && focusLbl) focusLbl.textContent = mainLbl.textContent;
+        // Sync session title
+        const titleEl = document.getElementById("session-title-input");
+        const focusLabelEl = document.getElementById("focus-session-label");
+        if (titleEl && focusLabelEl)
+          focusLabelEl.textContent = titleEl.value || "Study Session";
+        // Sync button
+        const mainBtn = document.getElementById("timer-btn");
+        const focusBtn = document.getElementById("focus-toggle-btn");
+        if (mainBtn && focusBtn) focusBtn.innerHTML = mainBtn.innerHTML;
+      }
+      // Patch updateTimerDisplay to also sync focus overlay
+      const _origUpdateTimerDisplay = updateTimerDisplay;
+      function updateTimerDisplay() {
+        _origUpdateTimerDisplay();
+        syncFocusOverlay();
+      }
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && focusModeActive) exitFocusMode();
+      });
+
+      // ===================== EISENHOWER MATRIX =====================
+      function renderMatrix() {
+        const quadrants = ["do", "schedule", "delegate", "eliminate"];
+        quadrants.forEach((q) => {
+          const el = document.getElementById("matrix-" + q);
+          if (!el) return;
+          const tasks = data.tasks.filter(
+            (t) => (t.priority || "do") === q && !t.completed,
+          );
+          if (!tasks.length) {
+            el.innerHTML = `<div style="padding:16px;text-align:center;color:var(--text-faint);font-size:13px;">No tasks here</div>`;
+            return;
+          }
+          el.innerHTML = tasks
+            .map((t) => {
+              const s = getCatStyle(t.category);
+              const catName =
+                data.categories.find((c) => c.id === t.category)?.name ||
+                t.category;
+              return `<div class="todo-item" draggable="true" data-id="${t.id}" data-quadrant="${q}"
+              ondragstart="matrixDragStart(event)"
+              style="margin-bottom:8px;cursor:grab;">
+              <div class="check-box ${t.completed ? "checked" : ""}" onclick="toggleTask(${t.id},event)"></div>
+              <div style="flex:1;min-width:0">
+                <div class="todo-text" style="font-size:13px;">${escHtml(t.text)}</div>
+                <span class="cat-badge" style="background:${s.bg};color:${s.color}">${catName}</span>
+              </div>
+            </div>`;
+            })
+            .join("");
+        });
+      }
+      let matrixDragId = null;
+      function matrixDragStart(e) {
+        matrixDragId = +e.currentTarget.dataset.id;
+        e.dataTransfer.setData("text/plain", matrixDragId);
+      }
+      function dropToQuadrant(e, quadrant) {
+        e.preventDefault();
+        if (!matrixDragId) return;
+        const task = data.tasks.find((t) => t.id === matrixDragId);
+        if (task) {
+          task.priority = quadrant;
+          save();
+          renderMatrix();
+        }
+        matrixDragId = null;
+      }
+
+      // ===================== CALENDAR =====================
+      let calYear = new Date().getFullYear();
+      let calMonth = new Date().getMonth();
+
+      function renderCalendar() {
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        const lbl = document.getElementById("cal-month-label");
+        if (lbl) lbl.textContent = `${monthNames[calMonth]} ${calYear}`;
+
+        const grid = document.getElementById("cal-grid");
+        if (!grid) return;
+
+        const firstDay = new Date(calYear, calMonth, 1).getDay();
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+        const today = new Date();
+
+        let cells = "";
+        // Empty cells for leading days
+        for (let i = 0; i < firstDay; i++) {
+          cells += `<div style="min-height:70px;padding:4px;border-radius:8px;opacity:0.3;"></div>`;
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+          const isToday =
+            today.getDate() === d &&
+            today.getMonth() === calMonth &&
+            today.getFullYear() === calYear;
+
+          // Gather events
+          const exams = data.exams.filter((e) => e.date === dateStr);
+          const tasks = data.tasks.filter((t) => {
+            const td = new Date(t.createdAt);
+            return (
+              td.getFullYear() === calYear &&
+              td.getMonth() === calMonth &&
+              td.getDate() === d
+            );
+          });
+          const sessions = data.sessions.filter((s) => {
+            const sd = new Date(s.date);
+            return (
+              sd.getFullYear() === calYear &&
+              sd.getMonth() === calMonth &&
+              sd.getDate() === d
+            );
+          });
+
+          const chips = [
+            ...exams.map(
+              (e) =>
+                `<div style="background:rgba(255,95,126,0.85);color:white;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${escHtml(e.subject)}</div>`,
+            ),
+            ...tasks.map(
+              (t) =>
+                `<div style="background:rgba(79,142,247,0.8);color:white;font-size:9px;padding:2px 5px;border-radius:4px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${escHtml(t.text)}</div>`,
+            ),
+            ...sessions.map(
+              (s) =>
+                `<div style="background:rgba(0,212,170,0.8);color:white;font-size:9px;padding:2px 5px;border-radius:4px;margin-top:2px;">${s.title || "Study"} ${s.duration}m</div>`,
+            ),
+          ]
+            .slice(0, 3)
+            .join("");
+          const moreCount = exams.length + tasks.length + sessions.length - 3;
+
+          cells += `<div onclick="showCalDay(${d},${calMonth},${calYear})" style="min-height:70px;padding:6px;border-radius:8px;background:${isToday ? "rgba(79,142,247,0.12)" : "var(--surface)"};border:1px solid ${isToday ? "var(--primary)" : "var(--border)"};cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='${isToday ? "var(--primary)" : "var(--border)"}'">
+            <div style="font-size:12px;font-weight:${isToday ? "800" : "600"};color:${isToday ? "var(--primary)" : "var(--text)"};margin-bottom:2px;">${d}</div>
+            ${chips}
+            ${moreCount > 0 ? `<div style="font-size:9px;color:var(--text-faint);margin-top:2px;">+${moreCount} more</div>` : ""}
+          </div>`;
+        }
+        grid.innerHTML = cells;
+      }
+
+      function showCalDay(d, m, y) {
+        const dateStr = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        const detail = document.getElementById("cal-day-detail");
+        const detDate = document.getElementById("cal-detail-date");
+        const detContent = document.getElementById("cal-detail-content");
+        if (!detail) return;
+
+        const exams = data.exams.filter((e) => e.date === dateStr);
+        const tasks = data.tasks.filter((t) => {
+          const td = new Date(t.createdAt);
+          return (
+            td.getFullYear() === y && td.getMonth() === m && td.getDate() === d
+          );
+        });
+        const sessions = data.sessions.filter((s) => {
+          const sd = new Date(s.date);
+          return (
+            sd.getFullYear() === y && sd.getMonth() === m && sd.getDate() === d
+          );
+        });
+
+        if (!exams.length && !tasks.length && !sessions.length) {
+          detail.style.display = "none";
+          return;
+        }
+
+        detDate.textContent = `${monthNames[m]} ${d}, ${y}`;
+        let html = "";
+        exams.forEach((e) => {
+          html += `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><span style="background:rgba(255,95,126,0.2);color:var(--danger);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;">EXAM</span><div><div style="font-weight:600">${escHtml(e.subject)}</div>${e.time ? `<div style="font-size:12px;color:var(--text-muted)">${e.time}</div>` : ""}</div></div>`;
+        });
+        tasks.forEach((t) => {
+          html += `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><span style="background:rgba(79,142,247,0.2);color:var(--primary);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;">TASK</span><div style="font-weight:600">${escHtml(t.text)}</div></div>`;
+        });
+        sessions.forEach((s) => {
+          html += `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)"><span style="background:rgba(0,212,170,0.2);color:var(--success);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;">SESSION</span><div><div style="font-weight:600">${s.title || "Study Session"}</div><div style="font-size:12px;color:var(--text-muted)">${s.duration} minutes</div></div></div>`;
+        });
+
+        detContent.innerHTML = html;
+        detail.style.display = "block";
+      }
+
+      function calPrevMonth() {
+        calMonth--;
+        if (calMonth < 0) {
+          calMonth = 11;
+          calYear--;
+        }
+        renderCalendar();
+      }
+      function calNextMonth() {
+        calMonth++;
+        if (calMonth > 11) {
+          calMonth = 0;
+          calYear++;
+        }
+        renderCalendar();
+      }
+
+      // ===================== GPA TRACKER =====================
+      let gradeChartInst = null;
+
+      function openAddGradeEntry() {
+        document.getElementById("edit-grade-id").value = "";
+        document.getElementById("g-module").value = "";
+        document.getElementById("g-name").value = "";
+        document.getElementById("g-actual").value = "";
+        document.getElementById("g-target").value = "";
+        document.getElementById("g-weight").value = "20";
+        document.getElementById("g-type").value = "assignment";
+        document.getElementById("modal-grade").classList.add("open");
+      }
+
+      function submitGradeEntry() {
+        const mod = document.getElementById("g-module").value.trim();
+        const name = document.getElementById("g-name").value.trim();
+        const actual = parseFloat(document.getElementById("g-actual").value);
+        const target = parseFloat(document.getElementById("g-target").value);
+        const weight =
+          parseFloat(document.getElementById("g-weight").value) || 20;
+        const type = document.getElementById("g-type").value;
+        if (!mod || isNaN(actual)) {
+          showToast(
+            "⚠️",
+            "Fill required fields",
+            "Module and Score are required",
+          );
+          return;
+        }
+        const editId = document.getElementById("edit-grade-id").value;
+        if (editId) {
+          const entry = data.grades.find((g) => g.id === +editId);
+          if (entry) {
+            Object.assign(entry, {
+              module: mod,
+              name,
+              actual: Math.min(100, Math.max(0, actual)),
+              target: isNaN(target) ? null : Math.min(100, Math.max(0, target)),
+              weight,
+              type,
+              date: entry.date,
+            });
+          }
+        } else {
+          data.grades.push({
+            id: Date.now(),
+            module: mod,
+            name,
+            type,
+            actual: Math.min(100, Math.max(0, actual)),
+            target: isNaN(target) ? null : Math.min(100, Math.max(0, target)),
+            weight,
+            date: new Date().toISOString(),
+          });
+        }
+        save();
+        closeModal("modal-grade");
+        renderGrades();
+        showToast("📊", "Grade saved!", mod);
+      }
+
+      function editGradeEntry(id) {
+        const g = data.grades.find((g) => g.id === id);
+        if (!g) return;
+        document.getElementById("edit-grade-id").value = id;
+        document.getElementById("g-module").value = g.module;
+        document.getElementById("g-name").value = g.name || "";
+        document.getElementById("g-actual").value = g.actual;
+        document.getElementById("g-target").value = g.target || "";
+        document.getElementById("g-weight").value = g.weight || 20;
+        document.getElementById("g-type").value = g.type || "assignment";
+        document.getElementById("modal-grade").classList.add("open");
+      }
+
+      function deleteGradeEntry(id) {
+        data.grades = data.grades.filter((g) => g.id !== id);
+        save();
+        renderGrades();
+      }
+
+      function scoreToGPA(score) {
+        if (score >= 90) return 4.0;
+        if (score >= 80) return 3.0;
+        if (score >= 70) return 2.0;
+        if (score >= 60) return 1.0;
+        return 0.0;
+      }
+
+      function renderGrades() {
+        if (!data.grades) data.grades = [];
+        const list = document.getElementById("grade-entries-list");
+        const wGPA = document.getElementById("gpa-weighted");
+        const avg = document.getElementById("gpa-avg");
+        const mods = document.getElementById("gpa-modules");
+        const best = document.getElementById("gpa-best");
+
+        if (!data.grades.length) {
+          if (list)
+            list.innerHTML =
+              '<div class="empty-state"><div class="empty-text">No grades added yet</div></div>';
+          if (wGPA) wGPA.textContent = "—";
+          if (avg) avg.textContent = "—";
+          if (mods) mods.textContent = "0";
+          if (best) best.textContent = "—";
+          return;
+        }
+
+        // Group by module
+        const byModule = {};
+        data.grades.forEach((g) => {
+          if (!byModule[g.module]) byModule[g.module] = [];
+          byModule[g.module].push(g);
+        });
+        const moduleNames = Object.keys(byModule);
+        if (mods) mods.textContent = moduleNames.length;
+
+        // Weighted GPA
+        let totalWeight = 0,
+          weightedSum = 0;
+        data.grades.forEach((g) => {
+          const w = g.weight || 20;
+          weightedSum += scoreToGPA(g.actual) * w;
+          totalWeight += w;
+        });
+        const gpaVal = totalWeight
+          ? (weightedSum / totalWeight).toFixed(2)
+          : "—";
+        if (wGPA) wGPA.textContent = gpaVal;
+
+        // Average
+        const scores = data.grades.map((g) => g.actual);
+        const avgVal = scores.length
+          ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) + "%"
+          : "—";
+        if (avg) avg.textContent = avgVal;
+
+        // Best
+        const bestScore = scores.length ? Math.max(...scores) : null;
+        if (best) best.textContent = bestScore !== null ? bestScore + "%" : "—";
+
+        // Render list
+        if (list) {
+          list.innerHTML = data.grades
+            .slice()
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .map((g) => {
+              const diff = g.target ? g.actual - g.target : null;
+              const diffHtml =
+                diff !== null
+                  ? `<span style="font-size:11px;font-weight:700;color:${diff >= 0 ? "var(--success)" : "var(--danger)"};">${diff >= 0 ? "+" : ""}${diff.toFixed(1)}%</span>`
+                  : "";
+              return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:8px;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:600;font-size:13px;">${escHtml(g.module)} <span style="font-size:11px;font-weight:400;color:var(--text-muted);">${escHtml(g.name || g.type)}</span></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${g.type} · Weight: ${g.weight}% · ${new Date(g.date).toLocaleDateString()}</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;">
+                <div style="font-family:var(--font-head);font-weight:800;font-size:1.1rem;">${g.actual}%</div>
+                ${g.target ? `<div style="font-size:10px;color:var(--text-muted);">Target: ${g.target}%</div>` : ""}
+                ${diffHtml}
+              </div>
+              <div style="display:flex;gap:4px;flex-shrink:0;">
+                <button class="btn btn-ghost btn-icon" style="width:28px;height:28px;" onclick="editGradeEntry(${g.id})"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg></button>
+                <button class="btn btn-danger btn-icon" style="width:28px;height:28px;" onclick="deleteGradeEntry(${g.id})">✕</button>
+              </div>
+            </div>`;
+            })
+            .join("");
+        }
+
+        // Chart
+        const ctx = document.getElementById("gradeChart");
+        if (ctx) {
+          if (gradeChartInst) gradeChartInst.destroy();
+          const sortedGrades = data.grades
+            .slice()
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+          const cc = getChartColors();
+          gradeChartInst = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: sortedGrades.map((g) => g.name || g.module),
+              datasets: [
+                {
+                  label: "Score",
+                  data: sortedGrades.map((g) => g.actual),
+                  borderColor: "#4F8EF7",
+                  backgroundColor: "rgba(79,142,247,0.15)",
+                  tension: 0.4,
+                  fill: true,
+                  pointRadius: 5,
+                },
+                {
+                  label: "Target",
+                  data: sortedGrades.map((g) => g.target),
+                  borderColor: "#ff5f7e",
+                  borderDash: [5, 5],
+                  tension: 0.4,
+                  pointRadius: 4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  labels: { color: cc.text, font: { family: "Lexend" } },
+                },
+              },
+              scales: {
+                x: {
+                  ticks: { color: cc.tick, font: { size: 10 } },
+                  grid: { color: cc.grid },
+                },
+                y: {
+                  beginAtZero: false,
+                  min: 0,
+                  max: 100,
+                  ticks: { color: cc.tick },
+                  grid: { color: cc.grid },
+                },
+              },
+            },
+          });
+        }
+      }
+
+      // ===================== JSON IMPORT =====================
+      function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const imported = JSON.parse(e.target.result);
+            // Validate basic structure
+            if (!imported.tasks || !imported.gamification) {
+              showToast(
+                "⚠️",
+                "Invalid file",
+                "This doesn't look like a StudyFlow backup",
+              );
+              return;
+            }
+            if (
+              confirm(
+                "This will REPLACE all your current data with the imported backup. Continue?",
+              )
+            ) {
+              data = imported;
+              if (!data.grades) data.grades = [];
+              if (!data.categories)
+                data.categories = JSON.parse(
+                  JSON.stringify(DEFAULT_CATEGORIES),
+                );
+              if (!data.user.avatarDataUrl) data.user.avatarDataUrl = null;
+              save();
+              location.reload();
+            }
+          } catch (err) {
+            showToast("⚠️", "Parse error", "Could not read the JSON file");
+          }
+        };
+        reader.readAsText(file);
+        event.target.value = "";
       }
 
       // ===================== INIT =====================

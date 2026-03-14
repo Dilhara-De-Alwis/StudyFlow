@@ -1,0 +1,49 @@
+Version v3.0
+
+
+when this web page in a mobile view the menu bar icon(hamburger icon) overlaying the website and block below side bar so change menu button position or text position to display a proper way.
+In study timer user need to be able to add a title for the the timer [Keep he default one as a placeholder and if user didn't enter just use that placeholder, right now it is Study Session, I want that from hardcoded to user typed way]
+in profile and xp section,there are displaying different levels in profile section and virtual companion section correct this level mismatch, change the pet icon when 2 levels passed.
+when use clicked change pet, the robo companion overlays the Choose Your Companion box, make 1x4 grid or 2x2 grid to adjust this bug
+Edit profile is a modal and it is not visible until I press the edit profile button, I think it reduces the chances of the user editing the profile, if we can get the profile card to the base profile and xp section that would be a great ui ux experience for the user.
+Also add the studyflow icon to that section where the icon shows in tabs in the chrome, it is empty right now.
+Also change the position of the refresh button to the top and use a fixed sized box for the quote so it doesn't change the sizes with the size of the quote
+In tasks sections, there is only All, Active, Done tags only, let's remake the tags and there logic to, All, Today, Active, Done, Yesterday, Last 7 days. Also change the position of the category filter to the right side of the page.
+Also in the task section as well, if you can remove the clear done button or change the name of the clear done btn as it doesn't make any sense for the name of the button. if you choose to keep the button and the name of the btn, change the position of the btn to the bottom of the page so user don't get confused
+Also I found the webpage is not fully work best on the mobile view, rework on that part as well.
+GPA & grade tracker
+Add a grade tracking section where students log marks for assignments and exams by module, auto-calculating weighted GPA and semester average. Exams currently have a targetGrade field but no actual Grade. Add an actualGrade input to the exam edit modal. Create a Grades page showing: per-subject averages, weighted GPA, a line chart or relevant analysis of grade trends over time. iStudiez Pro is praised specifically for this feature — it fills a real gap. Also compare it with the student's expected grades to easily understand
+JSON data import
+Export to JSON exists but there's no import. Add a file picker to restore a backup — essential for switching devices or recovering from a browser data wipe. Add an 'Import Data' button in Settings that opens a file input accepting .json files. Use FileReader to parse and validate the structure against the DEFAULT_DATA schema. Merge or replace existing data  ith a confirmation dialog. The export/import loop makes the app production-worthy.
+Data encryption I PIN lock
+Add an optional app PIN so the study data (grades, notes, personal info) is not accessible to anyone who opens the browser on a shared device. On enabling, prompt the user to set a 4-6 digit PIN stored as a bcrypt hash (using a pure-JS library from cdnjs, better if you can do it without any APIs). On next load, show a PIN prompt overlay before revealing the app. The actual data in localStorage can be  encrypted with a derived key without using any APIs. A must-have for shared lab/library computers common in university settings.
+User can enable or disable the password option in the settings
+Also create a forget password mechanism without online support or APIs support for when password got forgot
+Avatar/ profile picture upload
+The profile page shows an emoji avatar placeholder. Allow students to upload or capture a photo, stored as a base64 data URL in localStorage.
+Export study report as PDF
+Add a 'Generate Report' button in Analytics that produces a downloadable PDF summarising the student's sessions, task completion, streaks, and grade targets. Use the jsPDF library from cdnjs. Build a one-page PDF with the students name, date range, key stats (total hours, sessions, tasks completed, streak, XP level), and a simple chart image  canvas.toDataURL()). This is useful for self-reflection, portfolio submissions, or sharing progress with a tutor.
+Adaptive XP System
+Move beyond static XP to dynamic challenge adjustment, based on the tasks, total study time and etc. as you can think
+Task due dates & overdue alerts
+Tasks currently have no deadline — only exams do. Add optional due dates with colour-coded overdue highlighting so nothing slips through. Add a date picker to the task modal. Store a dueDate• ISO string per task. In render Tasks(), compare dueDate to today and apply a red border + 'Overdue' badge. Show overdue count in a dashboard stat card. This single change dramatically boosts real-world usefulness.
+Eisenhower Matrix as a new feature on the side bar,
+when we adding a new task on the tasks section, it ask for 4 things Urgent & Important, urgent Unimportant, Not Urgent Important, Not Urgent unimportant
+FOCUS / Do Not Disturb mode
+When the Pomodoro timer is running, activate a fullscreen fOCUS overlay that hides all navigation — only the timer and the active task are visible. Add a 'Focus Mode' button on the timer page. Clicking it expands the timer to fill the entire screen, dims the sidebar and all other Ul, and shows only the current task name. Pressing Esc or the timer completing returns to normal. This mirrors distraction-free modes in apps like Forest and Focusmate, popular with students in 2026.
+Eisenhower Matrix — priority quadrant view
+A dedicated sidebar page showing all tasks distributed across four quadrants: Do First, Schedule, Delegate, and Eliminate — based on a new urgency + importance field added when creating tasks.
+HOW TO IMPLEMENT
+Add a priority' field to every task with 4 values: do' (Urgent+lmportant), Schedule' (Important, not Urgent), delegate' (Urgent, not Important), éliminate' (neither). In the Add Task modal, replace the existing category dropdown row with a 2x2 radio-button grid that visually shows all four quadrants — the user taps their quadrant before saving. Add a new sidebar nav item 'Matrix' that renders a full-page 2x2 grid, each quadrant holding its task cards. Tasks can be dragged between quadrants (reusing the existing dragStart/drop code). The quadrant a task falls in is stored in data and persists like category.
+Full calendar — exams, tasks, and sessions in one view
+A full monthly calendar page showing all exams, tasks with due dates, and completed study sessions colour-coded by type — giving a visual birds-eye view of the entire study schedule.
+HOW TO IMPLEMENT
+Add a 'Calendar' sidebar link. Render a month grid (7 columns x 5—6 rows) using pure JS: loop through the days of the current month, create a cell per day. For each day, query data-exams for exams on that date, data.tasks for tasks with dueDate on that date, and data.sessions for sessions that day. Stack event chips inside each cell (coloured pill: red = exam, blue = task, green = session complete). Add Prev/Next month navigation buttons updating a calendarMonth and calendarYear' state variable. Click a day cell to expand a detail panel below the grid listing all events for that day with full info.
+Pinned / starred tasks
+Let students pin their most critical tasks to the top of the task list and the dashboard panel — so the most important work is always the first thing they see.
+HOW TO IMPLEMENT
+Add a pinned: false* boolean to the task schema. In the todo-item render, add a small pin icon button. Clicking it toggles task.pinned , saves, and re-renders. In render Tasks(), sort pinned tasks first before applying the existing filter. On the dashboard task list, show pinned tasks first regardless of recency. A thin gold top-border on pinned task cards visually distinguishes them.
+Checklist I subtasks inside every task
+Let students break big tasks into smaller steps — 'Write essay' becomes a task with subtasks: 'Research', 'Outline', 'Draft', 'Proofread'. Each subtask is tickable and the parent task auto-completes when all are done.
+HOW TO IMPLEMENT
+Add subtasks: [J' array to the task schema. Each subtask: {id, text, done}'. Extend the Edit Task modal with a subtask section: a small input + 'Add step' button, and a list of existing subtasks with checkboxes. In renderTasks(), if a task has subtasks, show a mini progress bar under the task title showing XN steps done. When all subtasks are completed, auto-toggle the parent task as complete (and award XP). On the dashboard task list, show subtask progress inline.
