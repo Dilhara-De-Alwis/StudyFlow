@@ -2,6 +2,678 @@
 
 ---
 
+## v5.3.0 — "Living System" Update (March 18, 2026)
+
+> A deep-systems update focused on making every interactive layer feel genuinely alive. v5.3 rebuilds the notification system from scratch (stacked banners, colour-coded accents, 7-day exam warnings, daily study reminders), overhaults the floating pet companion (gradient-border ring, idle float animation, pulsing glow, level pip, ring hue progression), tightens the recurring task gating logic, slashes the XP requirement to make the pet evolve faster, and irons out eight concrete bugs reported against v5.2 — including a critical HTML nesting error that made the entire Mark Tracker section non-functional.
+
+---
+
+### 🟢 New & Changed Features
+
+#### 01 — Charts: Destroy-and-Recreate on Navigation (no flicker)
+
+All Chart.js instances (weekly bar, category doughnut, grade line) are now **destroyed and freshly recreated** on every navigation event rather than being updated in-place. A short 300 ms creation animation prevents any visual pop. Instances are also destroyed when navigating *away* from the Analytics or Grade Tracker pages, so no stale canvas state can carry over to subsequent visits.
+
+**Why the change:** The previous `chart.update()` approach (introduced in v5.2 Bug 17) caused subtle rendering artefacts when switching themes or filtering data — axes would retain old tick values and the canvas context occasionally became detached after a tab switch. Destroy-recreate is more robust and the 300 ms animation eliminates any perceived flicker.
+
+---
+
+#### 02 — Dashboard: Recent Study Sessions Hidden Until Today
+
+The **Recent Study Sessions** card on the Dashboard is now completely hidden when no study sessions have been logged today. It reappears the moment a session completes.
+
+**Before:** The card was always visible and showed sessions from previous days, making it feel stale and cluttered on mornings when you haven't yet studied.
+
+**After:** The card is absent from the page until you complete at least one session today, keeping the Dashboard clean and focused on what's actionable now. When the card is visible it shows the **last 5 sessions** across all time (sorted newest-first) so your most recent work is always at the top.
+
+---
+
+#### 03 — Add Task Modal: Layout Fix + Smart Start Time Rounding
+
+Two UX improvements to the Add Task modal:
+
+**Layout fix:** The Start Time and End Time fields were previously placed in a two-column CSS grid. On narrow modals and mobile viewports the End Time input overflowed its container, clipping the input border and label. Both fields are now rendered as full-width stacked rows, matching every other field in the modal.
+
+**Start Time rounding:** When the modal opens, the Start Time field is pre-filled with the current time rounded up to the nearest 15-minute mark:
+
+| Current time | Pre-filled value |
+|---|---|
+| 1:20 PM | 1:30 PM |
+| 1:32 PM | 1:45 PM |
+| 1:45 PM | 1:45 PM (already on boundary) |
+| 1:46 PM | 2:00 PM |
+
+This avoids ugly fractional start times like `13:47` and aligns with how people naturally think about scheduling.
+
+---
+
+#### 04 — Recurring Tasks: Gated Occurrence Display
+
+Future occurrences of a recurring task series are now **hidden from the Task Board** until the immediately preceding occurrence is completed. Undoing a completion (un-checking a task) re-hides the next occurrence instantly.
+
+**Logic (two-pass algorithm):**
+1. Children are sorted by `startTime` ascending within each `_recurParent` group.
+2. All uncompleted children after the first uncompleted child in the sorted list are added to a hidden set.
+3. If the **parent task itself** is uncompleted, all uncompleted children are hidden regardless of their individual completion state.
+
+**Calendar:** All occurrences remain visible in the Calendar views regardless of completion gating, so the full schedule is always accessible for planning.
+
+---
+
+#### 05 — Floating Pet: Full Visual Overhaul
+
+The floating pet companion received the most significant visual update since its introduction in v5.1.
+
+**Widget idle animation:** The entire widget now gently **floats up and down** on a 3-second ease-in-out cycle, pausing when hovered.
+
+**Gradient-border ring:** The circular ring now uses a CSS `background-clip: border-box` technique, producing a **transparent interior** with a true gradient border — the border colour flows from `--primary` through `--accent` to `--accent2`. Previous versions used a filled gradient circle that obscured the background behind the pet.
+
+**Pulsing glow:** The ring emits a **soft pulse animation** (`petRingPulse`) that cycles in sync with the widget float — expanding a shadow halo outward on the downstroke and contracting it on the upstroke.
+
+**Ring hue progression:** As the pet levels up, the ring gradient **hue-shifts from blue toward teal-green**, giving a visual sense of growth. The shift is computed dynamically in `updateFloatingPet()` based on the current pet level index (0–9).
+
+**Level pip:** A small `Lv.X` badge appears in the top-left corner of the widget **on hover**, so you can always check your pet's current level without navigating to the Profile page.
+
+**Richer click messages:** Clicking the pet now draws from a wider pool of context-aware messages including: pending task count, current streak, pet stage name and level, and player XP/level — in addition to the existing time-of-day greetings.
+
+**Level-up celebration:** Every player level-up (not just profile-page visits) now triggers the `react` animation on the floating widget and shows a speech bubble like `🎉 Evolved to Juvenile!` when the level-up causes a pet stage evolution.
+
+---
+
+#### 06 — GPA: Exact Interpolated Score-to-GPA Conversion
+
+`scoreToGPA()` now **linearly interpolates within each grade band** rather than returning a fixed step value at the band floor.
+
+| Score | Old value | New value |
+|---|---|---|
+| 50% (B- floor) | 2.70 | 2.70 |
+| 52.5% (midpoint of B- band) | 2.70 | **2.85** |
+| 54.9% (near B ceiling) | 2.70 | **2.99** |
+| 55% (B floor) | 3.00 | 3.00 |
+
+The interpolation uses a lookup table of `[lowerBound, upperBound, gpaAtLower, gpaAtUpper]` tuples, so conversion accuracy is maintained across all 12 grade bands (A+ → F). Weighted GPA calculations throughout the app (dashboard stat card, GPA Tracker, badge checks) all use this function and benefit automatically.
+
+---
+
+#### 07 — Mark Tracker: Modals Fixed (Critical HTML Bug)
+
+The **Add Mark** and **Subjects** modals in the Mark Tracker tab were completely non-functional in v5.2 due to a critical HTML nesting error.
+
+**Root cause:** The `modal-profile` overlay element was opened (`<div class="modal-overlay" id="modal-profile">`) but never closed before the `modal-mark` and `modal-mark-subjects` overlays began. This caused all three modals to be nested *inside* the `modal-profile` overlay, making them unreachable via `classList.add("open")` because the outer overlay was itself never opened.
+
+**Fix:** The `modal-profile` overlay is now correctly self-contained with its own opening and closing tags. All other modal overlays are siblings at the same DOM level. The `openManageMarkSubjects()` function also gained a `data.markSubjects` initialisation guard to prevent rendering before the array exists.
+
+---
+
+#### 08 — Settings: 2-Column Layout Restored
+
+The Settings page is back to the **classic 2-column grid** layout:
+
+| Left column | Right column |
+|---|---|
+| Notifications card | Data Management + About card |
+| Appearance card | |
+
+**Before (v5.2 intermediate state):** A single stacked column with four separate cards was accidentally introduced during the fix pass, making the settings page much taller than necessary.
+
+**After:** The grid-2 wrapper places Notifications and Appearance in the left column and Data Management + About in the right column, matching the original compact side-by-side design.
+
+---
+
+#### 09 — Notification System: Rebuilt from Scratch
+
+The push notification system was replaced with a fully new implementation.
+
+**Stacked banner queue:** Notifications now render into a `#notif-stack` container column anchored to the top-right of the screen. Up to 4 banners are visible simultaneously; when the limit is reached the oldest is auto-dismissed before the new one enters. Each banner:
+- Slides in from the right with a spring animation (`notifSlideIn`)
+- Has a **✕ close button** in the top-right corner
+- Has a **colour-coded left accent border** matching the notification urgency (red for exams, orange for warnings, teal for informational)
+- Has a **progress bar** that drains over 5 seconds, giving a clear visual signal of when the banner will auto-dismiss
+- Slides out upward when dismissed, with `max-height` collapsing to 0 so the remaining banners shift up smoothly
+
+**Richer scheduling:**
+
+| Trigger | When | Accent |
+|---|---|---|
+| Exam — 7 days before | 7 days before exam | Orange |
+| Exam — 24 hours before | 24 h before exam | Red |
+| Exam — 1 hour before | 1 h before exam | Red |
+| Task due — 1 hour before | 1 h before `dueDate` | Orange |
+| Task due — 30 minutes before | 30 min before `dueDate` | Red |
+| Daily study reminder | 9 AM if no session logged yet today | Teal |
+
+The 7-day exam warning and daily study reminder are new in v5.3. Toggling notifications OFF now immediately clears all pending `setTimeout` timers.
+
+---
+
+#### 10 — XP & Pet Leveling: Dramatically Reduced Threshold
+
+The XP required to level up has been changed from a **scaling `level × 100`** formula to a **flat 50 XP per level**.
+
+| Metric | v5.2 | v5.3 |
+|---|---|---|
+| XP to reach Level 2 | 100 XP | 50 XP |
+| XP to reach Level 5 | 500 XP | 50 XP |
+| XP to reach Level 10 | 1,000 XP | 50 XP |
+| Tasks needed to level up (approx.) | 5–50 | ~3 |
+
+`getPetLevel()` now advances **every single player level** (previously every 2), so the pet visibly evolves far more frequently:
+
+| Player level | Pet stage |
+|---|---|
+| 1 | Lv.1 Hatchling |
+| 2 | Lv.2 Chick |
+| 3 | Lv.3 Fledgling |
+| … | … |
+| 10+ | Lv.10 Legendary ✨ MAX |
+
+The `renderPet()` level label now shows `"evolves at player Lv.X"` so you always know how close the next evolution is.
+
+---
+
+#### 11 — Study Timer: Expandable Session History
+
+The Today's Sessions list in the Study Timer has been redesigned with two tiers:
+
+**Preview (always visible):** The last 3 sessions from today are shown as a clean list with session title, time, and a coloured duration pill.
+
+**Expandable full history:** A **Show All** button (with a rotating chevron) in the card header reveals every session ever logged, sorted newest-first, with a green "Today" badge on today's entries. Clicking the button again collapses the list. The panel animates open and closed using `max-height` CSS transitions for a smooth feel. The panel resets to collapsed whenever you navigate away and return to the Timer page.
+
+The toggle button is hidden entirely when fewer than 4 total sessions exist (no need to expand if everything already fits in the preview).
+
+---
+
+### 💾 Data Schema Changes
+
+No new fields introduced in v5.3. All existing v5.2 saves are fully forward-compatible.
+
+---
+
+### ✅ Verification
+
+| Test | Result |
+|---|---|
+| Charts destroyed on navigation, recreated without flicker | ✅ Verified |
+| Dashboard sessions card hidden when no sessions today | ✅ Verified |
+| Dashboard sessions card shows max 5 entries | ✅ Verified |
+| Add Task modal End Time no longer overflows | ✅ Verified |
+| Add Task Start Time rounds to next 15-min boundary | ✅ Verified |
+| Recurring task second occurrence hidden until first is done | ✅ Verified |
+| Completing first occurrence reveals second occurrence | ✅ Verified |
+| Un-checking first occurrence re-hides second occurrence | ✅ Verified |
+| Calendar always shows all recurring occurrences | ✅ Verified |
+| Pet widget floats with idle animation | ✅ Verified |
+| Pet ring is transparent inside, gradient border | ✅ Verified |
+| Pet ring pulses with glow animation | ✅ Verified |
+| Level pip appears on hover | ✅ Verified |
+| Ring hue shifts as pet levels up | ✅ Verified |
+| Level-up triggers react animation on floating widget | ✅ Verified |
+| 52.5% score returns GPA ~2.85 (not flat 2.70) | ✅ Verified |
+| Add Mark modal opens and saves correctly | ✅ Verified |
+| Manage Mark Subjects modal opens and saves correctly | ✅ Verified |
+| Settings renders in 2-column grid layout | ✅ Verified |
+| Notifications stack up to 4 banners | ✅ Verified |
+| Oldest banner auto-dismissed when limit exceeded | ✅ Verified |
+| Progress bar drains over 5 seconds | ✅ Verified |
+| ✕ close button dismisses individual banner | ✅ Verified |
+| 7-day exam warning fires correctly | ✅ Verified |
+| Daily 9 AM study reminder fires when no session today | ✅ Verified |
+| Disabling notifications clears all pending timers | ✅ Verified |
+| Level-up requires exactly 50 XP | ✅ Verified |
+| Pet evolves at every player level (not every 2) | ✅ Verified |
+| Timer page shows last 3 today's sessions in preview | ✅ Verified |
+| Show All expands full session history | ✅ Verified |
+| Show Less collapses history panel | ✅ Verified |
+| Session panel resets to collapsed on page navigation | ✅ Verified |
+
+---
+
+*StudyFlow v5.3.0 — Every interaction, alive.*
+
+---
+
+## v5.2.0 — "Clean Slate" Update (March 18, 2026)
+
+> A focused polish and consolidation release. v5.2 removes the experimental database/login/leaderboard systems introduced in v5.1 to keep StudyFlow a clean, zero-dependency, single-file app. In their place: a rearchitected Grade Tracker with a proper tabbed UI, a redesigned Mark Tracker experience with a full add-mark modal, a relocated dark mode toggle, an animated floating pet with reactive celebrations, and a series of UX refinements across the board.
+
+---
+
+### 🟢 New & Changed Features
+
+#### 01 — Dark Mode Toggle Moved to Settings
+
+The dark/light theme toggle has been removed from the sidebar footer and relocated to **Settings → Appearance**, where it lives alongside all other preference controls.
+
+**Before:** A small toggle at the bottom of the sidebar — hidden when the sidebar is collapsed, invisible on mobile.
+
+**After:** A full-width labelled button in a dedicated **Appearance** card in Settings, accessible from any screen size. The button shows the current theme name ("Light Mode" / "Dark Mode") and the matching sun/moon icon. In dark mode the button takes on an accent-purple tint to visually confirm the active state.
+
+This change makes theme switching equally accessible on desktop, tablet, and mobile without requiring the sidebar to be open.
+
+---
+
+#### 02 — Grade Tracker — Unified Tabbed Interface
+
+The **Grade Tracker** and **Mark Tracker** (introduced separately in v5.1) are now consolidated into a single sidebar section named **Grade Tracker**, reducing sidebar clutter.
+
+**Navigation:** One nav item → "Grade Tracker"
+
+**Inside the section:** Two tabs at the top of the page switch between the two tools:
+
+| Tab | Tool | Subtitle |
+|---|---|---|
+| GPA Tracker | Weighted GPA calculation, module grades, grade chart (unchanged from v5.1) | "Track your academic performance by module" |
+| Mark Tracker | Simple mark entry and analytics | "Simple mark analytics — Just your scores" |
+
+Each tab shows its own action buttons in the page header (GPA tab shows **Subjects** + **Add Grade**; Marks tab shows **Subjects** + **Add Mark**). Navigating away from the page and returning always resets to the GPA Tracker tab.
+
+---
+
+#### 03 — Mark Tracker — Full Add Mark Modal
+
+The previous `prompt()` chain for adding marks (three sequential browser dialogs) has been replaced with a proper **Add Mark modal**, consistent with the rest of the app's UX.
+
+**Modal fields:**
+
+| Field | Type | Notes |
+|---|---|---|
+| Subject | Dropdown | Populated from the Mark Tracker's own subject list (see below) |
+| Assessment Name | Text | Required — e.g. "Mid-term Exam", "Assignment 3" |
+| Marks Scored | Number | Required |
+| Total Marks | Number | Required; scored cannot exceed total |
+| **Live preview** | Auto | Percentage and grade letter update in real time as values are typed |
+| Date | Date picker | Defaults to today |
+| Notes | Text (optional) | Free-form annotation |
+
+**Live percentage preview:** Appears between the score inputs and the date field as soon as both numbers are present — shows the calculated percentage in large text and the corresponding grade letter in a coloured pill, giving instant feedback before the mark is saved.
+
+---
+
+#### 04 — Mark Tracker — Independent Subject List
+
+The Mark Tracker now maintains its own subject list (`data.markSubjects`), completely separate from the GPA Tracker's subject list (`data.subjects`). This allows school students and non-university users who don't have modules or credit-weighted subjects to use the Mark Tracker without needing to set up a GPA-oriented subject structure.
+
+**Manage Subjects button** (visible only on the Mark Tracker tab) opens a dedicated **Mark Tracker Subjects** modal where subjects can be added and deleted independently.
+
+Mark entries are grouped by subject in the Mark Tracker list view, with a per-subject average bar shown at the top of each group.
+
+---
+
+#### 05 — Mark Tracker — Grouped List View
+
+Marks are now displayed grouped by subject rather than as a flat chronological list.
+
+Each subject group shows:
+- Subject name and the group's average percentage with a coloured progress bar
+- Individual entries sorted newest-first within the group, each showing assessment name, scored/total, date, notes, grade letter pill, and percentage
+- Delete button per entry
+
+---
+
+#### 06 — Floating Pet — Circle Ring & Reaction Animations
+
+Two visual upgrades to the floating pet companion:
+
+**Circle ring:** The pet SVG now sits inside a **72×72px circular container** with a gradient background (primary → accent) and a soft primary-colour glow drop-shadow. This gives the pet a clear defined boundary at all times and makes it more visually distinct against both light and dark backgrounds.
+
+**Reaction animations** — the pet now visibly reacts when something good happens:
+
+| Trigger | Animation | Message |
+|---|---|---|
+| Task completed | Spin-wobble (`petReact` keyframe) + sparkle burst | "Task done! 🎉" |
+| Study session complete | Spin-wobble + sparkle burst | "+20 XP! ⭐" |
+| Mark added | Spin-wobble + sparkle burst | "📊 Mark added!" |
+| User clicks pet | Bounce animation | Contextual message |
+
+**Sparkle burst:** A circular SVG overlay (70×70px) animates outward from the pet's position and fades out over 0.7 seconds. Rendered as a fixed-position DOM element appended to `<body>` and removed after the animation completes — no layout impact.
+
+---
+
+### 🔴 Removed
+
+#### Login / OTP System
+
+The email-based login, sign-up, and OTP verification interface introduced in v5.1 has been removed.
+
+**Reason:** The single-file, no-server architecture means any "login" system is necessarily a client-side simulation. Storing credentials in `localStorage` and simulating OTP via a browser toast provided no real security or cross-device sync benefit, and added significant UI complexity (login screen, signup panel, OTP input grid, account management, data namespacing by email) that distracted from the core study tools.
+
+**Impact on data:** Existing `studyflow-v2` data is fully preserved. Users who created accounts in v5.1 can continue using the app — data is simply no longer gated behind a login screen.
+
+---
+
+#### Leaderboard
+
+The XP leaderboard (All Time / This Week / Today tabs) has been removed.
+
+**Reason:** Without a real backend, the leaderboard was seeded with fictional demo accounts and only tracked the current device's user. A simulated leaderboard adds no genuine competitive value and was removed to keep the sidebar clean. The Insights section now contains only Analytics and Profile & XP.
+
+---
+
+#### MySQL Database Integration
+
+All references to MySQL, server-side storage, and cross-device sync have been removed. StudyFlow remains a fully **client-side, single-file application** with `localStorage` as the only data store.
+
+---
+
+### 💾 Data Schema Changes
+
+| Field | Change |
+|---|---|
+| `data.markSubjects` | New (carried from v5.1) — `[{ id, name }]`; independent Mark Tracker subject list |
+| `data.accounts` | **Removed** — login simulation data no longer stored |
+| `data.leaderboard` | **Removed** — leaderboard cache no longer stored |
+| `data.user.loggedIn` | **Removed** — login gate no longer exists; all users go directly to `initApp()` |
+| `mark.subject` | New — subject name string (from `markSubjects`), stored per mark entry |
+| `mark.notes` | New — optional free-text annotation per mark entry |
+
+All v5.1 saves are forward-compatible. `data.accounts` and `data.leaderboard` keys are silently ignored if present.
+
+---
+
+### ✅ Verification
+
+| Test | Result |
+|---|---|
+| Dark mode toggle accessible from Settings on mobile | ✅ Verified |
+| Dark mode toggle absent from sidebar on all screen sizes | ✅ Verified |
+| Grade Tracker tab defaults to GPA Tracker on navigation | ✅ Verified |
+| Switching to Mark Tracker tab shows correct actions | ✅ Verified |
+| Add Mark modal opens with pre-populated today date | ✅ Verified |
+| Live % preview updates as scored/total are typed | ✅ Verified |
+| Scored > total blocked with toast error | ✅ Verified |
+| Mark subjects independent of GPA subjects | ✅ Verified |
+| Marks grouped by subject in list view | ✅ Verified |
+| Pet ring visible on light and dark backgrounds | ✅ Verified |
+| Pet react animation fires on task completion | ✅ Verified |
+| Pet react animation fires on session completion | ✅ Verified |
+| Sparkle burst appears and cleans up after 0.7s | ✅ Verified |
+| No login screen on app open | ✅ Verified |
+| No leaderboard nav item in sidebar | ✅ Verified |
+| Existing localStorage data loads correctly | ✅ Verified |
+
+---
+
+*StudyFlow v5.2.0 — Focused, clean, and yours.*
+
+---
+
+## v5.1.0 — "War Room" Update (March 18, 2026)
+
+> The biggest feature release since v3.0. v5.1 adds five brand-new systems (Recurring Tasks, Push Notifications, Floating Pet, War Room Mode, and a rebuilt Calendar), expands the Grade Tracker into two distinct tools, fixes ten bugs that survived v4.3, and raises the motivational quote library from 100 to 250 entries. Every change is fully self-contained in a single HTML file — zero dependencies added.
+
+---
+
+### 🟢 New Features
+
+#### 01 — Recurring Tasks & Task Durations
+
+Tasks can now repeat on a schedule and carry optional start/end timestamps.
+
+**Recurring schedule options (set per task in the Add Task modal):**
+
+| Option | Behaviour |
+|---|---|
+| No recurrence | Default — one-off task, no change from previous behaviour |
+| Daily | Repeats every day |
+| Weekdays | Repeats Monday–Friday only; weekends skipped |
+| Weekly | Repeats on the same weekday each week |
+| Every 2 weeks | Biweekly repeat |
+| Monthly | Repeats on the same calendar date each month |
+
+When a recurring task is saved, 8 future occurrences are generated automatically and added to `data.tasks`, each carrying a `_recurParent` ID linking them back to the original. Start and end times are offset by the same interval so schedules stay aligned.
+
+**Task duration fields (all optional):**
+- **Start time** — `datetime-local` input; when quick-adding inline, start time is automatically set to the moment of creation so calendar placement is always correct
+- **End time** — `datetime-local` input; paired with start time to show a time-range chip (e.g. `⏰ 09:00 → 10:30`) on each task card
+
+**Recurring badge** — tasks with an active recurrence pattern display a small `🔁 weekly`-style pill next to the task name in the list view and on the calendar.
+
+---
+
+#### 02 — Push Notifications
+
+In-app and native browser notifications for exam deadlines and task due dates. Notifications are **suppressed entirely when Focus Mode is active** to prevent interruptions during a study session.
+
+**Notification triggers:**
+
+| Event | When |
+|---|---|
+| Exam — 24 hours before | 24 h before the exam datetime |
+| Exam — 1 hour before | 1 h before the exam datetime |
+| Task due — 30 minutes before | 30 min before `task.dueDate` |
+| Focus session complete | Immediately on session end (if not in Focus Mode) |
+
+**Implementation:**
+- Browser `Notification` permission is requested when the user enables push notifications in Settings via a clear opt-in toggle
+- If permission is denied, the toggle reverts to off automatically and a guidance toast is shown
+- In-app banners (`push-banner`) display for all users regardless of native permission status, providing a fallback
+- `setTimeout`-based schedule is rebuilt on every app load and whenever an exam or task is added/edited
+- New **Push Notifications** toggle added to Settings → Notifications (off by default)
+
+---
+
+#### 03 — Floating Pet Companion
+
+The virtual companion (previously only visible on the Profile & XP page) is now a persistent floating widget anchored to the bottom-right corner of every page.
+
+**Behaviour:**
+- Pet SVG is rendered inside a circular gradient container with a soft primary-colour glow ring
+- Clicking the pet triggers a bounce animation, shows a contextual speech bubble, and awards +1 XP
+- Speech bubbles are context-aware: time of day (morning / afternoon / evening), pending task count, and current XP level are all factored into the message
+- An automatic subtle message appears every 12 minutes (non-intrusive, no sound) to maintain presence without being distracting
+- Pet type and level stay in sync with the Profile & XP page — changing the pet or levelling up is reflected instantly in the floating widget
+
+---
+
+#### 04 — War Room Mode
+
+An auto-activating single-focus study mode triggered when an exam is within 24 hours.
+
+**Activation:** War Room checks run every 5 minutes. When any upcoming exam is detected within 24 hours, a full-screen overlay activates showing:
+- Exam subject and a live `HH:MM:SS` countdown to the exam
+- A filtered list of tasks related to the exam subject (matched by task text and category name)
+- A **Start Focus Session** shortcut that exits War Room and navigates directly to the Study Timer
+
+**Deactivation:** The user can dismiss the overlay manually at any time via the ✕ button. Dismissal does not prevent the mode from re-activating on the next 5-minute check if the exam is still within 24 hours.
+
+**Settings:** A new **War Room Mode** toggle in Settings → Notifications controls whether the feature is active. It is **off by default** — users must explicitly opt in.
+
+---
+
+#### 05 — Study Heatmap with Outcome Correlation
+
+The 28-day activity heatmap on the Analytics page now cross-references study sessions with grade entries to surface study-vs-performance insights.
+
+**Visual changes:**
+- Heatmap cells that fall within ±3 days of a recorded grade entry gain a coloured border:
+  - 🟢 Green border — grade ≥ 70%
+  - 🟡 Amber border — grade 50–69%
+  - 🔴 Red border — grade < 50%
+- Cell tooltip updated to include `| Nearby exam: 87%` when applicable
+
+**Correlation insight card** — displayed below the heatmap whenever correlated data exists:
+> 💡 **Calculus II**: You studied ~3.5h in the 5 days before and scored **87%**
+
+The insight uses the most recent correlated grade entry. If no grade entries exist within the date range, the heatmap behaves identically to v4.3.
+
+---
+
+#### 06 — Login Interface (Local Simulation)
+
+A login and sign-up flow providing a per-user data experience within the single-file app.
+
+**Sign-up flow:**
+1. Enter full name, email address, and password (8+ characters)
+2. Disposable/temporary email domains are blocked (mailinator, guerrillamail, tempmail, yopmail, and 11 others)
+3. A 6-digit OTP is generated; in this local simulation the code is shown in a toast for demo purposes. In a production deployment, this would be sent via SMTP
+4. Entering the correct OTP creates the account and starts the session
+
+**Log-in flow:**
+- Email + password match against locally stored accounts
+- Passwords are stored using FNV-1a 32-bit hash concatenated with the length as a hex suffix — never stored in plaintext
+- Per-user data is stored under `sf-data-{email}` in `localStorage`, allowing multiple accounts on the same device
+
+**Skip option:** Users can continue without an account — all data is stored under the default `studyflow-v2` key exactly as in previous versions.
+
+---
+
+#### 07 — Leaderboard
+
+A community XP ranking board showing the top scholars across three time windows.
+
+**Period tabs:**
+
+| Tab | Ranks by |
+|---|---|
+| All Time | Total XP ever earned |
+| This Week | XP earned in the current 7-day window |
+| Today | XP earned in the last 24 hours |
+
+**Privacy protections:**
+- Only name, designation, level, and XP are visible for other users — tasks, grades, exams, and sessions are never exposed
+- A persistent privacy note ("Only names, designations and XP are visible. Tasks and personal data are never shared.") is displayed above all leaderboard entries
+- Avatar thumbnails are shown only for users who have uploaded a profile photo; no placeholder photo is generated from other users' data
+
+The leaderboard is seeded with 5 demo entries on first load so the board is never empty. Real entries replace demo entries as accounts are created.
+
+---
+
+#### 08 — Calendar — Weekly & Daily Views
+
+The Calendar page now supports three view modes selectable via a tab strip: **Month** (existing), **Week** (new), and **Day** (new).
+
+**Weekly view:**
+- 7-column hour-by-hour grid (24 rows × 7 days)
+- Exams, tasks (keyed to `startTime` or `dueDate`), and study sessions appear as colour-coded chips in their correct hour slot
+- Clicking any day column header switches to the Day view for that date
+- Navigation via Prev/Next moves the window by one full week
+
+**Daily view:**
+- 24-row single-day timeline with one-hour resolution
+- Events are rendered as full-width chips inside their hour row, sorted by start time
+- Recurring task instances appear with a `🔁` marker
+- On load, the view automatically scrolls to the current hour
+- Navigation via Prev/Next moves one day at a time
+
+**Month view improvements:**
+- Calendar grid cells and the day-detail panel now use the same `dueDate`-first, `createdAt`-fallback logic — clicking a cell shows exactly the same events rendered on the cell (Bug 11 fix, see below)
+- Events in the day-detail panel are sorted by time (exams → tasks → sessions, each group sorted by start time)
+- Task items in the panel include a live checkbox so tasks can be completed directly from the calendar
+
+---
+
+#### 09 — Grade Tracker Rename + Mark Tracker
+
+**GPA Tracker renamed to Grade Tracker** in the sidebar, page title, and all internal references.
+
+**Mark Tracker (new standalone section)** added to the sidebar under Grade Tracker:
+
+| Feature | Detail |
+|---|---|
+| Subjects | Separate subject list, independent of the GPA Tracker subject list |
+| Add Mark modal | Assessment name, scored/total fields, date |
+| Analytics | Overall average %, highest %, lowest %, entry count |
+| Grade letter | Computed from percentage: A+ (≥85) through F (<40) |
+| Bar chart | Per-entry coloured progress bar — green ≥70%, amber ≥50%, red <50% |
+| Slogan | *"Simple mark analytics — no GPA, just your scores"* |
+
+The Mark Tracker is designed for non-university students, school students, and anyone who tracks performance by raw marks rather than weighted grade points.
+
+---
+
+### 🔴 Bug Fixes
+
+**Bug 11 — Calendar grid and day-detail panel showing different events for the same date**
+`renderCalendar()` filtered tasks by `dueDate` first, falling back to `createdAt` — so a task created on March 1st with a due date of March 15th appeared in the March 15th grid cell. `showCalDay()` filtered only by `createdAt`, so clicking that cell showed nothing. Applied identical `dueDate`-first logic to `showCalDay()`. Both code paths now always agree.
+
+**Bug 12 — Drag-and-drop state leak between the Task Board and Eisenhower Matrix**
+Two separate drag-state variables (`taskDragId` and `matrixDragId`) existed in parallel. `dropToQuadrant()` checked only `taskDragId`, causing matrix drags to silently fail or use a stale ID when both systems had been interacted with in the same session. Unified to a single `currentDragId`; `matrixDragStart()` now writes to `taskDragId` directly so all drop handlers read from one source of truth.
+
+**Bug 13 — Duplicate subject names allowed due to case-sensitive comparison**
+`addSubject()` checked `s.name === name` (exact match), so `"Math"` and `"math"` were treated as different subjects and both saved. Changed to `s.name.toLowerCase() === name.toLowerCase()` throughout all subject deduplication paths.
+
+**Bug 14 — Exam past-date validation bypassable via browser DevTools**
+`openAddExam()` set `input.min = today` in HTML, but `submitExam()` performed no server-side-style validation. The `min` attribute is trivially editable in DevTools. Added an explicit JS guard in `submitExam()`:
+```js
+if (new Date(date) < new Date().setHours(0,0,0,0)) {
+  showToast("⚠️", "Invalid date", "Cannot add exam in the past");
+  return;
+}
+```
+
+**Bug 15 — Session counter growing unbounded across Pomodoro cycles**
+`sessionCount` incremented indefinitely. The modulo arithmetic `sessionCount % sessionsBeforeLong` produced correct results but the raw counter grew without limit, causing subtle issues with session dot rendering on very long sessions. After each long break, `sessionCount` is now reset to `0`.
+
+**Bug 16 — Session title lost on page refresh during an active session**
+The session title input was an ephemeral DOM value — if the page was refreshed mid-session the title was gone and the completed session was logged as `"Study Session"`. Title now persists to `data.currentSessionTitle` on every keystroke (`oninput`) and is restored from `data` during `init()`.
+
+**Bug 17 — Charts destroyed and recreated on every navigation, causing visual flicker**
+`renderAnalytics()` and `renderGrades()` called `chart.destroy()` then `new Chart()` every time the Analytics or Grade Tracker section was opened. Replaced with `chart.update()` when a chart instance already exists, falling back to `new Chart()` only on first render. Eliminates the white-flash flicker when switching pages.
+
+**Bug 18 — Quote index not restored on page load; always starting from quote 0**
+`data.quoteIndex` was written to `localStorage` correctly but never read back during `init()`. Added `if (typeof data.quoteIndex !== 'number') data.quoteIndex = 0` to the data migration block so the saved index is always honoured. Quote count also increased from **100 to 250 entries**.
+
+**Bug 19 — New `AudioContext` created on every `playSound()` call**
+Each invocation of `playSound()` was constructing a `new AudioContext()`, violating browser best-practice limits (Chrome logs a warning after 6 concurrent contexts) and causing resource exhaustion on extended sessions. Replaced with a module-level singleton `_audioCtx` variable initialised once on first use and reused for all subsequent calls.
+
+**Bug 20 — No browser notification permission requested**
+The app had no mechanism to request `Notification` permission, meaning deadline alerts could never fire as native notifications. Permission is now requested via `Notification.requestPermission()` when the user enables Push Notifications in Settings (see Feature 02 above). The request is triggered only by an explicit user action, satisfying browser autoplay/interaction requirements.
+
+---
+
+### 💾 Data Schema Changes
+
+| Field | Change |
+|---|---|
+| `task.startTime` | New — ISO datetime string; set to creation time on quick-add |
+| `task.endTime` | New — ISO datetime string; optional end time for duration display |
+| `task.recur` | New — one of `"none"`, `"daily"`, `"weekdays"`, `"weekly"`, `"biweekly"`, `"monthly"` |
+| `task._recurParent` | New — ID of the originating task for generated recurring occurrences |
+| `data.marks` | New — Mark Tracker entry array: `[{ id, subject, name, scored, total, date, notes }]` |
+| `data.markSubjects` | New — Mark Tracker subject list: `[{ id, name }]` (separate from GPA subjects) |
+| `data.currentSessionTitle` | New — persisted session title string; restored on init |
+| `data.settings.warRoom` | New — boolean, default `false` |
+| `data.settings.pushNotif` | New — boolean, default `false` |
+| `data.accounts` | New — local account store for login simulation |
+| `data.leaderboard` | New — leaderboard entry cache |
+
+All existing `studyflow-v2` saves are forward-compatible. Missing new fields are silently back-filled with their defaults on load.
+
+---
+
+### ✅ Verification
+
+| Test | Result |
+|---|---|
+| Recurring task generates 8 future occurrences | ✅ Verified |
+| Quick-add sets `startTime` to creation time | ✅ Verified |
+| Push notification banner suppressed in Focus Mode | ✅ Verified |
+| Floating pet renders on all 9 pages | ✅ Verified |
+| War Room triggers within 5 min of exam entering 24h window | ✅ Verified |
+| War Room off by default; settings toggle works | ✅ Verified |
+| Heatmap shows coloured borders near grade entries | ✅ Verified |
+| Correlation insight card appears when data exists | ✅ Verified |
+| Calendar weekly view shows correct events per hour | ✅ Verified |
+| Calendar daily view auto-scrolls to current hour | ✅ Verified |
+| Month/week/day views share consistent event data | ✅ Verified |
+| Mark Tracker subjects independent of GPA subjects | ✅ Verified |
+| Bug 11 — clicking any calendar cell shows correct events | ✅ Verified |
+| Bug 12 — matrix drag no longer uses stale ID | ✅ Verified |
+| Bug 13 — "Math" and "math" treated as same subject | ✅ Verified |
+| Bug 14 — past exam date rejected even via DevTools edit | ✅ Verified |
+| Bug 15 — session counter resets after long break | ✅ Verified |
+| Bug 16 — session title survives page refresh | ✅ Verified |
+| Bug 17 — no flicker when switching Analytics/Grades tabs | ✅ Verified |
+| Bug 18 — quote index restores correctly after reload | ✅ Verified |
+| Bug 19 — single AudioContext across full session | ✅ Verified |
+| Bug 20 — permission prompt fires on toggle enable | ✅ Verified |
+
+---
+
+*StudyFlow v5.1.0 — Smarter study. Deeper focus. Always with you.*
+
+---
+
 ## v4.3.0 — "Solid Ground" Update (March 15, 2026)
 
 > A focused stability and polish release. v4.3 hunts down every crash, race condition, and rendering inconsistency that survived v4.1 — then delivers a complete mobile experience overhaul and a full rewrite of the drag-and-drop system to support cross-quadrant task moves. All changes apply to both `new_index.html` and `index.html`.

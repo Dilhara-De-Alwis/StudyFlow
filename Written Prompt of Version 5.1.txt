@@ -1,0 +1,98 @@
+Version v5.1
+
+
+01. Tasks Section
+	- Add Recurring Tasks option when adding a task using add task option in nav bar
+	- Add durations to the task(optional), when will it start and when will it end. If you can use the clock option that would be great across all the sections.
+	- Quick adding tasks means the start time of the task is the time of the task creation
+
+02. Push Notifications
+	- Notifications based on different things
+	- Don't push notification when in the focus mode
+
+03. Increase the interaction of the pet
+	- Right now pet is only visible and see in profile section, make him more interactive with the users but don't make it disturbing and distracting as well.
+
+04. War Room Mode
+	- Concept: Auto-activates when exam is within 24 hours — locks timer to that subject, shows only relevant tasks, enables distraction-blocking
+	- Implementation: Triggered by exam countdown; UI transformation to single-focus mode. You can turn it on and off using settings and it's off by default
+
+05. Study Heatmap with Outcome Correlation
+	- Concept: Link heatmap intensity to actual exam scores — "You studied 3+ hours the 5 days before this exam and scored 87%"
+	- Implementation: Cross-reference session data with grade entries by date proximity
+
+06. Change from browser stored data system to MySQL database system
+	- Implement MySQL based data system to store everything in it not locally stored so he can use it from different devices
+
+07. Implement a Log In interface 
+	- where users can log in using the email
+	- Email cannot be a temporary mail and It should be verified with an otp sent to the email.
+	- Also make the every data link to email so user can log in using his phone to the app and still have those tasks in his laptop. Tasks, Pinned tasks, Calendar, Study Timer, EXP system and everything.
+	- Use an encryption method when saving passwords in the database, something like hashing with some kind of another technique.
+
+08. Integrate a leaderboard system
+	- You can see the all time top, weekly top, daily top(last 24h) based on your achieved EXP during that time
+	- Don't make the tasks of other persons visible, just their name, designation and their dp. you can think about more thing but make sure to protect the users privacy.
+
+09. Calendar UI
+	- Since we are adding Recurring Tasks and durations to the tasks make the calendar look like something in TickTick App
+	- Make the calendar view as monthly(Already available), Weekly, and Daily.
+	- Implement a hour based way to view tasks, exams, study timer sessions and sort them using the time which they were started.
+
+10. Rename GPA Tracker section to Grade Tracker
+	- Let's Break the GPA Tracker section in to 2 section for GPA Tracker(Already Existing) and Mark Tracker(Which is a simple tool which calculate the analytics only using marks which is good for non-university students.)
+
+
+Bugs -
+
+11. Calendar Grid vs Detail Panel Show Different Tasks
+	- renderCalendar() vs showCalDay(), ~lines 3420 and 3475
+	- Grid filters tasks by dueDate first, falling back to createdAt. Detail panel (showCalDay) only filters by createdAt, ignoring dueDate. Task created March 1st with due date March 15th appears in March 15 grid cell but clicking shows nothing.
+	- Apply same dueDate-first logic to showCalDay
+
+12. Drag-and-Drop State Leak Between Systems	
+	- taskDragStart() vs matrixDragStart(), ~lines 2230 and 3380	
+	- Two separate drag variables (taskDragId and matrixDragId) with dropToQuadrant only checking taskDragId. Matrix drops may fail or use wrong ID when both systems active.	
+	- Unify drag state to single currentDragId variable; check in all drop handlers
+
+13. Duplicate Subject Names (Case-Sensitive)	
+	- addSubject(), ~line 2515	
+	- Only checks exact match: "Math" vs "math" allowed due to case sensitivity.	
+	- Normalize to lowercase for comparison: name.toLowerCase()
+
+14. Exam Date Validation Bypass	
+	- openAddExam() sets min attribute, but submitExam() lacks validation, ~line 2670	
+	- HTML min attribute can be bypassed with inspector; no server-side-style validation.	
+	- Add in submitExam(): if (new Date(date) < new Date().setHours(0,0,0,0)) { showToast("⚠️", "Invalid date", "Cannot add exam in the past"); return; }
+
+15. Session Counter Never Resets	
+	- onTimerComplete() pomodoro logic, ~line 2790	
+	- sessionCount increments indefinitely; after 4 sessions → long break → 4 more → long break, but counter keeps growing. No modulo reset means sessionCount % n works mathematically but value grows unbounded.	
+	- Add sessionCount = 0 after long break, or use sessionCount++ % sessionsBeforeLong pattern
+
+16. Session Title Not Persisted During Session	
+	- session-title-input, ~line 2725	
+	- User enters session title, but if page refreshed during active session, title is lost (not in data object).	
+	- Store currentSessionTitle in data object; restore on init
+
+17. Chart Re-creation on Every Render	
+	- renderAnalytics() and renderGrades(), ~lines 2930 and 3130	
+	- Charts destroyed and recreated on every navigation — expensive operation, visual flicker.	
+	- Use chart.update() instead of destroy/create when data changes
+
+18. Quote Index Not Restored	
+	- Increase the quote count from 100 to 250
+	- data.quoteIndex, ~line 1870	
+	- Saved to localStorage but init() doesn't restore it; always starts at 0.	
+	- Add `data.quoteIndex = data.quoteIndex
+
+19.  AudioContext Created Per Sound	
+	- playSound(), ~line 3540	
+	- New AudioContext each call violates best practices; causes resource exhaustion.	
+	- Reuse single AudioContext instance (already fixed in code with _audioCtx but verify)
+
+20. Missing Notification Permission	
+	- Not implemented	
+	- Modern apps should request notification permission for deadline alerts.	
+	- Add Notification.requestPermission() on user action; schedule reminders 
+

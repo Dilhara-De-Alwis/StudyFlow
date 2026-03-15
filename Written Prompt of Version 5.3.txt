@@ -1,0 +1,18 @@
+Version v5.3
+
+
+01. Make the Charts destroyed and then recreated on every navigation, but minimize causing visual flicker
+
+02. If there is no study sessions for today don't show the recent study sessions of past in the dashboard section
+
+03. There is a UI bug in the add task option in nav bar in task section. End Time (optional) one is slightly overflowed from the modal which makes it awful, re arrange that ui part, Also when adding a task, make the Start Time (optional) round off to the next 15min, if time now is 1.20pm, round off to 1.30 pm. if 1.32pm round off to 1.45pm
+
+04. Also add the feature that, until I complete the previous task of a Recurring task, next tasks won't show on the Task Board. If I complete my task then make them appear, if I undo my completed task make them disappear again, but make them appear in calendar always if it's possible to do so - If it's hard it's fine. 
+
+05. The floating pet has misaligned with the circle and circle is bit mis colored as well. Also when notification comes it hides as well, so let's move the notifications from bottom to top
+
+06. GPA tracker works fine but can you calculate the exact GPA, Like If I has avg of 52.5% and 53.5 they both show the avg of fixed 2.70, instead of somewhere between 2.70 to 3.00
+
+07. Subject modal and the add mark modal doesn't work on Mark Tracker part which is on Grade Tracker Section. Also Make sure to check that those parts doesn't have any bugs as well
+
+08. Also in the settings section, Appearance box is under the Data Management box, make them 2 separate boxes and Show the Data Management box below the Appearance box
