@@ -1,4 +1,6 @@
 Production-Ready Prompt: Modern Study Planner Dashboard
+
+
 Design System & Visual Language
 Color Palette (Professional Blue-Centric System):
 Primary Blue: #2563EB (Royal Blue) for light mode, #3B82F6 for dark mode

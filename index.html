@@ -1699,6 +1699,12 @@
         height: 18px;
         fill: var(--primary);
       }
+
+      /* Bug 11 fix: pet-interact CSS class for smooth bounce animation */
+      .pet-interact {
+        transform: scale(1.3) rotate(10deg) !important;
+        transition: transform 0.3s ease;
+      }
       .settings-row {
         display: flex;
         align-items: center;
@@ -1790,9 +1796,24 @@
       .chart-container-sm {
         position: relative;
         height: 160px;
+      } /* ============================== RESPONSIVE ============================== */
+
+      /* Sidebar backdrop overlay for mobile */
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 125;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .sidebar-backdrop.visible {
+        opacity: 1;
       }
 
-      /* RESPONSIVE */
+      /* ── Tablet breakpoint (≤1023px) ── */
       @media (max-width: 1023px) {
         .sidebar {
           transform: translateX(-100%);
@@ -1838,6 +1859,9 @@
         .hamburger {
           display: flex;
         }
+        .sidebar-backdrop {
+          display: block;
+        }
         .grid-4 {
           grid-template-columns: repeat(2, 1fr);
         }
@@ -1850,26 +1874,282 @@
         .page-header {
           padding-left: 0;
         }
+        /* Touch: show todo actions always */
+        .todo-actions {
+          opacity: 1;
+        }
+        .exam-card-actions {
+          opacity: 1;
+        }
       }
+
+      /* ── Mobile breakpoint (≤640px) ── */
       @media (max-width: 640px) {
+        .main,
+        .main.collapsed {
+          padding: 64px 12px 80px;
+        }
+        /* Grids stack */
         .grid-2,
         .grid-3,
         .grid-4 {
           grid-template-columns: 1fr;
         }
+        /* Stat cards: 2 per row on mobile */
+        .grid-4.stat-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+          gap: 10px;
+        }
+        .stat-card {
+          padding: 14px;
+        }
+        .stat-value {
+          font-size: 1.3rem;
+        }
+        .stat-label {
+          font-size: 10px;
+        }
+        .stat-icon svg {
+          width: 22px;
+          height: 22px;
+        }
+        /* Page header stacks */
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .page-title {
+          font-size: 1.3rem;
+        }
+        .page-sub {
+          font-size: 12px;
+        }
+        .page-actions {
+          width: 100%;
+          flex-wrap: wrap;
+        }
+        .page-actions .btn {
+          flex: 1;
+          min-width: 0;
+          justify-content: center;
+          padding: 9px 12px;
+          font-size: 12px;
+        }
+        /* Welcome banner */
         .welcome-banner {
           flex-direction: column;
-          gap: 16px;
+          gap: 12px;
+          padding: 16px;
         }
+        .welcome-title {
+          font-size: 1.1rem;
+        }
+        .quote-dash-card {
+          max-width: 100%;
+        }
+        /* Profile */
         .profile-header {
           flex-direction: column;
           text-align: center;
+          padding: 20px;
         }
+        /* Cards */
+        .card {
+          padding: 16px;
+          border-radius: var(--radius-sm);
+        }
+        /* Timer */
         .timer-time {
           font-size: 2.5rem;
         }
-        .page-title {
+        .timer-ring-wrap svg {
+          width: 200px !important;
+          height: 200px !important;
+        }
+        .timer-controls {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        /* Mode tabs */
+        .mode-tabs {
+          flex-wrap: wrap;
+          width: 100%;
+          justify-content: center;
+        }
+        .mode-tabs .mode-tab {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+        /* Task input */
+        .todo-input-row {
+          flex-direction: column;
+          gap: 8px;
+        }
+        .todo-input-row .input {
+          width: 100%;
+        }
+        .todo-input-row select.input {
+          width: 100%;
+        }
+        .todo-input-row .btn {
+          width: 100%;
+          justify-content: center;
+        }
+        /* Todo items compact */
+        .todo-item {
+          padding: 10px 12px;
+          gap: 8px;
+        }
+        .todo-text {
+          font-size: 13px;
+        }
+        .todo-actions {
+          opacity: 1;
+          gap: 4px;
+        }
+        .todo-actions .btn-icon {
+          width: 26px !important;
+          height: 26px !important;
+        }
+        /* Filter tabs: horizontal scroll */
+        .filter-tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          padding-bottom: 4px;
+        }
+        .filter-tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .filter-tab {
+          flex-shrink: 0;
+          font-size: 12px;
+          padding: 5px 12px;
+        }
+        /* Matrix quadrants stack to 1 column on mobile */
+        .grid-2.matrix-grid,
+        #matrix-grid,
+        #matrix-task-grid {
+          grid-template-columns: 1fr !important;
+        }
+        /* Exam cards */
+        .exam-grid {
+          grid-template-columns: 1fr !important;
+        }
+        .countdown-num {
           font-size: 1.4rem;
+        }
+        .exam-card {
+          padding: 16px;
+        }
+        /* Calendar */
+        .calendar-grid td {
+          padding: 4px 2px;
+          font-size: 12px;
+        }
+        /* Modals: full screen on mobile */
+        .modal-content {
+          width: 95vw !important;
+          max-width: 95vw !important;
+          max-height: 90vh;
+          overflow-y: auto;
+          border-radius: var(--radius-sm);
+          margin: 5vh auto;
+        }
+        .modal-actions {
+          flex-direction: column;
+        }
+        .modal-actions .btn {
+          width: 100%;
+          justify-content: center;
+        }
+        /* Form groups tighter */
+        .form-group {
+          margin-bottom: 10px;
+        }
+        /* Grade entries compact */
+        .grade-entry-row {
+          flex-direction: column;
+          gap: 8px;
+        }
+        /* Analytics charts */
+        .chart-container {
+          height: 180px;
+        }
+        .chart-container-sm {
+          height: 140px;
+        }
+        /* Toast: bottom center */
+        .toast-container {
+          right: 12px;
+          left: 12px;
+          bottom: 16px;
+        }
+        .toast {
+          max-width: 100%;
+        }
+        /* Settings */
+        .settings-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .settings-row .toggle-switch {
+          align-self: flex-end;
+        }
+        /* Hamburger: larger tap target */
+        .hamburger {
+          width: 48px;
+          height: 48px;
+          top: 10px;
+          right: 10px;
+        }
+        /* Hide card hover lift on touch */
+        .card:hover {
+          transform: none;
+        }
+        .stat-card:hover {
+          transform: none;
+        }
+        .exam-card:hover {
+          transform: none;
+        }
+        /* Quadrant headers compact */
+        .matrix-header {
+          padding: 12px 14px !important;
+        }
+        /* Category select in task modal — quadrant picker */
+        .quadrant-selector {
+          grid-template-columns: 1fr 1fr !important;
+        }
+      }
+
+      /* ── Small phone (≤380px) ── */
+      @media (max-width: 380px) {
+        .main,
+        .main.collapsed {
+          padding: 60px 8px 70px;
+        }
+        .grid-4.stat-grid {
+          grid-template-columns: 1fr !important;
+        }
+        .stat-card {
+          padding: 12px;
+        }
+        .page-title {
+          font-size: 1.15rem;
+        }
+        .countdown-display {
+          gap: 6px;
+        }
+        .countdown-num {
+          font-size: 1.1rem;
+        }
+        .btn {
+          padding: 8px 14px;
+          font-size: 12px;
         }
       }
 
@@ -1892,44 +2172,46 @@
         border-radius: var(--radius-sm);
         padding: 4px 0;
       }
-
+      .matrix-task-list {
+        min-height: 60px;
+      }
+      .filter-tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .filter-tab {
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all var(--transition);
+        color: var(--text-muted);
+        background: none;
+        border: 1px solid var(--border);
+        font-family: var(--font-body);
+      }
+      .filter-tab.active {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: #fff;
+        border-color: transparent;
+      }
+      .matrix-header {
+        cursor: pointer;
+      }
+      .pinned-task {
+        border-left: 3px solid var(--warning) !important;
+      }
       /* CALENDAR cell hover */
       #cal-grid > div:hover {
         transform: scale(1.02);
       }
 
-      /* INLINE PROFILE FORM */
-      @media (max-width: 640px) {
-        .profile-header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        .profile-header > div:first-child {
-          align-self: center;
-        }
-        #page-grades .grid-2 {
-          grid-template-columns: 1fr;
-        }
-        #matrix-grid {
-          grid-template-columns: 1fr !important;
-        }
-      }
-
+      /* (mobile styles consolidated above) */
       /* MODE TABS - allow wrap on mobile */
       .mode-tabs {
         flex-wrap: wrap;
-      }
-      @media (max-width: 640px) {
-        .mode-tabs .mode-tab {
-          padding: 6px 12px;
-          font-size: 12px;
-        }
-        .page-actions {
-          flex-wrap: wrap;
-        }
-        .todo-input-row {
-          flex-wrap: wrap;
-        }
       }
     </style>
   </head>
@@ -1943,6 +2225,12 @@
     </button>
 
     <div id="app">
+      <!-- Sidebar backdrop (inside #app to share stacking context) -->
+      <div
+        class="sidebar-backdrop"
+        id="sidebar-backdrop"
+        onclick="closeSidebar()"
+      ></div>
       <!-- SIDEBAR -->
       <nav class="sidebar" id="sidebar">
         <button
@@ -2090,8 +2378,9 @@
           </div>
           <div class="theme-toggle" onclick="toggleTheme()">
             <svg id="theme-icon-svg" viewBox="0 0 24 24">
+              <!-- Bug 8 fix: default to sun icon (light mode) to prevent flash -->
               <path
-                d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"
+                d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-12.37l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0zM7.05 18.36l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0z"
               />
             </svg>
             <span class="theme-label" id="theme-label">Light Mode</span>
@@ -2198,7 +2487,7 @@
             </div>
           </div>
 
-          <div class="grid-4" style="margin-bottom: 20px">
+          <div class="grid-4 stat-grid" style="margin-bottom: 20px">
             <div
               class="stat-card"
               style="--c1: var(--primary); --c2: var(--accent)"
@@ -3628,7 +3917,7 @@
                   "
                 >
                   <div>
-                    <strong>StudyFlow</strong> v4.1 — Your Academic Partner
+                    <strong>StudyFlow</strong> v4.3 — Your Academic Partner
                   </div>
                   <div>
                     A modern study planner to help you ace your academics.
@@ -5571,8 +5860,7 @@
           .querySelector(`.nav-item[data-page="${page}"]`)
           ?.classList.add("active");
         currentPage = page;
-        if (window.innerWidth < 1024)
-          document.getElementById("sidebar").classList.remove("open");
+        if (window.innerWidth < 1024) closeSidebar();
         if (page === "dashboard") refreshDashboard();
         if (page === "tasks") {
           populateCategorySelects();
@@ -5595,7 +5883,27 @@
       }
 
       function toggleSidebar() {
-        document.getElementById("sidebar").classList.toggle("open");
+        const sb = document.getElementById("sidebar");
+        const bd = document.getElementById("sidebar-backdrop");
+        const isOpen = sb.classList.toggle("open");
+        if (isOpen) {
+          bd.style.display = "block";
+          requestAnimationFrame(() => bd.classList.add("visible"));
+        } else {
+          bd.classList.remove("visible");
+          setTimeout(() => {
+            bd.style.display = "none";
+          }, 300);
+        }
+      }
+      function closeSidebar() {
+        const sb = document.getElementById("sidebar");
+        const bd = document.getElementById("sidebar-backdrop");
+        sb.classList.remove("open");
+        bd.classList.remove("visible");
+        setTimeout(() => {
+          bd.style.display = "none";
+        }, 300);
       }
 
       let sidebarCollapsed = false;
@@ -5809,10 +6117,7 @@
           }
         }
         if (event) showXPFloat(amount, event.clientX, event.clientY);
-        const sxp = document.getElementById("stat-xp");
-        if (sxp) sxp.textContent = data.gamification.xp;
-        const slv = document.getElementById("stat-level");
-        if (slv) slv.textContent = data.gamification.level;
+        // Bug 1 fix: removed stat-xp/stat-level writes — GPA card is updated only by refreshDashboard()
         checkBadges();
         save();
       }
@@ -5888,7 +6193,8 @@
       }
 
       function updateStreak() {
-        const today = new Date().toDateString();
+        // Bug 4 fix: use ISO date format for cross-browser safety
+        const today = new Date().toISOString().split("T")[0];
         const g = data.gamification;
         if (g.lastStudyDate === today) return;
         if (g.lastStudyDate) {
@@ -6220,7 +6526,7 @@
               const dueDateStr = t.dueDate
                 ? `<span style="font-size:10px;color:var(--warning);margin-left:4px;">📅 ${new Date(t.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>`
                 : "";
-              return `<div class="todo-item ${t.completed ? "completed" : ""} ${t.pinned ? "pinned-task" : ""}" draggable="true" data-id="${t.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)" style="margin-bottom:6px;">
+              return `<div class="todo-item ${t.completed ? "completed" : ""} ${t.pinned ? "pinned-task" : ""}" draggable="true" data-id="${t.id}" data-quadrant="${q}" ondragstart="taskDragStart(event)" ondragover="dragOver(event)" ondrop="taskDrop(event)" ondragleave="dragLeave(event)" style="margin-bottom:6px;">
               <div class="check-box ${t.completed ? "checked" : ""}" onclick="toggleTask(${t.id},event)"></div>
               <div style="flex:1;min-width:0">
                 <div class="todo-text" style="${t.completed ? "text-decoration:line-through;opacity:0.5;" : ""}">${t.pinned ? "📌 " : ""}${escHtml(t.text)}${dueDateStr}</div>
@@ -6251,26 +6557,63 @@
         if (b) b.textContent = upcoming;
       }
 
-      // Drag and drop
-      let dragSrcId = null;
-      function dragStart(e) {
-        dragSrcId = +e.currentTarget.dataset.id;
+      // ===================== UNIFIED DRAG & DROP =====================
+      let taskDragId = null;
+      let taskDragQuadrant = null;
+
+      function taskDragStart(e) {
+        taskDragId = +e.currentTarget.dataset.id;
+        taskDragQuadrant = e.currentTarget.dataset.quadrant || null;
+        e.dataTransfer.setData("text/plain", taskDragId);
+        e.dataTransfer.effectAllowed = "move";
         e.currentTarget.classList.add("dragging");
+        e.currentTarget.addEventListener("dragend", function handler() {
+          e.currentTarget.classList.remove("dragging");
+          taskDragId = null;
+          taskDragQuadrant = null;
+          e.currentTarget.removeEventListener("dragend", handler);
+        });
       }
       function dragOver(e) {
         e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
         e.currentTarget.classList.add("drag-over");
       }
       function dragLeave(e) {
         e.currentTarget.classList.remove("drag-over");
       }
-      function drop(e) {
+      // Drop on a task item — detect if it's a cross-quadrant drop or same-quadrant reorder
+      function taskDrop(e) {
         e.preventDefault();
+        e.stopPropagation(); // prevent bubbling to quadrant container
         e.currentTarget.classList.remove("drag-over");
+        if (!taskDragId) return;
         const targetId = +e.currentTarget.dataset.id;
-        if (dragSrcId === targetId) return;
-        const si = data.tasks.findIndex((t) => t.id === dragSrcId);
+        const targetQuadrant = e.currentTarget.dataset.quadrant;
+
+        // Cross-quadrant: move to target's quadrant
+        if (
+          taskDragQuadrant &&
+          targetQuadrant &&
+          taskDragQuadrant !== targetQuadrant
+        ) {
+          const task = data.tasks.find((t) => t.id === taskDragId);
+          if (task) {
+            task.priority = targetQuadrant;
+            save();
+            renderTasks();
+          }
+          return;
+        }
+
+        // Same quadrant: reorder (only when no filters active)
+        if (taskDragId === targetId) return;
+        const catFilter =
+          document.getElementById("task-cat-filter")?.value || "all";
+        if (taskFilter !== "all" || catFilter !== "all") return;
+        const si = data.tasks.findIndex((t) => t.id === taskDragId);
         const ti = data.tasks.findIndex((t) => t.id === targetId);
+        if (si === -1 || ti === -1) return;
         const [task] = data.tasks.splice(si, 1);
         data.tasks.splice(ti, 0, task);
         save();
@@ -6747,12 +7090,15 @@
         ).join("");
       }
       function updateTimerSettings() {
+        // Bug 24 fix: clamp timer values to minimum of 1
         data.timerSettings = {
-          study: +document.getElementById("set-focus").value || 25,
-          short: +document.getElementById("set-short").value || 5,
-          long: +document.getElementById("set-long").value || 15,
-          sessionsBeforeLong:
+          study: Math.max(1, +document.getElementById("set-focus").value || 25),
+          short: Math.max(1, +document.getElementById("set-short").value || 5),
+          long: Math.max(1, +document.getElementById("set-long").value || 15),
+          sessionsBeforeLong: Math.max(
+            1,
             +document.getElementById("set-sessions").value || 4,
+          ),
         };
         save();
         // Always reset timer to new values
@@ -7124,23 +7470,47 @@
       function handleAvatarUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
+        // Bug 26 fix: resize avatar before storing to avoid localStorage overflow
         const reader = new FileReader();
         reader.onload = (e) => {
-          data.user.avatarDataUrl = e.target.result;
-          save();
-          renderProfile();
-          showToast("📷", "Photo updated!", "Profile picture saved");
+          const img = new Image();
+          img.onload = () => {
+            const MAX_SIZE = 200;
+            const canvas = document.createElement("canvas");
+            let w = img.width,
+              h = img.height;
+            if (w > MAX_SIZE || h > MAX_SIZE) {
+              if (w > h) {
+                h = Math.round((h * MAX_SIZE) / w);
+                w = MAX_SIZE;
+              } else {
+                w = Math.round((w * MAX_SIZE) / h);
+                h = MAX_SIZE;
+              }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+            data.user.avatarDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+            save();
+            renderProfile();
+            showToast("📷", "Photo updated!", "Profile picture saved");
+          };
+          img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       }
 
       function petInteract() {
+        // Bug 11 fix: use CSS class instead of inline transform to avoid animation conflict
         const wrap = document.getElementById("pet-svg-wrap");
         if (wrap) {
-          wrap.style.transform = "scale(1.3) rotate(10deg)";
-          setTimeout(() => (wrap.style.transform = ""), 300);
+          wrap.classList.add("pet-interact");
+          setTimeout(() => wrap.classList.remove("pet-interact"), 300);
         }
         addXP(1);
+        // Bug 1 fix: call refreshDashboard after addXP so GPA card is not corrupted
+        refreshDashboard();
         const moods = [
           "Excited! 🎉",
           "Happy 😊",
@@ -7294,7 +7664,10 @@
         // Sessions
         const sessEl = document.getElementById("dashboard-sessions");
         if (sessEl) {
-          const lastSess = data.sessions.slice(-5).reverse();
+          // Bug 23 fix: sort by date before slicing to handle out-of-order imports
+          const lastSess = [...data.sessions]
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 5);
           if (!lastSess.length) {
             sessEl.innerHTML =
               '<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg></div><div class="empty-text">No sessions yet. Start the timer!</div></div>';
@@ -7368,12 +7741,21 @@
       }
 
       // ===================== SETTINGS =====================
+      // Bug 13 fix: explicitly set or remove 'on' class based on data
       function loadSettings() {
         const s = data.settings;
-        if (!s.digest)
-          document.getElementById("toggle-digest").classList.remove("on");
-        if (!s.sound)
-          document.getElementById("toggle-sound").classList.remove("on");
+        const digestEl = document.getElementById("toggle-digest");
+        const soundEl = document.getElementById("toggle-sound");
+        if (digestEl) {
+          s.digest
+            ? digestEl.classList.add("on")
+            : digestEl.classList.remove("on");
+        }
+        if (soundEl) {
+          s.sound
+            ? soundEl.classList.add("on")
+            : soundEl.classList.remove("on");
+        }
       }
       function toggleSetting(key, el) {
         el.classList.toggle("on");
@@ -7397,10 +7779,19 @@
       }
 
       // ===================== SOUND =====================
+      // Bug 25 fix: reuse a single AudioContext instead of creating one per call
+      let _audioCtx = null;
+      function getAudioCtx() {
+        if (!_audioCtx)
+          _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return _audioCtx;
+      }
       function playSound(type) {
         if (!data.settings.sound) return;
         try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const ctx = getAudioCtx();
+          // Resume suspended AudioContext (browser autoplay policy)
+          if (ctx.state === "suspended") ctx.resume();
           if (type === "ding") {
             // Rich bell sound
             const osc1 = ctx.createOscillator();
@@ -7471,12 +7862,15 @@
       }
 
       // ===================== UTIL =====================
+      // Bug 6 fix: handle null/undefined, coerce to string, escape single quotes
       function escHtml(s) {
-        return s
+        if (s == null) return "";
+        return String(s)
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;");
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
       }
 
       // ===================== QUADRANT SELECTION =====================
@@ -7524,6 +7918,8 @@
           focusRing.style.strokeDasharray =
             mainRing.style.strokeDasharray || CIRCUMFERENCE;
           focusRing.style.strokeDashoffset = mainRing.style.strokeDashoffset;
+          // Bug 17 fix: copy stroke color so break mode shows correct color
+          focusRing.style.stroke = mainRing.style.stroke;
         }
         const mainLbl = document.getElementById("timer-mode-text");
         const focusLbl = document.getElementById("focus-mode-lbl");
@@ -7575,18 +7971,25 @@
       let matrixDragId = null;
       function matrixDragStart(e) {
         matrixDragId = +e.currentTarget.dataset.id;
+        // Also set unified taskDragId so dropToQuadrant works
+        taskDragId = matrixDragId;
         e.dataTransfer.setData("text/plain", matrixDragId);
+        e.dataTransfer.effectAllowed = "move";
       }
       function dropToQuadrant(e, quadrant) {
         e.preventDefault();
-        if (!matrixDragId) return;
-        const task = data.tasks.find((t) => t.id === matrixDragId);
+        const dragId = taskDragId || matrixDragId;
+        if (!dragId) return;
+        const task = data.tasks.find((t) => t.id === dragId);
         if (task) {
           task.priority = quadrant;
           save();
           renderMatrix();
+          renderTasks();
         }
         matrixDragId = null;
+        taskDragId = null;
+        taskDragQuadrant = null;
       }
 
       // ===================== CALENDAR =====================
@@ -7632,7 +8035,11 @@
 
           // Gather events
           const exams = data.exams.filter((e) => e.date === dateStr);
+          // Bug 15 fix: show tasks by dueDate when available, fall back to createdAt
           const tasks = data.tasks.filter((t) => {
+            if (t.dueDate) {
+              return t.dueDate.startsWith(dateStr);
+            }
             const td = new Date(t.createdAt);
             return (
               td.getFullYear() === calYear &&
@@ -7932,22 +8339,46 @@
         if (wGPA)
           wGPA.textContent = overallGPA !== null ? overallGPA.toFixed(2) : "—";
 
-        // Module count (always from all grades)
-        const allModules = new Set(data.grades.map((g) => g.module));
-        if (mods) mods.textContent = allModules.size;
+        // Module count — now computed from filtered stats below
+        // (moved to filtered grades section)
 
         // ── Semester-filtered GPA (shown separately if a sem filter is active) ─
         // The wGPA card always shows overall; if you want per-sem you can add a
         // second element. For now we keep existing behaviour and simply ensure
         // the semFilter is respected in the entry list below.
 
-        // ── Simple descriptive stats (all entries) ────────────────────────────
-        const scores = data.grades.map((g) => g.actual);
-        if (avg)
-          avg.textContent = scores.length
-            ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) +
-              "%"
-            : "—";
+        // ── Simple descriptive stats — use filtered grades ─────────────────
+        // Bug 14/18 fix: apply same filters for Semester Avg, Best Score, Modules
+        let statsGrades = data.grades.slice();
+        if (subjFilter !== "all")
+          statsGrades = statsGrades.filter((g) => g.module === subjFilter);
+        if (semFilter !== "all") {
+          const semSubjects = (data.subjects || [])
+            .filter((s) => s.semester === semFilter)
+            .map((s) => s.name);
+          statsGrades = statsGrades.filter((g) =>
+            semSubjects.includes(g.module),
+          );
+        }
+        const filteredModules = new Set(statsGrades.map((g) => g.module));
+        if (mods) mods.textContent = filteredModules.size;
+        // Use weighted average: Sum(score × weight) / Sum(weights)
+        if (avg) {
+          if (statsGrades.length) {
+            const totalWeight = statsGrades.reduce(
+              (sum, g) => sum + (g.weight || 20),
+              0,
+            );
+            const weightedSum = statsGrades.reduce(
+              (sum, g) => sum + g.actual * (g.weight || 20),
+              0,
+            );
+            avg.textContent = (weightedSum / totalWeight).toFixed(1) + "%";
+          } else {
+            avg.textContent = "—";
+          }
+        }
+        const scores = statsGrades.map((g) => g.actual);
         if (best)
           best.textContent = scores.length ? Math.max(...scores) + "%" : "—";
 
@@ -8096,7 +8527,15 @@
           try {
             const imported = JSON.parse(e.target.result);
             // Validate basic structure
-            if (!imported.tasks || !imported.gamification) {
+            // Relaxed validation: only check it's an object with at least one known key
+            if (
+              typeof imported !== "object" ||
+              imported === null ||
+              (!imported.tasks &&
+                !imported.gamification &&
+                !imported.grades &&
+                !imported.user)
+            ) {
               showToast(
                 "⚠️",
                 "Invalid file",
@@ -8110,12 +8549,26 @@
               )
             ) {
               data = imported;
+              // Bug 21 fix: default all critical arrays if missing
               if (!data.grades) data.grades = [];
               if (!data.subjects) data.subjects = [];
+              if (!data.sessions) data.sessions = [];
+              if (!data.exams) data.exams = [];
+              if (!data.tasks) data.tasks = [];
               if (!data.categories)
                 data.categories = JSON.parse(
                   JSON.stringify(DEFAULT_CATEGORIES),
                 );
+              if (!data.gamification)
+                data.gamification = JSON.parse(
+                  JSON.stringify(DEFAULT_DATA.gamification),
+                );
+              if (!data.settings)
+                data.settings = JSON.parse(
+                  JSON.stringify(DEFAULT_DATA.settings),
+                );
+              if (!data.user)
+                data.user = JSON.parse(JSON.stringify(DEFAULT_DATA.user));
               if (!data.user.avatarDataUrl) data.user.avatarDataUrl = null;
               if (!data.user.firstName) data.user.firstName = "";
               if (!data.user.lastName) data.user.lastName = "";
@@ -8168,20 +8621,25 @@
         // Clock updates every second
         setInterval(updateClock, 1000);
 
-        // Staggered animation — run after a tick so content is visible first
-        setTimeout(() => {
+        // Bug 19 fix: set opacity to 0 first WITHOUT the 100ms visible-then-hidden flash
+        document
+          .querySelectorAll(".stat-card,.card,.welcome-banner")
+          .forEach((el) => {
+            el.style.opacity = "0";
+            el.style.transform = "translateY(20px)";
+          });
+        // Then animate in on next frame
+        requestAnimationFrame(() => {
           document
             .querySelectorAll(".stat-card,.card,.welcome-banner")
             .forEach((el, i) => {
-              el.style.opacity = "0";
-              el.style.transform = "translateY(20px)";
               setTimeout(() => {
                 el.style.transition = "opacity 0.5s ease,transform 0.5s ease";
                 el.style.opacity = "1";
                 el.style.transform = "translateY(0)";
               }, i * 60);
             });
-        }, 100);
+        });
 
         // Digest
         if (data.settings.digest) {

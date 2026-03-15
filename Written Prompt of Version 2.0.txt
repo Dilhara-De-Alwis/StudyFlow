@@ -1,0 +1,28 @@
+Edit the followings and Rewrite the code again:
+
+
+To Add New Categories in the Tasks Sections and Delete the existing categories
+Also edit task names and category after adding the task basically update 
+Add motivational quote refresh button to the Dashboard section 
+Also add edit exams options to the exams section 
+Add exam time to the exams section 
+Make the side bar collapse and expand option 
+Also rework everything on Analytics section 
+Make the Virtual Pet grow with each level change the SVG with an animation or transition (Let's make 10 seperate svgs for each pet for now, later we can expand the number of svgs)
+Also add edit designation(It is fixed on profile as student in the profile section) 
+Also add the email to the profile
+Also there is a bug that quote on the dashboard section doesn't load up when we refresh and open the project initially. You can remove the quote on the profile and move it to the dashboard only with refresh option
+Set the light mode as default theme
+Remove the profile part from the settings section and move it to profile & XP section
+Let's add 4 more achievements to the profile section that would make more sense
+Let's make the slogan from "Your Academic OS" to "Your Academic Partner"
+Also let's add current time with the date, next to the date with seconds as well on dashboard section
+Also the good morning on the dashboard is hardcoded, let's make that part to change with the current time, From 12AM to 12PM - "Good Morning", From 12PM to 4PM - "Good Afternoon", From 4PM to 12AM - "Good Evening"
+Also let's make the sound more loud to here.
+If you can use icons to the each section and side panels without emojis that might be much more user-friendly I guess.
+Also let's make the timer to start automatically if you were already in a session. example if you study for 25mins, then after that 25mins timer notification arrives as it is now with the updated sound, and then automatically starting the break timer without letting the user to manually turn it on after each study session.
+Also in mobile view there is a bit of misplacement of the header titles and the icon of the side bar, side bar icon shows on top of the header titles which makes the header titles read harder. It was only found on the mobile view.
+Marks cannot be more than 100 and cannot add - values as well, make that part as well
+
+
+You did a great work keep it up mate and thank you.

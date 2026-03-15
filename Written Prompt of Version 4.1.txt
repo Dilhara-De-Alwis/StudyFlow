@@ -1,6 +1,7 @@
 Version v4.1
 
 
+
 01. Bugs in the Side Bar
 Position - Change the position of Calendar and GPA Tracker to the main section from the insights section (Matrix will be merged, mentioned below)
 Number of exams - I can’t see the number of exams that I have to face in future at the sidebar just like the tasks section. Add that too.
