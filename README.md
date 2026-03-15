@@ -22,8 +22,8 @@
   - 📤 **Delegate** (Urgent, Not Important)
   - 🗑️ **Eliminate** (Not Urgent, Not Important)
 - Full **drag-and-drop** between all quadrants and within quadrants
-- Filter by status (All / Active / Completed) and category
-- Due date tracking with calendar indicators
+- Filter by status (All / Today / Yesterday / Last 7 Days) and category
+- Due date tracking with overdue alerts
 - Custom category management with color coding
 
 ### 📅 Exams
@@ -62,7 +62,7 @@
 - Customizable name, designation, degree, university, email
 - Avatar upload with auto-resize
 - **Gamification**: Earn XP for completing tasks, study sessions, and pet interactions
-- Level progression (1–10) with evolving study pets
+- Level progression (1–100) with evolving study pets
 - Pet choices: 🦉 Owl, 🦊 Fox, 🐉 Dragon, 🤖 Robot
 - Badge system for milestones
 
@@ -80,7 +80,7 @@
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+|-------|------------|
 | Structure | HTML5 (single file) |
 | Styling | Vanilla CSS with CSS custom properties |
 | Logic | Vanilla JavaScript (ES6+) |
@@ -95,14 +95,19 @@
 
 ## 🚀 Getting Started
 
-### Option 1 — Open directly
-Double-click `Index.html` in your file explorer. It works in any modern browser.
+### Option 1 — Live Demo
+Open the app directly in your browser — no installation needed:
+👉 [https://playful-hotteok-0d1547.netlify.app/](https://playful-hotteok-0d1547.netlify.app/)
 
-### Option 2 — Local server (recommended for full features)
+### Option 2 — Run Locally
+Clone the repo and open `index.html` directly in any modern browser:
+
 ```bash
-npx -y http-server ./ -p 8080 -c-1
+git clone https://github.com/Dilhara-De-Alwis/StudyFlow.git
+cd StudyFlow
 ```
-Then open [http://localhost:8080/Index.html](http://localhost:8080/Index.html)
+
+Then double-click `index.html` in your file explorer — no server required.
 
 ---
 
@@ -111,7 +116,7 @@ Then open [http://localhost:8080/Index.html](http://localhost:8080/Index.html)
 Fully responsive with 4 breakpoints:
 
 | Breakpoint | Target |
-|-----------|--------|
+|------------|--------|
 | > 1023px | Desktop — full sidebar |
 | ≤ 1023px | Tablet — hamburger menu, collapsible sidebar with backdrop |
 | ≤ 640px | Mobile — stacked layouts, full-width modals, compact stat cards |
@@ -133,10 +138,15 @@ Touch-friendly: action buttons always visible (no hover required), larger tap ta
 ## 📂 Project Structure
 
 ```
-Mini_Project/
-├── Index.html       ← Main application (single-file SPA)
-├── new_index.html   ← Development/testing copy
-└── README.md        ← This file
+StudyFlow/
+├── index.html                            ← Main application (single-file SPA)
+├── README.md                             ← This file
+├── FULL_CHANGELOG.md                     ← Full version history (v1.0 → v4.3)
+├── Enhanced Prompt of Version 1.0.txt    ← Refined AI build prompt for v1.0
+├── Written Prompt of Version 1.0.txt     ← Original feature spec for v1.0
+├── Written Prompt of Version 2.0.txt     ← Feature spec and bug list for v2.0
+├── Written Prompt of Version 3.0.txt     ← Feature spec and bug list for v3.0
+└── Written Prompt of Version 4.1.txt     ← Feature spec and bug list for v4.1
 ```
 
 ---
